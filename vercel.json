@@ -1,4 +1,9 @@
 {
+  "functions": {
+    "api/**/*.cjs": {
+      "includeFiles": "server/odoo_cache.db"
+    }
+  },
   "rewrites": [
     {
       "source": "/api/(.*)",
