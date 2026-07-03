@@ -155,5 +155,9 @@ app.get('/api/produce', (req, res) => {
   }
 });
 
-const PORT = 3001;
-app.listen(PORT, () => console.log(`Odoo proxy server running on port ${PORT} (SQLite backed)`));
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+  const PORT = 3001;
+  app.listen(PORT, () => console.log(`Odoo proxy server running on port ${PORT} (SQLite backed)`));
+}
+
+module.exports = app;

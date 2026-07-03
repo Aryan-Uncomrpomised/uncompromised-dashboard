@@ -1,11 +1,14 @@
 const Database = require('better-sqlite3');
 const path = require('path');
 
+const isVercel = !!process.env.VERCEL;
 const dbPath = path.join(__dirname, 'odoo_cache.db');
-const db = new Database(dbPath);
+const db = new Database(dbPath, { readonly: isVercel });
 
-// Enable WAL mode for better concurrent performance
-db.pragma('journal_mode = WAL');
+// Enable WAL mode for better concurrent performance (skip on Vercel since it's read-only)
+if (!isVercel) {
+  db.pragma('journal_mode = WAL');
+}
 
 // Initialize schema
 const initDB = () => {
