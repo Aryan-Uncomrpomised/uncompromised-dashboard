@@ -199,9 +199,21 @@ app.get('/api/produce', (req, res) => {
   }
 });
 
-if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
-  const PORT = 3001;
-  app.listen(PORT, () => console.log(`Odoo proxy server running on port ${PORT} (SQLite backed)`));
+const path = require('path');
+
+// Serve static frontend files in production
+if (process.env.NODE_ENV === 'production') {
+  // Assuming the build folder is in ../dist (relative to server directory)
+  const distPath = path.join(__dirname, '..', 'dist');
+  app.use(express.static(distPath));
+
+  // Catch-all route to serve React app for client-side routing
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(distPath, 'index.html'));
+  });
 }
+
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => console.log(`Odoo proxy server running on port ${PORT} (SQLite backed)`));
 
 module.exports = app;
