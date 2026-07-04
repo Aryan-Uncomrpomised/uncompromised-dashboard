@@ -180,7 +180,7 @@ async function syncVendorBills() {
     [
       ['parent_state', '=', 'posted'],
       ['move_id.move_type', 'in', ['in_invoice', 'in_receipt', 'in_refund']],
-      ['partner_id.name', 'in', ['Beyond Zero Farms LLP MSME', 'Beyond Zero Farms LLP - Others MSME', 'UF Processing', 'Market produce-MANDI']]
+      ['partner_id.name', 'in', ['Beyond Zero Farms LLP MSME', 'Beyond Zero Farms LLP - Others MSME']]
     ]
   ], {
     fields: ['ref', 'name', 'date', 'partner_id', 'product_id', 'account_id', 'quantity', 'product_uom_id', 'price_unit', 'discount', 'price_total', 'analytic_distribution', 'parent_state'],
