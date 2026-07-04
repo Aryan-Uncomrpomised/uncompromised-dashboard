@@ -2,10 +2,10 @@ const xmlrpc = require('xmlrpc');
 const db = require('./db.cjs');
 const { UOM_RATIO, FARM_CODE_MAPPING } = require('./produceMappings.cjs');
 
-const ODOO_HOST = 'simplability.odoo.com';
-const DB = 'simplability';
-const USERNAME = 'finance@uncompromised.in';
-const API_KEY = '4f8f0054a044ee9d2d4c0f6c1f7f6eff59f753df';
+const ODOO_HOST = process.env.ODOO_HOST || 'simplability.odoo.com';
+const DB = process.env.ODOO_DB || 'simplability';
+const USERNAME = process.env.ODOO_USERNAME || 'finance@uncompromised.in';
+const API_KEY = process.env.ODOO_API_KEY || '4f8f0054a044ee9d2d4c0f6c1f7f6eff59f753df';
 
 const commonClient = xmlrpc.createSecureClient({ host: ODOO_HOST, port: 443, path: '/xmlrpc/2/common' });
 const objectClient = xmlrpc.createSecureClient({ host: ODOO_HOST, port: 443, path: '/xmlrpc/2/object' });
