@@ -178,7 +178,7 @@ async function syncVendorBills() {
   console.log('Syncing Vendor Bills (Produce)...');
   const bills = await executeKw('account.move.line', 'search_read', [
     [
-      ['parent_state', 'in', ['posted', 'draft']],
+      ['parent_state', '=', 'posted'],
       ['move_id.move_type', 'in', ['in_invoice', 'in_receipt', 'in_refund']],
       ['partner_id.name', 'in', ['Beyond Zero Farms LLP MSME', 'Beyond Zero Farms LLP - Others MSME', 'UF Processing', 'Market produce-MANDI']]
     ]
