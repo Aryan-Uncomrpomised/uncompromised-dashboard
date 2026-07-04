@@ -202,6 +202,8 @@ async function syncVendorBills() {
       const pos = productNew.indexOf(']');
       if (pos >= 0) productNew = productNew.substring(pos + 1).trim();
       productNew = productNew.replace('_P', '').trim();
+      // Remove packaging suffixes like (1kg), (500g), (2KG)
+      productNew = productNew.replace(/\s*\(\d+\s*(kg|g|pc|pcs|ltr|ml)\)$/i, '').trim();
 
       const aId = line.account_id ? line.account_id[0] : null;
       const aName = line.account_id ? line.account_id[1] : null;
