@@ -202,7 +202,7 @@ const OperationsDashboard = () => {
 
       {/* KPI Banner */}
       <div className="dashboard-grid">
-        <div className="card stat-card col-span-3">
+        <div className="card stat-card col-span-4">
           <div className="stat-icon" style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }}>
             <Sprout size={24} />
           </div>
@@ -211,7 +211,7 @@ const OperationsDashboard = () => {
             <h3 className="stat-value" style={{ color: '#10b981' }}>{formatNumber(processedData.totalHarvest)} <span style={{fontSize: '14px', color: 'var(--text-muted)'}}>Kg</span></h3>
           </div>
         </div>
-        <div className="card stat-card col-span-3">
+        <div className="card stat-card col-span-4">
           <div className="stat-icon" style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }}>
             <ShoppingCart size={24} />
           </div>
@@ -220,22 +220,13 @@ const OperationsDashboard = () => {
             <h3 className="stat-value" style={{ color: '#3b82f6' }}>{formatNumber(processedData.totalSales)} <span style={{fontSize: '14px', color: 'var(--text-muted)'}}>Kg</span></h3>
           </div>
         </div>
-        <div className="card stat-card col-span-3">
+        <div className="card stat-card col-span-4">
           <div className="stat-icon" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' }}>
             <Trash2 size={24} />
           </div>
           <div className="stat-content">
             <p className="stat-title">Total Spoiled</p>
             <h3 className="stat-value" style={{ color: '#ef4444' }}>{formatNumber(processedData.totalSpoilage)} <span style={{fontSize: '14px', color: 'var(--text-muted)'}}>Kg</span></h3>
-          </div>
-        </div>
-        <div className="card stat-card col-span-3">
-          <div className="stat-icon" style={{ backgroundColor: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b' }}>
-            <DollarSign size={24} />
-          </div>
-          <div className="stat-content">
-            <p className="stat-title">Total Revenue</p>
-            <h3 className="stat-value" style={{ color: '#f59e0b' }}>{formatCurrency(processedData.totalRevenue)}</h3>
           </div>
         </div>
       </div>
@@ -287,7 +278,6 @@ const OperationsDashboard = () => {
                 <th style={{textAlign: 'right', color: '#10b981'}}>Harvest (Kg)</th>
                 <th style={{textAlign: 'right', color: '#3b82f6'}}>Sales (Kg)</th>
                 <th style={{textAlign: 'right', color: '#ef4444'}}>Spoilage (Kg)</th>
-                <th style={{textAlign: 'right', color: '#f59e0b'}}>Revenue</th>
                 <th style={{textAlign: 'right'}}>Unaccounted (Kg)</th>
                 <th style={{textAlign: 'right'}}>Yield Conversion</th>
               </tr>
@@ -299,7 +289,6 @@ const OperationsDashboard = () => {
                   <td style={{textAlign: 'right', fontWeight: 500, color: '#10b981'}}>{formatNumber(row.harvest)}</td>
                   <td style={{textAlign: 'right', fontWeight: 500, color: '#3b82f6'}}>{formatNumber(row.sales)}</td>
                   <td style={{textAlign: 'right', fontWeight: 500, color: '#ef4444'}}>{formatNumber(row.spoilage)}</td>
-                  <td style={{textAlign: 'right', color: '#f59e0b'}}>{formatCurrency(row.revenue)}</td>
                   <td style={{textAlign: 'right', color: 'var(--text-muted)'}}>
                     {row.unaccounted > 0 ? `+${formatNumber(row.unaccounted)}` : formatNumber(row.unaccounted)}
                   </td>
@@ -312,7 +301,7 @@ const OperationsDashboard = () => {
               ))}
               {filteredMatrix.length === 0 && (
                 <tr>
-                  <td colSpan="7" style={{textAlign: 'center', padding: '32px', color: 'var(--text-muted)'}}>No data available.</td>
+                  <td colSpan="6" style={{textAlign: 'center', padding: '32px', color: 'var(--text-muted)'}}>No data available.</td>
                 </tr>
               )}
             </tbody>
