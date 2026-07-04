@@ -8,6 +8,7 @@ import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 
+import SpoilageDashboard from './pages/SpoilageDashboard';
 import ProduceDashboard from './pages/ProduceDashboard';
 import ReceivablesDashboard from './pages/ReceivablesDashboard';
 
@@ -24,7 +25,7 @@ function App() {
                 <Route index element={<Navigate to="/operations" replace />} />
                 <Route path="operations" element={<OperationsDashboard />} />
                 <Route path="sales" element={<SalesDashboard />} />
-                <Route path="spoilage" element={<Placeholder title="Spoilage Dashboard" />} />
+                <Route path="spoilage" element={<SpoilageDashboard />} />
                 <Route path="produce" element={<ProduceDashboard />} />
                 <Route path="receivables" element={<ReceivablesDashboard />} />
               </Route>
