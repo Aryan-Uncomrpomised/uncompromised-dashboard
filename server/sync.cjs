@@ -180,7 +180,7 @@ async function syncVendorBills() {
     [
       ['parent_state', '=', 'posted'],
       ['move_id.move_type', 'in', ['in_invoice', 'in_receipt', 'in_refund']],
-      ['partner_id.name', 'in', ['Beyond Zero Farms LLP MSME', 'Beyond Zero Farms LLP - Others MSME']]
+      ['partner_id.name', '=', 'Beyond Zero Farms LLP MSME']
     ]
   ], {
     fields: ['ref', 'name', 'date', 'partner_id', 'product_id', 'account_id', 'quantity', 'product_uom_id', 'price_unit', 'discount', 'price_total', 'analytic_distribution', 'parent_state'],
@@ -202,8 +202,6 @@ async function syncVendorBills() {
       const pos = productNew.indexOf(']');
       if (pos >= 0) productNew = productNew.substring(pos + 1).trim();
       productNew = productNew.replace('_P', '').trim();
-      // Remove packaging suffixes like (1kg), (500g), (2KG)
-      productNew = productNew.replace(/\s*\(\d+\s*(kg|g|pc|pcs|ltr|ml)\)$/i, '').trim();
 
       const aId = line.account_id ? line.account_id[0] : null;
       const aName = line.account_id ? line.account_id[1] : null;
