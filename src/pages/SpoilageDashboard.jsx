@@ -2,15 +2,24 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { ResponsiveContainer, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, PieChart, Pie, Cell } from 'recharts';
 import { useFilters } from '../context/FilterContext';
 import DateRangePicker from '../components/DateRangePicker';
-import { Trash2, AlertTriangle, Package, Calendar as CalendarIcon } from 'lucide-react';
+import { Trash2, AlertTriangle, Package, Calendar as CalendarIcon, Filter, Search } from 'lucide-react';
 
-const COLORS = ['#f59e0b', '#ef4444', '#8b5cf6', '#10b981', '#3b82f6'];
+const COLORS = ['#f59e0b', '#ef4444', '#8b5cf6', '#10b981', '#3b82f6', '#ec4899', '#14b8a6'];
 
 const SpoilageDashboard = () => {
   const { filters, setFilters } = useFilters();
   const [rawData, setRawData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState('All Categories');
+  
+  // Page-Level Filter
+  const [globalCategory, setGlobalCategory] = useState('All Categories');
+
+  // Visual-Level Filters
+  const [topCropsCategory, setTopCropsCategory] = useState('All Categories');
+  const [trendCrop, setTrendCrop] = useState('All Crops');
+  const [pieCrop, setPieCrop] = useState('All Crops');
+  const [tableSearch, setTableSearch] = useState('');
+  const [pivotSearch, setPivotSearch] = useState('');
 
   useEffect(() => {
     fetch('/api/spoilage')
@@ -25,7 +34,8 @@ const SpoilageDashboard = () => {
       });
   }, []);
 
-  const processedData = useMemo(() => {
+  // 1. Base Filtered Data (applies to EVERYTHING on the page)
+  const baseData = useMemo(() => {
     let filtered = rawData;
 
     if (filters.startDate) {
@@ -41,84 +51,166 @@ const SpoilageDashboard = () => {
       });
     }
 
-    let totalSpoilage = 0;
-    const dailyMap = {};
-    const categoryMap = {};
-    const cropMap = {};
-    const availableCategories = new Set();
-    
-    // Sort raw data by date descending for the table
-    const tableData = [];
-
-    filtered.forEach(line => {
-      const category = line.partner || 'Unknown';
-      availableCategories.add(category);
-
-      if (selectedCategory !== 'All Categories' && category !== selectedCategory) {
-        return;
-      }
-
-      const qty = line.revised_qty || 0;
-      if (qty === 0) return;
-
-      totalSpoilage += qty;
-      const date = line.date ? line.date.split(' ')[0] : 'Unknown';
-      const product = line.product || 'Unknown Product';
-
-      tableData.push({
-        date,
-        category,
-        product,
-        qty,
-        value: line.value || 0
-      });
-
-      // Daily Aggregation
-      if (!dailyMap[date]) dailyMap[date] = { date, qty: 0 };
-      dailyMap[date].qty += qty;
-
-      // Category Aggregation
-      if (!categoryMap[category]) categoryMap[category] = 0;
-      categoryMap[category] += qty;
-
-      // Crop Aggregation
-      let cleanProduct = product;
-      if (cleanProduct.includes(']')) {
-        cleanProduct = cleanProduct.split(']')[1].trim();
-      }
-      cleanProduct = cleanProduct.replace(/_P$/, '').trim();
-      
-      if (!cropMap[cleanProduct]) cropMap[cleanProduct] = 0;
-      cropMap[cleanProduct] += qty;
-    });
-
-    const dailyTrend = Object.values(dailyMap).sort((a, b) => a.date.localeCompare(b.date));
-    
-    const categoryChartData = Object.keys(categoryMap)
-      .map(k => ({ name: k, value: Number(categoryMap[k].toFixed(2)) }))
-      .sort((a, b) => b.value - a.value);
-
-    let highestCategory = 'None';
-    if (categoryChartData.length > 0) {
-      highestCategory = categoryChartData[0].name;
+    if (globalCategory !== 'All Categories') {
+      filtered = filtered.filter(item => (item.partner || 'Unknown') === globalCategory);
     }
 
-    const topCrops = Object.keys(cropMap)
+    // Prepare distinct lists for dropdowns
+    const availableCategories = new Set();
+    const availableCrops = new Set();
+
+    filtered.forEach(line => {
+      availableCategories.add(line.partner || 'Unknown');
+      
+      let cleanProduct = line.product || 'Unknown Product';
+      if (cleanProduct.includes(']')) cleanProduct = cleanProduct.split(']')[1].trim();
+      cleanProduct = cleanProduct.replace(/_P$/, '').trim();
+      availableCrops.add(cleanProduct);
+    });
+
+    return {
+      lines: filtered,
+      categoryOptions: Array.from(availableCategories).sort(),
+      cropOptions: Array.from(availableCrops).sort()
+    };
+  }, [rawData, filters, globalCategory]);
+
+  // 2. Top Stats
+  const topStats = useMemo(() => {
+    let totalSpoilage = 0;
+    const cropMap = new Set();
+    const categoryMap = {};
+
+    baseData.lines.forEach(line => {
+      const qty = line.revised_qty || 0;
+      totalSpoilage += qty;
+      
+      let cleanProduct = line.product || 'Unknown Product';
+      if (cleanProduct.includes(']')) cleanProduct = cleanProduct.split(']')[1].trim();
+      cleanProduct = cleanProduct.replace(/_P$/, '').trim();
+      cropMap.add(cleanProduct);
+
+      const category = line.partner || 'Unknown';
+      categoryMap[category] = (categoryMap[category] || 0) + qty;
+    });
+
+    let highestCategory = 'None';
+    let maxQty = -1;
+    for (const [cat, qty] of Object.entries(categoryMap)) {
+      if (qty > maxQty) {
+        maxQty = qty;
+        highestCategory = cat;
+      }
+    }
+
+    return { totalSpoilage, uniqueCrops: cropMap.size, highestCategory };
+  }, [baseData]);
+
+  // 3. Top 5 Crops (filtered by topCropsCategory)
+  const topCropsData = useMemo(() => {
+    const cropMap = {};
+    baseData.lines.forEach(line => {
+      const category = line.partner || 'Unknown';
+      if (topCropsCategory !== 'All Categories' && category !== topCropsCategory) return;
+      
+      const qty = line.revised_qty || 0;
+      let cleanProduct = line.product || 'Unknown Product';
+      if (cleanProduct.includes(']')) cleanProduct = cleanProduct.split(']')[1].trim();
+      cleanProduct = cleanProduct.replace(/_P$/, '').trim();
+      
+      cropMap[cleanProduct] = (cropMap[cleanProduct] || 0) + qty;
+    });
+
+    return Object.keys(cropMap)
       .map(k => ({ name: k, value: cropMap[k] }))
       .sort((a, b) => b.value - a.value)
       .slice(0, 5);
+  }, [baseData, topCropsCategory]);
 
-    return {
-      totalSpoilage,
-      uniqueCrops: Object.keys(cropMap).length,
-      highestCategory,
-      dailyTrend,
-      categoryChartData,
-      topCrops,
-      tableData: tableData.sort((a, b) => b.date.localeCompare(a.date)),
-      categoryOptions: Array.from(availableCategories).sort()
-    };
-  }, [rawData, filters, selectedCategory]);
+  // 4. Daily Trend (filtered by trendCrop)
+  const trendData = useMemo(() => {
+    const dailyMap = {};
+    baseData.lines.forEach(line => {
+      let cleanProduct = line.product || 'Unknown Product';
+      if (cleanProduct.includes(']')) cleanProduct = cleanProduct.split(']')[1].trim();
+      cleanProduct = cleanProduct.replace(/_P$/, '').trim();
+      
+      if (trendCrop !== 'All Crops' && cleanProduct !== trendCrop) return;
+
+      const date = line.date ? line.date.split(' ')[0] : 'Unknown';
+      const qty = line.revised_qty || 0;
+      if (!dailyMap[date]) dailyMap[date] = { date, qty: 0 };
+      dailyMap[date].qty += qty;
+    });
+
+    return Object.values(dailyMap).sort((a, b) => a.date.localeCompare(b.date));
+  }, [baseData, trendCrop]);
+
+  // 5. Pie Chart (filtered by pieCrop)
+  const pieData = useMemo(() => {
+    const categoryMap = {};
+    baseData.lines.forEach(line => {
+      let cleanProduct = line.product || 'Unknown Product';
+      if (cleanProduct.includes(']')) cleanProduct = cleanProduct.split(']')[1].trim();
+      cleanProduct = cleanProduct.replace(/_P$/, '').trim();
+      
+      if (pieCrop !== 'All Crops' && cleanProduct !== pieCrop) return;
+
+      const category = line.partner || 'Unknown';
+      const qty = line.revised_qty || 0;
+      categoryMap[category] = (categoryMap[category] || 0) + qty;
+    });
+
+    return Object.keys(categoryMap)
+      .filter(k => categoryMap[k] > 0)
+      .map(k => ({ name: k, value: Number(categoryMap[k].toFixed(2)) }))
+      .sort((a, b) => b.value - a.value);
+  }, [baseData, pieCrop]);
+
+  // 6. Pivot Table (Crop x Category Matrix)
+  const pivotTableData = useMemo(() => {
+    const pivotMap = {};
+    baseData.lines.forEach(line => {
+      let cleanProduct = line.product || 'Unknown Product';
+      if (cleanProduct.includes(']')) cleanProduct = cleanProduct.split(']')[1].trim();
+      cleanProduct = cleanProduct.replace(/_P$/, '').trim();
+
+      if (pivotSearch && !cleanProduct.toLowerCase().includes(pivotSearch.toLowerCase())) return;
+
+      const category = line.partner || 'Unknown';
+      const qty = line.revised_qty || 0;
+
+      if (!pivotMap[cleanProduct]) {
+        pivotMap[cleanProduct] = { product: cleanProduct, total: 0 };
+      }
+      if (!pivotMap[cleanProduct][category]) {
+        pivotMap[cleanProduct][category] = 0;
+      }
+      pivotMap[cleanProduct][category] += qty;
+      pivotMap[cleanProduct].total += qty;
+    });
+
+    return Object.values(pivotMap).sort((a, b) => b.total - a.total);
+  }, [baseData, pivotSearch]);
+
+  // 7. Detailed Records Table
+  const tableData = useMemo(() => {
+    const data = [];
+    baseData.lines.forEach(line => {
+      const date = line.date ? line.date.split(' ')[0] : 'Unknown';
+      const category = line.partner || 'Unknown';
+      const product = line.product || 'Unknown Product';
+      let cleanProduct = product;
+      if (cleanProduct.includes(']')) cleanProduct = cleanProduct.split(']')[1].trim();
+      cleanProduct = cleanProduct.replace(/_P$/, '').trim();
+
+      if (tableSearch && !cleanProduct.toLowerCase().includes(tableSearch.toLowerCase())) return;
+
+      data.push({ date, category, product: cleanProduct, qty: line.revised_qty || 0 });
+    });
+    return data.sort((a, b) => b.date.localeCompare(a.date));
+  }, [baseData, tableSearch]);
+
 
   if (loading) {
     return (
@@ -142,23 +234,24 @@ const SpoilageDashboard = () => {
 
   return (
     <div className="animate-fade-in space-y-6">
+      {/* Header & Global Filters */}
       <div className="mb-8" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
           <h1 style={{ fontSize: '24px', fontWeight: 700, color: 'var(--text-primary)' }}>Spoilage Dashboard</h1>
           <p style={{ color: 'var(--text-muted)', marginTop: '4px' }}>Track spoilage, decay, and pilferage across all crops.</p>
         </div>
         
-        {/* Local Filter Bar */}
         <div style={{ display: 'flex', gap: '16px', background: 'var(--glass-bg)', padding: '12px 20px', borderRadius: '16px', border: 'var(--glass-border)', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
           <div className="flex items-center gap-4">
+            <span style={{ fontSize: '14px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}><Filter size={14}/> Page Filter:</span>
             <select 
               className="drp-trigger" 
-              style={{ width: 'auto', appearance: 'auto', background: 'var(--bg-secondary)' }}
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
+              style={{ width: 'auto', appearance: 'auto', background: 'var(--bg-secondary)', padding: '6px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
+              value={globalCategory}
+              onChange={(e) => setGlobalCategory(e.target.value)}
             >
               <option value="All Categories">All Categories</option>
-              {processedData.categoryOptions.map(c => (
+              {baseData.categoryOptions.map(c => (
                 <option key={c} value={c}>{c}</option>
               ))}
             </select>
@@ -175,7 +268,7 @@ const SpoilageDashboard = () => {
           </div>
           <div className="stat-content">
             <p className="stat-title">Total Spoilage (Kg)</p>
-            <h3 className="stat-value" style={{ color: '#ef4444' }}>{formatNumber(processedData.totalSpoilage)}</h3>
+            <h3 className="stat-value" style={{ color: '#ef4444' }}>{formatNumber(topStats.totalSpoilage)}</h3>
           </div>
         </div>
         <div className="card stat-card col-span-4">
@@ -184,7 +277,7 @@ const SpoilageDashboard = () => {
           </div>
           <div className="stat-content">
             <p className="stat-title">Crops Spoiled</p>
-            <h3 className="stat-value">{processedData.uniqueCrops}</h3>
+            <h3 className="stat-value">{topStats.uniqueCrops}</h3>
           </div>
         </div>
         <div className="card stat-card col-span-4">
@@ -194,7 +287,7 @@ const SpoilageDashboard = () => {
           <div className="stat-content">
             <p className="stat-title">Top Category</p>
             <h3 className="stat-value" style={{ fontSize: '1.25rem', display: 'flex', alignItems: 'center' }}>
-              {processedData.highestCategory.replace('Spoilage ', '')}
+              {topStats.highestCategory.replace('Spoilage ', '')}
             </h3>
           </div>
         </div>
@@ -202,18 +295,26 @@ const SpoilageDashboard = () => {
 
       {/* Top 5 Crops */}
       <div className="card">
-        <div className="card-header">
-          <span className="card-title">Top 5 Spoiled Crops (This Period)</span>
+        <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span className="card-title">Top 5 Spoiled Crops</span>
+          <select 
+            style={{ padding: '4px 8px', borderRadius: '6px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '12px', outline: 'none' }}
+            value={topCropsCategory}
+            onChange={(e) => setTopCropsCategory(e.target.value)}
+          >
+            <option value="All Categories">All Categories</option>
+            {baseData.categoryOptions.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '16px', padding: '16px' }}>
-          {processedData.topCrops.map((crop, idx) => (
+          {topCropsData.map((crop, idx) => (
             <div key={idx} style={{ padding: '16px', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
               <span style={{ fontSize: '14px', color: '#ef4444', fontWeight: 'bold', marginBottom: '4px' }}>#{idx + 1}</span>
               <span style={{ fontSize: '14px', color: 'var(--text-primary)', fontWeight: '500', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }} title={crop.name}>{crop.name}</span>
               <span style={{ fontSize: '18px', fontWeight: 'bold', marginTop: '8px', color: 'var(--text-primary)' }}>{formatNumber(crop.value)} Kg</span>
             </div>
           ))}
-          {processedData.topCrops.length === 0 && (
+          {topCropsData.length === 0 && (
             <div style={{ gridColumn: '1 / -1', textAlign: 'center', color: 'var(--text-muted)', padding: '16px 0' }}>No spoilage recorded in this period.</div>
           )}
         </div>
@@ -222,12 +323,20 @@ const SpoilageDashboard = () => {
       {/* Charts */}
       <div className="dashboard-grid">
         <div className="card col-span-12 md:col-span-7">
-          <div className="card-header">
+          <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span className="card-title flex items-center gap-2"><CalendarIcon size={18} /> Daily Spoilage Trend (Kg)</span>
+            <select 
+              style={{ padding: '4px 8px', borderRadius: '6px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '12px', outline: 'none', maxWidth: '150px' }}
+              value={trendCrop}
+              onChange={(e) => setTrendCrop(e.target.value)}
+            >
+              <option value="All Crops">All Crops</option>
+              {baseData.cropOptions.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
           </div>
           <div style={{ height: '300px', marginTop: '16px' }}>
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={processedData.dailyTrend} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+              <LineChart data={trendData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" />
                 <XAxis dataKey="date" stroke="var(--text-muted)" tick={{fill: 'var(--text-muted)'}} />
                 <YAxis stroke="var(--text-muted)" tick={{fill: 'var(--text-muted)'}} />
@@ -242,15 +351,23 @@ const SpoilageDashboard = () => {
         </div>
 
         <div className="card col-span-12 md:col-span-5">
-          <div className="card-header">
+          <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span className="card-title">Spoilage Breakdown</span>
+            <select 
+              style={{ padding: '4px 8px', borderRadius: '6px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '12px', outline: 'none', maxWidth: '120px' }}
+              value={pieCrop}
+              onChange={(e) => setPieCrop(e.target.value)}
+            >
+              <option value="All Crops">All Crops</option>
+              {baseData.cropOptions.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
           </div>
           <div style={{ height: '300px', marginTop: '16px' }}>
-            {processedData.categoryChartData.length > 0 ? (
+            {pieData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
-                    data={processedData.categoryChartData}
+                    data={pieData}
                     cx="50%"
                     cy="50%"
                     innerRadius={60}
@@ -261,7 +378,7 @@ const SpoilageDashboard = () => {
                     label={({ name, percent }) => `${name.replace('Spoilage ', '')} ${(percent * 100).toFixed(0)}%`}
                     labelLine={false}
                   >
-                    {processedData.categoryChartData.map((entry, index) => (
+                    {pieData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
@@ -282,10 +399,68 @@ const SpoilageDashboard = () => {
         </div>
       </div>
 
-      {/* Data Table */}
+      {/* Pivot Matrix Table */}
       <div className="card">
-        <div className="card-header">
+        <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span className="card-title">Spoilage Matrix: Crop by Category</span>
+          <div style={{ position: 'relative' }}>
+            <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+            <input 
+              type="text" 
+              placeholder="Search Crop..." 
+              value={pivotSearch}
+              onChange={(e) => setPivotSearch(e.target.value)}
+              style={{ padding: '6px 12px 6px 30px', borderRadius: '8px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '13px', outline: 'none' }}
+            />
+          </div>
+        </div>
+        <div className="data-table-container" style={{ marginTop: '16px' }}>
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th style={{textAlign: 'left'}}>Crop</th>
+                {baseData.categoryOptions.map(cat => (
+                  <th key={cat} style={{textAlign: 'right'}}>{cat.replace('Spoilage ', '')}</th>
+                ))}
+                <th style={{textAlign: 'right'}}>Total Spoilage</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pivotTableData.map((row, idx) => (
+                <tr key={idx}>
+                  <td style={{fontWeight: 500}}>{row.product}</td>
+                  {baseData.categoryOptions.map(cat => (
+                    <td key={cat} style={{textAlign: 'right', color: 'var(--text-muted)'}}>
+                      {row[cat] ? formatNumber(row[cat]) : '-'}
+                    </td>
+                  ))}
+                  <td style={{textAlign: 'right', fontWeight: 600, color: 'var(--color-danger)'}}>{formatNumber(row.total)}</td>
+                </tr>
+              ))}
+              {pivotTableData.length === 0 && (
+                <tr>
+                  <td colSpan={baseData.categoryOptions.length + 2} style={{textAlign: 'center', padding: '32px', color: 'var(--text-muted)'}}>No crops found.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Raw Data Table */}
+      <div className="card">
+        <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span className="card-title">Detailed Spoilage Records</span>
+          <div style={{ position: 'relative' }}>
+            <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+            <input 
+              type="text" 
+              placeholder="Search Crop..." 
+              value={tableSearch}
+              onChange={(e) => setTableSearch(e.target.value)}
+              style={{ padding: '6px 12px 6px 30px', borderRadius: '8px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '13px', outline: 'none' }}
+            />
+          </div>
         </div>
         <div className="data-table-container" style={{ marginTop: '16px' }}>
           <table className="data-table">
@@ -298,7 +473,7 @@ const SpoilageDashboard = () => {
               </tr>
             </thead>
             <tbody>
-              {processedData.tableData.slice(0, 50).map((row, idx) => (
+              {tableData.slice(0, 50).map((row, idx) => (
                 <tr key={idx}>
                   <td style={{color: 'var(--text-muted)'}}>{row.date}</td>
                   <td><span className="status-badge" style={{background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444'}}>{row.category}</span></td>
@@ -306,16 +481,16 @@ const SpoilageDashboard = () => {
                   <td style={{textAlign: 'right', fontWeight: 600, color: 'var(--color-danger)'}}>{formatNumber(row.qty)}</td>
                 </tr>
               ))}
-              {processedData.tableData.length === 0 && (
+              {tableData.length === 0 && (
                 <tr>
                   <td colSpan="4" style={{textAlign: 'center', padding: '32px', color: 'var(--text-muted)'}}>No spoilage records found.</td>
                 </tr>
               )}
             </tbody>
           </table>
-          {processedData.tableData.length > 50 && (
+          {tableData.length > 50 && (
             <div style={{textAlign: 'center', padding: '12px', color: 'var(--text-muted)', fontSize: '14px'}}>
-              Showing latest 50 records of {processedData.tableData.length} total.
+              Showing latest 50 records of {tableData.length} total.
             </div>
           )}
         </div>
