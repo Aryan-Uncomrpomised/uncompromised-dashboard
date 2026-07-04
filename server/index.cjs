@@ -141,6 +141,49 @@ app.get('/api/receivables', (req, res) => {
   }
 });
 
+// Spoilage
+app.get('/api/spoilage', (req, res) => {
+  try {
+    const lines = db.prepare(`
+      SELECT date, partner_id_name, product_id_name, quantity, price_unit
+      FROM move_lines
+      WHERE account_type = 'income'
+      AND parent_state = 'posted'
+      AND partner_id_name IN ('Beyond Zero Farms LLP MSME', 'Spoilage  Pilferage', 'Spoilage Decay', 'Spoilage Sorting')
+      ORDER BY date DESC
+    `).all();
+
+    const processedLines = lines.map(line => {
+      let factor = 1;
+      if (line.product_id_name) {
+        const variantMatch = line.product_id_name.match(/\((.*?)\)$/);
+        if (variantMatch) {
+          const variant = variantMatch[1].toLowerCase().replace(/\s/g, '');
+          if (variant.includes('kg')) {
+            const num = parseFloat(variant.replace(/[^\d.]/g, ''));
+            if (!isNaN(num)) factor = num;
+          } else if (variant.includes('g') || variant.includes('gm') || variant.includes('gms')) {
+            const num = parseFloat(variant.replace(/[^\d.]/g, ''));
+            if (!isNaN(num)) factor = num / 1000;
+          }
+        }
+      }
+      return {
+        date: line.date,
+        partner: line.partner_id_name,
+        product: line.product_id_name,
+        revised_qty: line.quantity * factor,
+        value: (line.quantity * factor) * line.price_unit
+      };
+    });
+
+    res.json({ lines: processedLines });
+  } catch (err) {
+    console.error('Error fetching spoilage:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Produce
 app.get('/api/produce', (req, res) => {
   try {
