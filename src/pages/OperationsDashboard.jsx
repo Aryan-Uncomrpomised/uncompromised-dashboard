@@ -114,7 +114,7 @@ const OperationsDashboard = () => {
         yieldPercent: crop.harvest > 0 ? ((crop.sales / crop.harvest) * 100) : 0,
         unaccounted: crop.harvest - crop.sales - crop.spoilage
       }))
-      .filter(crop => crop.harvest > 0 || crop.sales > 0 || crop.spoilage > 0)
+      .filter(crop => crop.harvest > 0)
       .sort((a, b) => b.harvest - a.harvest);
 
     // 2. Compute Timeline Data
@@ -193,7 +193,7 @@ const OperationsDashboard = () => {
 
       {/* KPI Banner */}
       <div className="dashboard-grid">
-        <div className="card stat-card col-span-12 md:col-span-3">
+        <div className="card stat-card col-span-3">
           <div className="stat-icon" style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }}>
             <Sprout size={24} />
           </div>
@@ -202,7 +202,7 @@ const OperationsDashboard = () => {
             <h3 className="stat-value" style={{ color: '#10b981' }}>{formatNumber(processedData.totalHarvest)} <span style={{fontSize: '14px', color: 'var(--text-muted)'}}>Kg</span></h3>
           </div>
         </div>
-        <div className="card stat-card col-span-12 md:col-span-3">
+        <div className="card stat-card col-span-3">
           <div className="stat-icon" style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }}>
             <ShoppingCart size={24} />
           </div>
@@ -211,7 +211,7 @@ const OperationsDashboard = () => {
             <h3 className="stat-value" style={{ color: '#3b82f6' }}>{formatNumber(processedData.totalSales)} <span style={{fontSize: '14px', color: 'var(--text-muted)'}}>Kg</span></h3>
           </div>
         </div>
-        <div className="card stat-card col-span-12 md:col-span-3">
+        <div className="card stat-card col-span-3">
           <div className="stat-icon" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' }}>
             <Trash2 size={24} />
           </div>
@@ -220,7 +220,7 @@ const OperationsDashboard = () => {
             <h3 className="stat-value" style={{ color: '#ef4444' }}>{formatNumber(processedData.totalSpoilage)} <span style={{fontSize: '14px', color: 'var(--text-muted)'}}>Kg</span></h3>
           </div>
         </div>
-        <div className="card stat-card col-span-12 md:col-span-3">
+        <div className="card stat-card col-span-3">
           <div className="stat-icon" style={{ backgroundColor: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b' }}>
             <DollarSign size={24} />
           </div>
