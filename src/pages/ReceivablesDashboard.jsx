@@ -55,8 +55,13 @@ const ReceivablesDashboard = () => {
       const partnerId = line.partner_id ? line.partner_id[0] : 'unknown';
       const partnerName = line.partner_id ? line.partner_id[1] : 'Unknown Customer';
 
+      if (partnerName === 'Beyond Zero Farms LLP - Others MSME') return; // Filter out
+
       if (!customerMap[partnerId]) {
-        customerMap[partnerId] = { id: partnerId, name: partnerName, total: 0, notDue: 0, b1_30: 0, b31_60: 0, b61_90: 0, b91_120: 0, older: 0 };
+        const tags = line.partner_tags || '';
+        const isVFresh = tags.includes('V-Fresh');
+        const poc = isVFresh ? 'Prerna' : '-';
+        customerMap[partnerId] = { id: partnerId, name: partnerName, poc: poc, tags: tags, total: 0, notDue: 0, b1_30: 0, b31_60: 0, b61_90: 0, b91_120: 0, older: 0 };
       }
 
       totalOutstanding += balance;
@@ -248,26 +253,20 @@ const ReceivablesDashboard = () => {
             <table className="data-table" style={{ width: '100%', minWidth: '900px' }}>
               <thead>
                 <tr>
-                  <th colSpan="2" style={{ borderBottom: 'none' }}></th>
-                  <th colSpan="7" style={{ textAlign: 'center', borderBottom: '1px solid var(--border-color)', borderLeft: '1px solid var(--border-color)', borderRight: '1px solid var(--border-color)', padding: '8px' }}>
-                    As of {asOfDate.toLocaleDateString('en-GB')}
-                  </th>
-                </tr>
-                <tr>
-                  <th style={{ textAlign: 'left' }}>Aged Receivable</th>
-                  <th style={{ textAlign: 'left' }}>Invoice Date</th>
-                  <th style={{ textAlign: 'right' }}>At Date</th>
-                  <th style={{ textAlign: 'right' }}>1-30</th>
-                  <th style={{ textAlign: 'right' }}>31-60</th>
-                  <th style={{ textAlign: 'right' }}>61-90</th>
-                  <th style={{ textAlign: 'right' }}>91-120</th>
-                  <th style={{ textAlign: 'right' }}>Older</th>
-                  <th style={{ textAlign: 'right' }}>Total</th>
+                  <th style={{textAlign: 'left'}}>Customer Name</th>
+                  <th style={{textAlign: 'left'}}>POC</th>
+                  <th style={{textAlign: 'right'}}>Not Due</th>
+                  <th style={{textAlign: 'right'}}>1-30 Days</th>
+                  <th style={{textAlign: 'right'}}>31-60 Days</th>
+                  <th style={{textAlign: 'right'}}>61-90 Days</th>
+                  <th style={{textAlign: 'right'}}>91-120 Days</th>
+                  <th style={{textAlign: 'right'}}>Older</th>
+                  <th style={{textAlign: 'right'}}>Total Balance</th>
                 </tr>
               </thead>
               <tbody>
                 <tr style={{ fontWeight: 700, backgroundColor: 'rgba(255,255,255,0.03)' }}>
-                  <td></td>
+                  <td>Total</td>
                   <td></td>
                   <td style={{ textAlign: 'right', color: agedData.notDue < 0 ? 'var(--color-danger)' : 'inherit' }}>{formatCurrency(agedData.notDue)}</td>
                   <td style={{ textAlign: 'right', color: agedData.bucket1_30 < 0 ? 'var(--color-danger)' : 'inherit' }}>{formatCurrency(agedData.bucket1_30)}</td>
@@ -280,7 +279,7 @@ const ReceivablesDashboard = () => {
                 {agedData.customers.map((cust) => (
                   <tr key={cust.id}>
                     <td style={{ fontWeight: 500 }}>{cust.name}</td>
-                    <td></td>
+                    <td>{cust.poc === 'Prerna' ? <span className="status-badge" style={{background: 'rgba(139, 92, 246, 0.1)', color: '#8b5cf6', padding: '2px 8px', borderRadius: '12px', fontSize: '12px'}}>{cust.poc}</span> : <span style={{color: 'var(--text-muted)'}}>{cust.poc}</span>}</td>
                     <td style={{ textAlign: 'right', color: cust.notDue < 0 ? 'var(--color-danger)' : 'inherit' }}>{formatCurrency(cust.notDue)}</td>
                     <td style={{ textAlign: 'right', color: cust.b1_30 < 0 ? 'var(--color-danger)' : 'inherit' }}>{formatCurrency(cust.b1_30)}</td>
                     <td style={{ textAlign: 'right', color: cust.b31_60 < 0 ? 'var(--color-danger)' : 'inherit' }}>{formatCurrency(cust.b31_60)}</td>

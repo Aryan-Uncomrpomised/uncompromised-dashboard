@@ -1,0 +1,1324 @@
+Product Name,Category,Classification
+"Lettuce/लेटस्‌टु","Exotics|Un-Processed",Processed
+"Swiss Chard/स्विस चार्ड_P","Exotics|Un-Processed",Processed
+"Zucchini/ज़ुकीनी_P","Exotics|Un-Processed",Processed
+"Fresh Coriander/ताज़ा धनिया_P ","Fresh Herbs|Un-Processed",Fresh
+"Frozen Corn/जमी हुई मकई  ","Frozen Foods|Processed",Fresh
+"Frozen Peas (shelled)/छिली हुई जमी हुई मटर  ","Frozen Foods|Processed",Processed
+"Frozen Strawberry/जमी हुई स्ट्रॉबेरी  ","Frozen Foods|Processed",Fresh
+"Barbados Cherry/बारबाडोस चेरी_P","Fruits|Un-Processed",Processed
+"Chikoo/चीकू)_P  ","Fruits|Un-Processed",Processed
+"Dussheri Mango/दशहरी आम_P  ","Fruits|Un-Processed",Fresh
+"Guava/अमरूद  ","Fruits|Un-Processed",Fresh
+"Kesar Mango/केसर आम_P ","Fruits|Un-Processed",Fresh
+"Papaya/पपीता_P  ","Fruits|Un-Processed",Fresh
+"Pumpkin /कद्दू_P","Fruits|Un-Processed",Fresh
+"Raw Banana/कच्चा केला_P","Fruits|Un-Processed",Fresh
+"Raw Mango/कच्चा आम_P ","Fruits|Un-Processed",Fresh
+"Raw Papaya/कच्चा पपीता  ","Fruits|Un-Processed",Fresh
+"Badam Aam/सफेदा आम  ","Fruits|Un-Processed",Processed
+"Sitaphal/सीताफल_P","Fruits|Un-Processed",Processed
+"Fresh Peanuts/ताज़ी मूँगफली_P","Nuts|Un-Processed",Fresh
+"Arvi /अरवी_P","Vegetables|Un-Processed",Processed
+"Baby potato/बेबी आलू_P","Vegetables|Un-Processed",Fresh
+"Baingan (bharta)/बैंगन (भरता)_P","Vegetables|Un-Processed",Processed
+"Beetroot /चुकंदर_P","Vegetables|Un-Processed",Processed
+"Beetroot without leaves/पत्तों के बिना चुकंद_P","Vegetables|Un-Processed",Processed
+"Brinjal Long/लंबा बैंगन  ","Vegetables|Un-Processed",Fresh
+"Brinjal Normal [Baingan]/बैंगन_P ","Vegetables|Un-Processed",Fresh
+"Broccoli/ब्रोकोली_P ","Vegetables|Un-Processed",Processed
+"Green Cabbage/हरी पत्तागोभी_P ","Vegetables|Un-Processed",Fresh
+"Carrot/गाजर_P","Vegetables|Un-Processed",Processed
+"Cauliflower (Phool Gobhi)/फूलगोभी_P","Vegetables|Un-Processed",Fresh
+"Cluster Beans (Guar Phali)/ग्वार फली_P ","Vegetables|Un-Processed",Processed
+"Cow pea (Chamla phali)/लोबिया (चमला फली)  ","Vegetables|Un-Processed",Processed
+"Drumstick/ड्रमस्टिक_P","Vegetables|Un-Processed",Fresh
+"French Beans/फ्रेंच बीन्स_P","Vegetables|Un-Processed",Processed
+"Garlic/लहसुन_P","Vegetables|Un-Processed",Processed
+"Green Tomato/हरा टमाटर_P ","Vegetables|Un-Processed",Fresh
+"Hybrid Tomato/हाइब्रिड टमाटर_P ","Vegetables|Un-Processed",Fresh
+"Tamarind/इमली  ","Vegetables|Un-Processed",Processed
+"Kakdi desi/देसी ककड़ी","Vegetables|Un-Processed",Processed
+"Karela (Bitter Gourd)/करेला_P ","Vegetables|Un-Processed",Fresh
+"Lauki (Bottle Gourd)/लौकी_P  ","Vegetables|Un-Processed",Processed
+"Leelwe/लीलवे  ","Vegetables|Un-Processed",Processed
+"Lime/नींबू _P","Vegetables|Un-Processed",Processed
+"Mogri/मोगरी_P","Vegetables|Un-Processed",Processed
+"Okra (Bhindi)/भिंडी_P","Vegetables|Un-Processed",Fresh
+"Onion/प्याज_P","Vegetables|Un-Processed",Fresh
+"Peeled Peas/छिली हुई मटर  ","Vegetables|Un-Processed",Processed
+"Red Cabbage/लाल पत्तागोभी_P","Vegetables|Un-Processed",Fresh
+"Red Okra (Laal Bhindi)/लाल भिंडी  ","Vegetables|Un-Processed",Fresh
+"Red Skin Potato/लाल छिलके वाला आलू  ","Vegetables|Un-Processed",Fresh
+"Sweet Potato/शकरकंद_P ","Vegetables|Un-Processed",Fresh
+"Desi Tomato/देसी टमाटर_P ","Vegetables|Un-Processed",Fresh
+"Turai (Ridge Gourd)/तुरई_P ","Vegetables|Un-Processed",Fresh
+"Fresh Haldi (Sabud)/ताज़ी हल्दी (साबुत)_P","Vegetables|Un-Processed",Fresh
+"Turnip/शलजम  ","Vegetables|Un-Processed",Processed
+"Valor Papdi/वलोर पापड़ी  ","Vegetables|Un-Processed",Processed
+"Valor Phali /वलोर फली  ","Vegetables|Un-Processed",Processed
+"White Radish  [Muli]/सफेद मूली  ","Vegetables|Un-Processed",Processed
+"Zero Matar (mini peas)/ज़ीरो मटर (छोटे मटर)  ","Vegetables|Un-Processed",Processed
+"Peas/मटर  ","Vegetables|Un-Processed",Processed
+"Shipping Charges","All",Processed
+"Desi Cucumber/ देसी खीरा  ","Vegetables|Un-Processed",Processed
+"Gather Event","Gather",Processed
+"Micro-Neem Compost/माइक्रो-नीम कंपोस्ट_P","Inputs|Processed",Processed
+"Haldi Powder/हल्दी पाउडर_P","Dried Herbs & Seasoning|Processed",Processed
+"Summer Squash/समर स्क्वैश  ","Vegetables|Un-Processed",Processed
+"MicroNeem Compost (Pack)/माइक्रोनीम कंपोस्ट (पैक)","Inputs|Processed",Processed
+"Moringa Leaves/मोरिंगा के पत्ते_P","Fresh Herbs|Un-Processed",Fresh
+"Katahal/कटहल  ","Vegetables|Un-Processed",Processed
+"Tinda/टिंडा  ","Vegetables|Un-Processed",Fresh
+"Musk Melon/खरबूजा_P ","Fruits|Un-Processed",Processed
+"Capsicum/शिमला मिर्च_P ","Vegetables|Un-Processed",Fresh
+"#136_GROW Event","Learnings",Processed
+"Totapuri/तोतापुरी  ","Fruits|Un-Processed",Processed
+"Sweet Karonda/मीठा करोंदा_P","Fruits|Un-Processed",Processed
+"Khatta Karonda/खट्टा करोंदा  ","Fruits|Un-Processed",Processed
+"Peach/आड़ू  ","Fruits|Un-Processed",Processed
+"Spinach/पालक_P","Vegetables|Un-Processed",Fresh
+"Baby Spinach/बेबी पालक  ","Exotics|Un-Processed",Fresh
+"Cherry Tomato/चेरी टमाटर  ","Exotics|Un-Processed",Fresh
+"Green Spring Onion/हरी प्याज_P ","Vegetables|Un-Processed",Fresh
+"Flat Leaf Parsley/चपटी पत्तियों वाली अजवाइन  ","Exotics|Un-Processed",Processed
+"Celery/अजवाइन  ","Exotics|Un-Processed",Processed
+"Imli Pulp/इमली का गूदा  ","Vegetables|Un-Processed",Processed
+"Red Pasta Sauce/लाल पास्ता सॉस  ","Chutney/Jams/Sauces/Pickels|Processed",Processed
+"Sweet Basil/मीठी तुलसी  ","Fresh Herbs|Un-Processed",Fresh
+"Peach Jam/आड़ू जैम  ","Chutney/Jams/Sauces/Pickels|Processed",Processed
+"Lime pickle Spicy/मसालेदार नींबू का अचार  ","Chutney/Jams/Sauces/Pickels|Processed",Processed
+"Green Chilli - Hot/तीखी हरी मिर्च_P  ","Fresh Herbs|Un-Processed",Fresh
+"Dried Celery Powder/सूखा सैलरी पाउडर_P","Dried Herbs & Seasoning|Processed",Processed
+"Strawberry Jam/स्ट्रॉबेरी जैम  ","Chutney/Jams/Sauces/Pickels|Processed",Fresh
+"Garlic Peeled/छिली हुई लहसुन_P","Vegetables|Un-Processed",Processed
+"Fresh Mint /ताज़ा पुदीना_P","Fresh Herbs|Un-Processed",Fresh
+"Fresh Lime Juice (no preservative)/ताज़ा नींबू का रस (बिना संरक्षक)_P","Vegetables|Processed",Fresh
+"Cucumber Juice/खीरे का रस  ","Chutney/Jams/Sauces/Pickels|Processed",Processed
+"Fresh Oregano/ताज़ा अजवायन_P  ","Fresh Herbs|Un-Processed",Fresh
+"Guava Chutney/अमरूद की चटनी_P","Chutney/Jams/Sauces/Pickels|Processed",Fresh
+"Dried Oregano/सूखी ओरिगैनो_P","Dried Herbs & Seasoning|Processed",Fresh
+"Dried Parsley Leaves/सूखी सैलरी के पत्ते  ","Dried Herbs & Seasoning|Processed",Processed
+"Dried Basil/सूखी तुलसी  ","Dried Herbs & Seasoning|Processed",Fresh
+"Stevia/स्टीविया  ","Fresh Herbs|Un-Processed",Fresh
+"Laal Saag (Red Amaranthus)/लाल साग (लाल अमरनाथ)  ","Vegetables|Un-Processed",Processed
+"Exotic Salad Mix/विदेशी सलाद मिक्स  ","Exotics|Un-Processed",Processed
+"Spicy Red Chilli powder/मसालेदार लाल मिर्च पाउडर  ","Dried Herbs & Seasoning|Processed",Processed
+"Dried Mint/सूखा पुदीना  ","Dried Herbs & Seasoning|Processed",Fresh
+"Fresh Curry Leaves/ताज़ा करी पत्ते_P","Fresh Herbs|Un-Processed",Fresh
+"Dried Lemongrass/सूखी लेमनग्रास_P","Dried Herbs & Seasoning|Processed",Fresh
+"Dried Kadi Patta/सूखी कड़ी पत्ता  ","Dried Herbs & Seasoning|Processed",Processed
+"Fresh Lemongrass/ताज़ा लेमनग्रास_P ","Fresh Herbs|Un-Processed",Fresh
+"Rosemary/रोज़मेरी  ","Fresh Herbs|Un-Processed",Fresh
+"Green Chilli - Mild/हल्की हरी मिर्च_P ","Fresh Herbs|Un-Processed",Fresh
+"Hara saag (Green Amaranthus)/हरा साग (हरा अमरनाथ)  ","Vegetables|Un-Processed",Processed
+"Spearmint/स्पीयरमिंट","Fresh Herbs|Un-Processed",Fresh
+"Thyme/थाइम","Fresh Herbs|Un-Processed",Fresh
+"Curly Parsley/","Exotics|Un-Processed",Processed
+"Fresh Shyama Tulsi/ताज़ी श्यामा तुलसी  ","Fresh Herbs|Un-Processed",Fresh
+"Moti Mirch/मोटी मिर्च_P","Vegetables|Un-Processed",Processed
+"Arvi Patta/अरवी के पत्ते  ","Vegetables|Un-Processed",Processed
+"Banana flower/केले का फूल  ","Fruits|Un-Processed",Fresh
+"Bhindi- Bharwa/भरवा भिंडी_P  ","Vegetables|Un-Processed",Fresh
+"Coconut Green Tomato Chutney ( Spicy )/नारियल हरी टमाटर की चटनी (मसालेदार)  ","Chutney/Jams/Sauces/Pickels|Processed",Fresh
+"Dill (Suva)/सोआ  ","Vegetables|Un-Processed",Processed
+"Dried Kasoori methi/सूखी कसूरी मेथी  ","Dried Herbs & Seasoning|Processed",Fresh
+"Dried Moringa Powder/सूखा मोरिंगा पाउडर_P","Dried Herbs & Seasoning|Processed",Processed
+"Dried Red Chilli/सूखी लाल मिर्च  ","Dried Herbs & Seasoning|Processed",Processed
+"Dried Shyama Tulsi/सूखी श्यामा तुलसी_P  ","Dried Herbs & Seasoning|Processed",Processed
+"Fresh Kasoori Methi/ताज़ी कसूरी मेथी  ","Fresh Herbs|Un-Processed",Fresh
+"Fresh Methi/ताज़ी मेथी_P","Fresh Herbs|Un-Processed",Fresh
+"Fresh Purple Basil/ताज़ा बैंगनी तुलसी  ","Fresh Herbs|Un-Processed",Fresh
+"Frozen mixed Vegetables|Un-Processed, sambhar mix/जमी हुई मिश्रित सब्जियाँ, सांभर मिश्रण  ","Frozen Foods|Processed",Processed
+"Green Chutney with Garlic /लहसुन वाली हरी चटनी  ","Chutney/Jams/Sauces/Pickels|Processed",Processed
+"Green Chutney without garlic/बिना लहसुन की हरी चटनी  ","Chutney/Jams/Sauces/Pickels|Processed",Processed
+"Green Coriander Chutney/हरी धनिया की चटनी  ","Chutney/Jams/Sauces/Pickels|Processed",Fresh
+"Green Garlic/हरा लहसुन  ","Vegetables|Un-Processed",Processed
+"Groundnut Oil|Processed/मूँगफली का तेल_P","Oil|Processed",Processed
+"Jamun/जामुन_P","Fruits|Un-Processed",Processed
+"Kale/केल  ","Exotics|Un-Processed",Processed
+"Leek /लीक","Exotics|Un-Processed",Processed
+"Lemon Balm/नींबू बाम  ","Fresh Herbs|Un-Processed",Fresh
+"Lemon Basil/नींबू तुलसी  ","Fresh Herbs|Un-Processed",Fresh
+"Lime and chili chutney (mild)/नींबू और मिर्च की चटनी (हल्की)  ","Chutney/Jams/Sauces/Pickels|Processed",Processed
+"Red Radish/लाल मूली  ","Vegetables|Un-Processed",Processed
+"Rocket/रॉकेट  ","Exotics|Un-Processed",Processed
+"Sage/सेज  ","Fresh Herbs|Un-Processed",Fresh
+"Sarson Saag/सरसों का साग  ","Vegetables|Un-Processed",Processed
+"Sesame Oil|Processed/तिल का तेल  ","Oil|Processed",Processed
+"Green Tomato Chutney/ हरी टमाटर की चटनी  ","Chutney/Jams/Sauces/Pickels|Processed",Fresh
+"Strawberry/स्ट्रॉबेरी_P  ","Fruits|Un-Processed",Fresh
+"Strawberry Crush/स्ट्रॉबेरी क्रश  ","Chutney/Jams/Sauces/Pickels|Processed",Fresh
+"Sunflower Seed (Edible/Non-Seed Quality)/सूरजमुखी के बीज (खाने योग्य/बीज गुणवत्ता)  ","Seeds|Un-Processed",Processed
+"Sunflower Seed (Sowing/Seed Quality)/सूरजमुखी के बीज (बुवाई/बीज गुणवत्ता)","Seeds|Un-Processed",Processed
+"Sweet Corn/मीठी मकई_P","Vegetables|Un-Processed",Fresh
+"Tabbouleh Salad Mix/तब्बूले सलाद मिक्स  ","Exotics|Un-Processed",Processed
+"Tomato Chutney (Red)/लाल टमाटर की चटनी  ","Chutney/Jams/Sauces/Pickels|Processed",Fresh
+"Tomato Puree/टमाटर की प्यूरी_P ","Chutney/Jams/Sauces/Pickels|Processed",Fresh
+"Watermelon/तरबूज_P ","Fruits|Un-Processed",Processed
+"#53A_Agriculture Support Service_Design & Consultancy Fees","All",Processed
+"Round Lauki/गोल लौकी","Vegetables|Un-Processed",Processed
+"Pheromone Trap","Others|Un-Processed",Processed
+"Sindoori Mango","Fruits|Un-Processed",Fresh
+"Tamarind Without Seeds","Vegetables|Processed",Processed
+"Event Registration","All / Saleable / Events",Processed
+"Garlic Powder/लहसुन पाउडर_P","Vegetables|Processed",Processed
+"Pumpkin small/छोटा कद्दू","All",Fresh
+"#53C_Agriculture Support Service_Supply of Farm Labour","All",Processed
+"#53B_Agriculture Support Service_Agro Machinery Rentals_Rotavator","All",Processed
+"#53D_Agriculture Support Service_Agro Machinery Rentals_Tractor","All",Processed
+"#53E_Agriculture Support Service_Agro Machinery Rentals_Bed Maker","All",Processed
+"#53F_Agriculture Support Service_Agro Machinery Rentals_MB Plough","All",Processed
+"#53G_Agriculture Support Service_Agro Machinery Rentals_Others","All",Processed
+"Karna/ खट्टा_P","Vegetables|Un-Processed",Processed
+"Saplings","All",Processed
+"Inputs Purchase","All",Processed
+"#53H_Agriculture Support Service__Seeds","All",Processed
+"Sponge Gourd/ गिल्का तुरई_P","Vegetables|Un-Processed",Processed
+"Travel and conveyance","All",Processed
+"Food allowances","All",Processed
+"Software Expenses","All",Processed
+"Printing and stationery","All",Processed
+"Marigold /गेंदा","Others|Un-Processed",Processed
+"Gahter Event 2","All",Processed
+"Gift Card","Services",Processed
+"Top-up eWallet","Services",Processed
+"Gift Card","All",Processed
+"Yellow Sticky Traps","All",Processed
+"Blue Sticky Traps","All",Processed
+"Calcium Oxide IG 1kg","All",Processed
+"Copper Sulphate IG 1kg","All",Processed
+"Yellow Sticky Roll - B","All",Processed
+"Bio Sticky Traps","All",Processed
+"Pinewood Shavings","All",Processed
+"Green Peas Seeds - GS10","All",Processed
+"Fenugreek Seeds","All",Processed
+"#53I_Agriculture Support Service_Manpower Supply_Others","All",Processed
+"#53J_Agriculture Support Service_Agro Machinery Rentals_Others (Brush Cutter)","All",Processed
+"Amla/आंवला_P","Vegetables|Un-Processed",Processed
+"Service on Timesheets","All",Processed
+"Material & Supplies","All",Processed
+"sweet lime/मोसम्बी","Fruits",Processed
+"Strawberry Saplings","All",Fresh
+"Laptop Macbook AGS","All",Processed
+"Laptop Macbook SS","All",Processed
+"Bottom Reversible MB Plough","All",Processed
+"Rotavator 6ft Regular Plus","All",Processed
+"tulsi","All",Processed
+"cauliflower seedlings","All",Fresh
+"cabbage seedlings","All",Fresh
+"Broccoli seedlings","All",Processed
+"Diesel","All",Processed
+"Bijora/बिजोरा","Fruits",Processed
+"Black gram seeds ","All",Processed
+"Red cabbage seeds","All",Fresh
+"radfish","All",Processed
+"radih","All",Processed
+"Bathua/बथुआ","Fresh Herbs|Un-Processed",Fresh
+"Sun Hemp Seeds","All",Processed
+"Marewa/मरेवा","Fresh Herbs|Un-Processed",Fresh
+"Mustard seeds","All",Processed
+"Salvia Saplings","All",Processed
+"Basil Sapling/बेसिल पौधा","All",Fresh
+"Thyme Saplings","All",Processed
+"Oregano Saplings","All",Fresh
+"Marigold Saplings","Seeds|Un-Processed",Processed
+"Tomato Sapling","Seeds|Un-Processed",Fresh
+"Green Cabbage Sapling","Seeds|Un-Processed",Fresh
+"Red Cabbage Sapling","Seeds|Un-Processed",Fresh
+"Hybrid Tomato Seeds","All",Fresh
+"Ridge Gourd seeds","All",Processed
+"Cow Pea Seeds","All",Processed
+"Watermelon seeds","All",Processed
+"Cluster Beans seeds","All",Processed
+"Bottle Gourd seeds","All",Processed
+"Cucumber seeds","All",Processed
+"Pumpkin seeds","All",Fresh
+"Apple gourd seeds","All",Fresh
+"Okra Seeds","All",Processed
+"Bitter Gourd seeds","All",Processed
+"Brinjal seeds","All",Fresh
+"Zucchini seeds","All",Processed
+"Capsicum seeds","All",Fresh
+"Carrot seeds","All",Processed
+"Cowpea Seeds","All",Processed
+"Sunhemp Seeds","All",Processed
+"Course Fee","All",Processed
+"Microgreens_P","All",Processed
+"Dried Methi leaves","Dried Herbs & Seasoning|Processed",Fresh
+"Peeled Leelwe","Vegetables|Processed",Processed
+"chilli seeds","All",Processed
+"beetroot seeds","All",Processed
+"guvava seeds","All",Processed
+"Coriander seeds","All",Fresh
+"chilli saplings","All",Processed
+"brinjal saplings","All",Fresh
+"watermelon saplings","All",Processed
+"papaya  saplings","All",Fresh
+"gerbara saplings","All",Processed
+"muskmelon salplings","All",Processed
+"kel saplings","All",Processed
+"Turmeric Seeds","All",Processed
+"Mustard Seeds/सरसों के बीज ","Seeds|Un-Processed",Processed
+"tinda seed","All",Fresh
+"maize seed","All",Processed
+"moong seeds","All",Processed
+"Potato/आलू_P","Vegetables|Un-Processed",Fresh
+"Bay leaves/तेज पत्ता_P","Others|Un-Processed",Processed
+"Wheat/गेहूं_P","Others|Un-Processed",Processed
+"Beetroot Powder/चुकंदर का पाउडर, ","Others|Un-Processed",Processed
+"Fruits & Vegetables - Market Produce","All",Processed
+"Amla Powder/आँवला पाउडर_P","Vegetables|Processed",Processed
+"Curry Leaves Powder/करी पत्ता पाउडर_P","Dried Herbs & Seasoning",Fresh
+"bhindi","All",Fresh
+"Coriander Powder/धनिया पाउडर","Dried Herbs & Seasoning",Fresh
+"Hibiscus Powder / गुड़हल का पाउडर_P","Others|Un-Processed",Processed
+"outlining tool","All",Processed
+"Hibiscus / गुड़हल का फूल","Others|Un-Processed",Processed
+"Hibiscus Dried Flower /गुड़हल का सूखा फूल_P","All",Processed
+"Wheat Grass","Fresh Herbs|Un-Processed",Fresh
+"Baby Onion_P","Vegetables",Fresh
+"Dragon Fruit/ ड्रैगन फ्रूट_P","Fruits|Un-Processed",Processed
+"Grapes /अंगूर_P","Fruits",Fresh
+"Apple Desi/ देसी सेब_P","Fruits|Un-Processed",Fresh
+"Red  Capsicum /लाल  शिमला मिर्च_P","Vegetables",Fresh
+"Yellow Capsicum / पीली शिमला मिर्च_P","Vegetables",Fresh
+"Carrot Orange/ऑरेंज गाजर_P","Fruits",Processed
+"Kiwi / कीवी_P ","Fruits",Fresh
+"Chinese Cucumber/ चाइना खीरा_P","Vegetables|Un-Processed",Processed
+"American Bhutta /अमेरिकन भुट्टा_P","Vegetables|Processed",Processed
+"Ginger Desi / देसी अदरक_P","Vegetables",Processed
+"Parwal (Pointed Gourd) / परवल_P","Vegetables|Un-Processed",Processed
+"Button Mushroom_P","Vegetables|Un-Processed",Fresh
+"Star fruit/कमरख_P","All",Processed
+"Banana/केला_P","Fruits|Un-Processed",Fresh
+"Pineapple_P","Fruits|Un-Processed",Fresh
+"Pineapple Peeled_P","Fruits|Un-Processed",Fresh
+"Pomegranate Sorted_P","Fruits|Un-Processed",Processed
+"Dried Curry Leaves/ताज़ा करी पत्ते_P","Fresh Herbs|Un-Processed",Fresh
+"Zucchini Yellow /ज़ुकीनी_P ","Exotics|Un-Processed",Processed
+"Pears Imported_P","Fruits|Un-Processed",Processed
+"Pineapple Sliced_P","Fruits|Un-Processed",Fresh
+"Maalta (Kinoo)_P","Fruits|Un-Processed",Processed
+"Green Apple_P","Fruits|Un-Processed",Fresh
+"Tindori_P","Vegetables|Un-Processed",Processed
+"Rataalu (Garadu)_P","Vegetables|Un-Processed",Processed
+"Wheat Flour /गेहूं का आटा_P","All",Processed
+"guar","All",Processed
+"Settle Due","Services",Processed
+"Deposit","Services",Processed
+"gajar","Uncategorized",Processed
+"Amchoor  Powder/आमचूर पाउडर_P","Vegetables|Processed",Processed
+"brinajl","Uncategorized",Processed
+"Amchoor  Powder/आमचूर पाउडर","Vegetables|Processed",Processed
+"Amchoor  Powder/आमचूर पाउडर","Vegetables|Processed",Processed
+"Amchoor  Powder/आमचूर पाउडर","Vegetables|Processed",Processed
+"American Bhutta /अमेरिकन भुट्टा","Vegetables|Processed",Processed
+"American Bhutta /अमेरिकन भुट्टा","Vegetables|Processed",Processed
+"American Bhutta /अमेरिकन भुट्टा","Vegetables|Processed",Processed
+"Amla Powder/आँवला पाउडर","Vegetables|Processed",Processed
+"Amla Powder/आँवला पाउडर","Vegetables|Processed",Processed
+"Amla Powder/आँवला पाउडर","Vegetables|Processed",Processed
+"Amla/आंवला","Vegetables|Un-Processed",Processed
+"Amla/आंवला","Vegetables|Un-Processed",Processed
+"Amla/आंवला","Vegetables|Un-Processed",Processed
+"Apple Desi/ देसी सेब","Fruits|Un-Processed",Fresh
+"Apple Desi/ देसी सेब","Fruits|Un-Processed",Fresh
+"Apple Desi/ देसी सेब","Fruits|Un-Processed",Fresh
+"Apple Gourd (Tinsi - Tinda)_P","Vegetables|Un-Processed",Fresh
+"Tinda/टिंडा","Vegetables|Un-Processed",Fresh
+"Tinda/टिंडा","Vegetables|Un-Processed",Fresh
+"Tinda/टिंडा","Vegetables|Un-Processed",Fresh
+"Arvi /अरवी","Vegetables|Un-Processed",Processed
+"Arvi /अरवी","Vegetables|Un-Processed",Processed
+"Arvi /अरवी","Vegetables|Un-Processed",Processed
+"Baby Onion/बेबी प्याज","Vegetables",Fresh
+"Baby Onion/बेबी प्याज","Vegetables",Fresh
+"Baby Onion/बेबी प्याज","Vegetables",Fresh
+"Baby potato/बेबी आलू","Vegetables|Un-Processed",Fresh
+"Baby potato/बेबी आलू","Vegetables|Un-Processed",Fresh
+"Baby potato/बेबी आलू","Vegetables|Un-Processed",Fresh
+"Baingan (bharta)/बैंगन (भरता)","Vegetables|Un-Processed",Processed
+"Baingan (bharta)/बैंगन (भरता)","Vegetables|Un-Processed",Processed
+"Baingan (bharta)/बैंगन (भरता)","Vegetables|Un-Processed",Processed
+"Banana/केला","Fruits|Un-Processed",Fresh
+"Banana/केला","Fruits|Un-Processed",Fresh
+"Banana/केला","Fruits|Un-Processed",Fresh
+"Bay leaves/तेज पत्ता","Others|Un-Processed",Processed
+"Bay leaves/तेज पत्ता","Others|Un-Processed",Processed
+"Bay leaves/तेज पत्ता","Others|Un-Processed",Processed
+"Beetroot without leaves/पत्तों के बिना चुकंदर","Vegetables|Un-Processed",Processed
+"Beetroot without leaves/पत्तों के बिना चुकंदर","Vegetables|Un-Processed",Processed
+"Beetroot without leaves/पत्तों के बिना चुकंदर","Vegetables|Un-Processed",Processed
+"Brinjal Normal [Baingan]/बैंगन","Vegetables|Un-Processed",Fresh
+"Brinjal Normal [Baingan]/बैंगन","Vegetables|Un-Processed",Fresh
+"Brinjal Normal [Baingan]/बैंगन","Vegetables|Un-Processed",Fresh
+"Broccoli/ब्रोकोली","Vegetables|Un-Processed",Processed
+"Broccoli/ब्रोकोली","Vegetables|Un-Processed",Processed
+"Broccoli/ब्रोकोली","Vegetables|Un-Processed",Processed
+"Button Mushroom/बटन मशरूम","Vegetables|Un-Processed",Fresh
+"Button Mushroom/बटन मशरूम","Vegetables|Un-Processed",Fresh
+"Button Mushroom/बटन मशरूम","Vegetables|Un-Processed",Fresh
+"Capsicum/शिमला मिर्च","Vegetables|Un-Processed",Fresh
+"Capsicum/शिमला मिर्च","Vegetables|Un-Processed",Fresh
+"Capsicum/शिमला मिर्च","Vegetables|Un-Processed",Fresh
+"Carrot Orange/ऑरेंज गाजर","Fruits",Processed
+"Carrot Orange/ऑरेंज गाजर","Fruits",Processed
+"Carrot Orange/ऑरेंज गाजर","Fruits",Processed
+"Cauliflower (Phool Gobhi)/फूलगोभी","Vegetables|Un-Processed",Fresh
+"Cauliflower (Phool Gobhi)/फूलगोभी","Vegetables|Un-Processed",Fresh
+"Cauliflower (Phool Gobhi)/फूलगोभी","Vegetables|Un-Processed",Fresh
+"Chikoo/चीकू)","Fruits|Un-Processed",Processed
+"Chikoo/चीकू)","Fruits|Un-Processed",Processed
+"Chikoo/चीकू)","Fruits|Un-Processed",Processed
+"Chinese Cucumber/ चाइना खीरा","Vegetables|Un-Processed",Processed
+"Chinese Cucumber/ चाइना खीरा","Vegetables|Un-Processed",Processed
+"Chinese Cucumber/ चाइना खीरा","Vegetables|Un-Processed",Processed
+"Cluster Beans (Guar Phali)/ग्वार फली","Vegetables|Un-Processed",Processed
+"Cluster Beans (Guar Phali)/ग्वार फली","Vegetables|Un-Processed",Processed
+"Cluster Beans (Guar Phali)/ग्वार फली","Vegetables|Un-Processed",Processed
+"Curry Leaves Powder/करी पत्ता पाउडर","Dried Herbs & Seasoning",Fresh
+"Curry Leaves Powder/करी पत्ता पाउडर","Dried Herbs & Seasoning",Fresh
+"Curry Leaves Powder/करी पत्ता पाउडर","Dried Herbs & Seasoning",Fresh
+"Desi Tomato/देसी टमाटर","Vegetables|Un-Processed",Fresh
+"Desi Tomato/देसी टमाटर","Vegetables|Un-Processed",Fresh
+"Dried Celery Powder/सूखा सैलरी पाउडर","Dried Herbs & Seasoning|Processed",Processed
+"Dried Celery Powder/सूखा सैलरी पाउडर","Dried Herbs & Seasoning|Processed",Processed
+"Dried Celery Powder/सूखा सैलरी पाउडर","Dried Herbs & Seasoning|Processed",Processed
+"Dried Curry Leaves/सूखा  करी पत्ते","Fresh Herbs|Un-Processed",Fresh
+"Dried Curry Leaves/सूखा  करी पत्ते","Fresh Herbs|Un-Processed",Fresh
+"Dried Curry Leaves/सूखा  करी पत्ते","Fresh Herbs|Un-Processed",Fresh
+"Dried Moringa Powder/सूखा मोरिंगा पाउडर","Dried Herbs & Seasoning|Processed",Processed
+"Dried Moringa Powder/सूखा मोरिंगा पाउडर","Dried Herbs & Seasoning|Processed",Processed
+"Dried Moringa Powder/सूखा मोरिंगा पाउडर","Dried Herbs & Seasoning|Processed",Processed
+"Dried Oregano/सूखी ओरिगैनो","Dried Herbs & Seasoning|Processed",Fresh
+"Dried Oregano/सूखी ओरिगैनो","Dried Herbs & Seasoning|Processed",Fresh
+"Dried Oregano/सूखी ओरिगैनो","Dried Herbs & Seasoning|Processed",Fresh
+"Dried Shyama Tulsi/सूखी श्यामा तुलसी","Dried Herbs & Seasoning|Processed",Processed
+"Dried Shyama Tulsi/सूखी श्यामा तुलसी","Dried Herbs & Seasoning|Processed",Processed
+"Dried Shyama Tulsi/सूखी श्यामा तुलसी","Dried Herbs & Seasoning|Processed",Processed
+"Drumstick/ड्रमस्टिक","Vegetables|Un-Processed",Fresh
+"Drumstick/ड्रमस्टिक","Vegetables|Un-Processed",Fresh
+"Drumstick/ड्रमस्टिक","Vegetables|Un-Processed",Fresh
+"Dussheri Mango/दशहरी आम","Fruits|Un-Processed",Fresh
+"Dussheri Mango/दशहरी आम","Fruits|Un-Processed",Fresh
+"Dussheri Mango/दशहरी आम","Fruits|Un-Processed",Fresh
+"French Beans/फ्रेंच बीन्स","Vegetables|Un-Processed",Processed
+"French Beans/फ्रेंच बीन्स","Vegetables|Un-Processed",Processed
+"French Beans/फ्रेंच बीन्स","Vegetables|Un-Processed",Processed
+"Fresh Coriander/ताज़ा धनिया","Fresh Herbs|Un-Processed",Fresh
+"Fresh Coriander/ताज़ा धनिया","Fresh Herbs|Un-Processed",Fresh
+"Fresh Coriander/ताज़ा धनिया","Fresh Herbs|Un-Processed",Fresh
+"Fresh Oregano/ताज़ा अजवायन","Fresh Herbs|Un-Processed",Fresh
+"Fresh Oregano/ताज़ा अजवायन","Fresh Herbs|Un-Processed",Fresh
+"Fresh Oregano/ताज़ा अजवायन","Fresh Herbs|Un-Processed",Fresh
+"Garlic Peeled/छिली हुई लहसुन","Vegetables|Un-Processed",Processed
+"Garlic Peeled/छिली हुई लहसुन","Vegetables|Un-Processed",Processed
+"Garlic Peeled/छिली हुई लहसुन","Vegetables|Un-Processed",Processed
+"Garlic Powder/लहसुन पाउडर","Vegetables|Processed",Processed
+"Garlic Powder/लहसुन पाउडर","Vegetables|Processed",Processed
+"Garlic Powder/लहसुन पाउडर","Vegetables|Processed",Processed
+"Garlic/लहसुन","Vegetables|Un-Processed",Processed
+"Garlic/लहसुन","Vegetables|Un-Processed",Processed
+"Garlic/लहसुन","Vegetables|Un-Processed",Processed
+"Garlic/लहसुन","Vegetables|Un-Processed",Processed
+"Ginger Desi / देसी अदरक","Vegetables",Processed
+"Ginger Desi / देसी अदरक","Vegetables",Processed
+"Ginger Desi / देसी अदरक","Vegetables",Processed
+"Grapes /अंगूर","Fruits",Fresh
+"Grapes /अंगूर","Fruits",Fresh
+"Grapes /अंगूर","Fruits",Fresh
+"Green Apple/ग्रीन एप्पल","Fruits|Un-Processed",Fresh
+"Green Apple/ग्रीन एप्पल","Fruits|Un-Processed",Fresh
+"Green Apple/ग्रीन एप्पल","Fruits|Un-Processed",Fresh
+"Green Cabbage/हरी पत्तागोभी","Vegetables|Un-Processed",Fresh
+"Green Cabbage/हरी पत्तागोभी","Vegetables|Un-Processed",Fresh
+"Green Cabbage/हरी पत्तागोभी","Vegetables|Un-Processed",Fresh
+"Green Chilli - Hot/तीखी हरी मिर्च","Fresh Herbs|Un-Processed",Fresh
+"Green Chilli - Hot/तीखी हरी मिर्च","Fresh Herbs|Un-Processed",Fresh
+"Green Chilli - Hot/तीखी हरी मिर्च","Fresh Herbs|Un-Processed",Fresh
+"Green Chilli - Mild/हल्की हरी मिर्च","Fresh Herbs|Un-Processed",Fresh
+"Green Chilli - Mild/हल्की हरी मिर्च","Fresh Herbs|Un-Processed",Fresh
+"Green Chilli - Mild/हल्की हरी मिर्च","Fresh Herbs|Un-Processed",Fresh
+"Green Spring Onion/हरी प्याज","Vegetables|Un-Processed",Fresh
+"Green Spring Onion/हरी प्याज","Vegetables|Un-Processed",Fresh
+"Green Spring Onion/हरी प्याज","Vegetables|Un-Processed",Fresh
+"Green Tomato/हरा टमाटर","Vegetables|Un-Processed",Fresh
+"Green Tomato/हरा टमाटर","Vegetables|Un-Processed",Fresh
+"Green Tomato/हरा टमाटर","Vegetables|Un-Processed",Fresh
+"Hibiscus Dried Flower /गुड़हल का सूखा फूल","All",Processed
+"Hibiscus Dried Flower /गुड़हल का सूखा फूल","All",Processed
+"Hibiscus Dried Flower /गुड़हल का सूखा फूल","All",Processed
+"Karela (Bitter Gourd)/करेला","Vegetables|Un-Processed",Fresh
+"Karela (Bitter Gourd)/करेला","Vegetables|Un-Processed",Fresh
+"Karela (Bitter Gourd)/करेला","Vegetables|Un-Processed",Fresh
+"Kiwi / कीवी","Fruits",Fresh
+"Kiwi / कीवी","Fruits",Fresh
+"Kiwi / कीवी","Fruits",Fresh
+"Lauki (Bottle Gourd)/लौकी","Vegetables|Un-Processed",Processed
+"Lauki (Bottle Gourd)/लौकी","Vegetables|Un-Processed",Processed
+"Lauki (Bottle Gourd)/लौकी","Vegetables|Un-Processed",Processed
+"Raw Mango/कच्चा आम","Fruits|Un-Processed",Fresh
+"Raw Mango/कच्चा आम","Fruits|Un-Processed",Fresh
+"Raw Mango/कच्चा आम","Fruits|Un-Processed",Fresh
+"Lime/नींबू ","Vegetables|Un-Processed",Processed
+"Lime/नींबू ","Vegetables|Un-Processed",Processed
+"Lime/नींबू ","Vegetables|Un-Processed",Processed
+"Maalta/माल्टा","Fruits|Un-Processed",Processed
+"Maalta/माल्टा","Fruits|Un-Processed",Processed
+"Maalta/माल्टा","Fruits|Un-Processed",Processed
+"Pumpkin /कद्दू","Fruits|Un-Processed",Fresh
+"Pumpkin /कद्दू","Fruits|Un-Processed",Fresh
+"Pumpkin /कद्दू","Fruits|Un-Processed",Fresh
+"Moti Mirch/मोटी मिर्च","Vegetables|Un-Processed",Processed
+"Moti Mirch/मोटी मिर्च","Vegetables|Un-Processed",Processed
+"Moti Mirch/मोटी मिर्च","Vegetables|Un-Processed",Processed
+"Musk Melon/खरबूजा","Fruits|Un-Processed",Processed
+"Musk Melon/खरबूजा","Fruits|Un-Processed",Processed
+"Musk Melon/खरबूजा","Fruits|Un-Processed",Processed
+"Onion/प्याज","Vegetables|Un-Processed",Fresh
+"Onion/प्याज","Vegetables|Un-Processed",Fresh
+"Onion/प्याज","Vegetables|Un-Processed",Fresh
+"Papaya/पपीता","Fruits|Un-Processed",Fresh
+"Papaya/पपीता","Fruits|Un-Processed",Fresh
+"Papaya/पपीता","Fruits|Un-Processed",Fresh
+"Parwal (Pointed Gourd) / परवल","Vegetables|Un-Processed",Processed
+"Parwal (Pointed Gourd) / परवल","Vegetables|Un-Processed",Processed
+"Parwal (Pointed Gourd) / परवल","Vegetables|Un-Processed",Processed
+"Dried Celery Powder/सूखा सैलरी पाउडर","Dried Herbs & Seasoning|Processed",Processed
+"Pears Imported/नाशपाती","Fruits|Un-Processed",Processed
+"Pears Imported/नाशपाती","Fruits|Un-Processed",Processed
+"Pears Imported/नाशपाती","Fruits|Un-Processed",Processed
+"Pomegranate Mix","Fruits|Un-Processed",Processed
+"Pomegranate Mix","Fruits|Un-Processed",Processed
+"Pomegranate Mix","Fruits|Un-Processed",Processed
+"Fresh Coriander/ताज़ा धनिया","Fresh Herbs|Un-Processed",Fresh
+"Fresh Coriander/ताज़ा धनिया","Fresh Herbs|Un-Processed",Fresh
+"Ramphal/रामफल","Fruits|Un-Processed",Processed
+"Rataalu (Garadu)/रतालू","Vegetables|Un-Processed",Processed
+"Rataalu (Garadu)/रतालू","Vegetables|Un-Processed",Processed
+"Rataalu (Garadu)/रतालू","Vegetables|Un-Processed",Processed
+"Rataalu (Garadu)/रतालू","Vegetables|Un-Processed",Processed
+"Red  Capsicum /लाल  शिमला मिर्च","Vegetables",Fresh
+"Red  Capsicum /लाल  शिमला मिर्च","Vegetables",Fresh
+"Red  Capsicum /लाल  शिमला मिर्च","Vegetables",Fresh
+"Red Cabbage/लाल पत्तागोभी","Vegetables|Un-Processed",Fresh
+"Red Cabbage/लाल पत्तागोभी","Vegetables|Un-Processed",Fresh
+"Red Cabbage/लाल पत्तागोभी","Vegetables|Un-Processed",Fresh
+"Spinach/पालक","Vegetables|Un-Processed",Fresh
+"Spinach/पालक","Vegetables|Un-Processed",Fresh
+"Spinach/पालक","Vegetables|Un-Processed",Fresh
+"[171120251457] Sponge Gourd/ गिल्का तुरई","Vegetables|Un-Processed",Processed
+"[171120251457] Sponge Gourd/ गिल्का तुरई","Vegetables|Un-Processed",Processed
+"[171120251457] Sponge Gourd/ गिल्का तुरई","Vegetables|Un-Processed",Processed
+"Sweet Corn/मीठी मकई","Vegetables|Un-Processed",Fresh
+"Sweet Corn/मीठी मकई","Vegetables|Un-Processed",Fresh
+"Sweet Corn/मीठी मकई","Vegetables|Un-Processed",Fresh
+"Sweet Potato/शकरकंद","Vegetables|Un-Processed",Fresh
+"Sweet Potato/शकरकंद","Vegetables|Un-Processed",Fresh
+"Sweet Potato/शकरकंद","Vegetables|Un-Processed",Fresh
+"Swiss Chard/स्विस चार्ड","Exotics|Un-Processed",Processed
+"Swiss Chard/स्विस चार्ड","Exotics|Un-Processed",Processed
+"Swiss Chard/स्विस चार्ड","Exotics|Un-Processed",Processed
+"Tindori/टिंडोरी","Vegetables|Un-Processed",Processed
+"Tindori/टिंडोरी","Vegetables|Un-Processed",Processed
+"Tindori/टिंडोरी","Vegetables|Un-Processed",Processed
+"Turai (Ridge Gourd)/तुरई","Vegetables|Un-Processed",Fresh
+"Turai (Ridge Gourd)/तुरई","Vegetables|Un-Processed",Fresh
+"Turai (Ridge Gourd)/तुरई","Vegetables|Un-Processed",Fresh
+"Microgreens/माइक्रोग्रीन्स","All",Processed
+"Microgreens/माइक्रोग्रीन्स","All",Processed
+"Microgreens/माइक्रोग्रीन्स","All",Processed
+"Microgreens/माइक्रोग्रीन्स","All",Processed
+"Yellow Capsicum / पीली शिमला मिर्च","Vegetables",Fresh
+"Yellow Capsicum / पीली शिमला मिर्च","Vegetables",Fresh
+"Yellow Capsicum / पीली शिमला मिर्च","Vegetables",Fresh
+"Zucchini Yellow /ज़ुकीनी","Exotics|Un-Processed",Processed
+"Zucchini Yellow /ज़ुकीनी","Exotics|Un-Processed",Processed
+"Zucchini Yellow /ज़ुकीनी","Exotics|Un-Processed",Processed
+"Zucchini/ज़ुकीनी","Exotics|Un-Processed",Processed
+"Zucchini/ज़ुकीनी","Exotics|Un-Processed",Processed
+"Zucchini/ज़ुकीनी","Exotics|Un-Processed",Processed
+"Watermelon/तरबूज","Fruits|Un-Processed",Processed
+"Watermelon/तरबूज","Fruits|Un-Processed",Processed
+"Watermelon/तरबूज","Fruits|Un-Processed",Processed
+"Dragon Fruit/ ड्रैगन फ्रूट","Fruits|Un-Processed",Processed
+"Dragon Fruit/ ड्रैगन फ्रूट","Fruits|Un-Processed",Processed
+"Dragon Fruit/ ड्रैगन फ्रूट","Fruits|Un-Processed",Processed
+"Amla Powder/आँवला पाउडर","Vegetables|Processed",Processed
+"Beetroot /चुकंदर","Vegetables|Un-Processed",Processed
+"Beetroot /चुकंदर","Vegetables|Un-Processed",Processed
+"Beetroot /चुकंदर","Vegetables|Un-Processed",Processed
+"Beetroot /चुकंदर","Vegetables|Un-Processed",Processed
+"Beetroot /चुकंदर","Vegetables|Un-Processed",Processed
+"Beetroot /चुकंदर","Vegetables|Un-Processed",Processed
+"Desi Tomato/देसी टमाटर","Vegetables|Un-Processed",Fresh
+"Bhindi- Bharwa/भरवा भिंडी","Vegetables|Un-Processed",Fresh
+"Bhindi- Bharwa/भरवा भिंडी","Vegetables|Un-Processed",Fresh
+"Bhindi- Bharwa/भरवा भिंडी","Vegetables|Un-Processed",Fresh
+"Pineapple अनानास ","Fruits|Un-Processed",Fresh
+"Pineapple अनानास ","Fruits|Un-Processed",Fresh
+"Pineapple अनानास ","Fruits|Un-Processed",Fresh
+"Pineapple Peeled/छिला हुआ पाइनएप्पल ","Fruits|Un-Processed",Fresh
+"Pineapple Peeled/छिला हुआ पाइनएप्पल ","Fruits|Un-Processed",Fresh
+"Dried Curry Leaves/सूखा  करी पत्ते","Fresh Herbs|Un-Processed",Fresh
+"Kesar Mango/केसर आम","Fruits|Un-Processed",Fresh
+"Kesar Mango/केसर आम","Fruits|Un-Processed",Fresh
+"Kesar Mango/केसर आम","Fruits|Un-Processed",Fresh
+"Hibiscus Powder / गुड़हल का पाउडर","Others|Un-Processed",Processed
+"Hibiscus Powder / गुड़हल का पाउडर","Others|Un-Processed",Processed
+"Hibiscus Powder / गुड़हल का पाउडर","Others|Un-Processed",Processed
+"Hybrid Tomato/हाइब्रिड टमाटर","Vegetables|Un-Processed",Fresh
+"Hybrid Tomato/हाइब्रिड टमाटर","Vegetables|Un-Processed",Fresh
+"Hybrid Tomato/हाइब्रिड टमाटर","Vegetables|Un-Processed",Fresh
+"Moringa Leaves/मोरिंगा के पत्ते ","Fresh Herbs|Un-Processed",Fresh
+"Moringa Leaves/मोरिंगा के पत्ते ","Fresh Herbs|Un-Processed",Fresh
+"Moringa Leaves/मोरिंगा के पत्ते ","Fresh Herbs|Un-Processed",Fresh
+"Okra (Bhindi)/भिंडी","Vegetables|Un-Processed",Fresh
+"Okra (Bhindi)/भिंडी","Vegetables|Un-Processed",Fresh
+"Okra (Bhindi)/भिंडी","Vegetables|Un-Processed",Fresh
+"Pomegranate/अनार ","Fruits|Un-Processed",Processed
+"Pomegranate/अनार ","Fruits|Un-Processed",Processed
+"Pomegranate/अनार ","Fruits|Un-Processed",Processed
+"[171120251459] Potato/आलू","Vegetables|Un-Processed",Fresh
+"[171120251459] Potato/आलू","Vegetables|Un-Processed",Fresh
+"[171120251459] Potato/आलू","Vegetables|Un-Processed",Fresh
+"Raw Banana/कच्चा केला ","Fruits|Un-Processed",Fresh
+"Raw Banana/कच्चा केला ","Fruits|Un-Processed",Fresh
+"Raw Banana/कच्चा केला ","Fruits|Un-Processed",Fresh
+"Fresh Lemongrass/ताज़ा लेमनग्रास","Fresh Herbs|Un-Processed",Fresh
+"Fresh Lemongrass/ताज़ा लेमनग्रास","Fresh Herbs|Un-Processed",Fresh
+"Dried Curry Leaves/सूखा  करी पत्ते","Fresh Herbs|Un-Processed",Fresh
+"Input Supplies","Uncategorized",Processed
+"Fresh Oregano/ताज़ा अजवायन","Fresh Herbs|Un-Processed",Fresh
+"Fresh Mint /ताज़ा पुदीना","Fresh Herbs|Un-Processed",Fresh
+"Fresh Mint /ताज़ा पुदीना","Fresh Herbs|Un-Processed",Fresh
+"Fresh Mint /ताज़ा पुदीना","Fresh Herbs|Un-Processed",Fresh
+"Garlic Powder/लहसुन पाउडर","Vegetables|Processed",Processed
+"Dried Moringa Powder/सूखा मोरिंगा पाउडर","Dried Herbs & Seasoning|Processed",Processed
+"Dried Shyama Tulsi/सूखी श्यामा तुलसी","Dried Herbs & Seasoning|Processed",Processed
+"Pineapple Sliced","Fruits|Un-Processed",Fresh
+"Pineapple Sliced","Fruits|Un-Processed",Fresh
+"Apple Imported","All",Fresh
+"Apple Imported","All",Fresh
+"Kacchri/काचरी_P","Vegetables|Un-Processed",Processed
+"Kacchri/काचरी","Vegetables|Un-Processed",Processed
+"stationary items purchased for office use","Uncategorized",Processed
+"JAMUUN","Uncategorized",Processed
+"spianch","Uncategorized",Processed
+"Jamun/जामुन","Fruits|Un-Processed",Processed
+"Jamun/जामुन","Fruits|Un-Processed",Processed
+"Jamun/जामुन","Fruits|Un-Processed",Processed
+"Sweet Karonda/मीठा करोंदा","Fruits|Un-Processed",Processed
+"Sweet Karonda/मीठा करोंदा","Fruits|Un-Processed",Processed
+"Sweet Karonda/मीठा करोंदा","Fruits|Un-Processed",Processed
+"Micro-Neem Compost/माइक्रो-नीम कंपोस्ट","Inputs|Processed",Processed
+"Micro-Neem Compost/माइक्रो-नीम कंपोस्ट","Inputs|Processed",Processed
+"Micro-Neem Compost/माइक्रो-नीम कंपोस्ट","Inputs|Processed",Processed
+"Desi bhutta/देसी भुट्टा_P","Vegetables|Un-Processed",Processed
+"Desi bhutta/देसी भुट्टा","Vegetables|Un-Processed",Processed
+"Desi bhutta/देसी भुट्टा","Vegetables|Un-Processed",Processed
+"Desi bhutta/देसी भुट्टा","Vegetables|Un-Processed",Processed
+"Phalsa/फालसा _P","Vegetables|Un-Processed",Processed
+"Phalsa/फालसा ","Vegetables|Un-Processed",Processed
+"Phalsa/फालसा ","Vegetables|Un-Processed",Processed
+"Phalsa/फालसा ","Vegetables|Un-Processed",Processed
+"Earth Stewards Course","Uncategorized",Processed
+"Cement Hume Pipes","Uncategorized",Processed
+"JCB Work","Uncategorized",Processed
+"karon","Uncategorized",Processed
+"Tomato Puree/टमाटर की प्यूरी","Chutney/Jams/Sauces/Pickels|Processed",Fresh
+"jamuin","Uncategorized",Processed
+"Whole Moong/साबुत मूंग_P","All",Processed
+"Whole Moong/साबुत मूंग","All",Processed
+"Whole Moong/साबुत मूंग","All",Processed
+"Jamun Jam/जामुन जैम_P","Chutney/Jams/Sauces/Pickels|Processed",Processed
+"Jamun Jam/जामुन जैम","Chutney/Jams/Sauces/Pickels|Processed",Processed
+"Cracked Wheat/दलिया _P","Others|Un-Processed",Processed
+"Wheat Flour /गेहूं का आटा","All",Processed
+"KAARELA","Uncategorized",Processed
+"kamun\","Uncategorized",Processed
+"Fresh Lime Juice (no preservative)/ताज़ा नींबू का रस (बिना संरक्षक)","Vegetables|Processed",Fresh
+"Dried Lemongrass/सूखी लेमनग्रास","Dried Herbs & Seasoning|Processed",Fresh
+"Fresh Curry Leaves/ताज़ा करी पत्ते","Fresh Herbs|Un-Processed",Fresh
+"Cracked Wheat/दलिया","Others|Un-Processed",Processed
+"Karonda Jam/करोंदा जैम_P","Chutney/Jams/Sauces/Pickels|Processed",Processed
+"Karonda Jam/करोंदा जैम","Chutney/Jams/Sauces/Pickels|Processed",Processed
+"Haldi Powder/हल्दी पाउडर","Dried Herbs & Seasoning|Processed",Processed
+"Haldi Powder/हल्दी पाउडर","Dried Herbs & Seasoning|Processed",Processed
+"Barbados Cherry/बारबाडोस चेरी","Fruits|Un-Processed",Processed
+"Barbados Cherry/बारबाडोस चेरी","Fruits|Un-Processed",Processed
+"Guvava/अमरूद_P","Fruits|Un-Processed",Processed
+"Guvava/अमरूद","Fruits|Un-Processed",Processed
+"Guvava/अमरूद","Fruits|Un-Processed",Processed
+"Guvava/अमरूद","Fruits|Un-Processed",Processed
+"Karna/ खट्टा","Vegetables|Un-Processed",Processed
+"Karna/ खट्टा","Vegetables|Un-Processed",Processed
+"Machinery","Uncategorized",Processed
+"Cherry Jam/चेरी जैम_P","Chutney/Jams/Sauces/Pickels|Processed",Processed
+"Cherry Jam/चेरी जैम","Chutney/Jams/Sauces/Pickels|Processed",Processed
+"Basil Sapling/बेसिल पौधा_P","All",Fresh
+"Basil Sapling/बेसिल पौधा","All",Fresh
+"Plant","Uncategorized",Processed
+"Guava Chutney/अमरूद की चटनी","Chutney/Jams/Sauces/Pickels|Processed",Fresh
+"35.16","Uncategorized",Processed
+"Radish Seeds","Uncategorized",Processed
+"Til Seeds","Uncategorized",Processed
+"Onion Seeds","Uncategorized",Fresh
+"Arvi Seeds","Uncategorized",Processed
+"groundnut seeds","Uncategorized",Processed
+"HARE","Uncategorized",Processed
+"Tuar Seeds","Uncategorized",Processed
+"0.1","Uncategorized",Processed
+"Marigold Seeds","Uncategorized",Processed
+"french Beans Seeds","Uncategorized",Processed
+"Sitaphal/सीताफल","Fruits|Un-Processed",Processed
+"Sitaphal/सीताफल","Fruits|Un-Processed",Processed
+"Sitaphal/सीताफल","Fruits|Un-Processed",Processed
+"0.407","Uncategorized",Processed
+"1.410","Uncategorized",Processed
+"65.1","Uncategorized",Processed
+"Mogri Seeds","Uncategorized",Processed
+"Jowar seeds","Uncategorized",Processed
+"Sweet Corn Seeds","Uncategorized",Fresh
+"cauliflower seeds","Uncategorized",Fresh
+"cabbage seeds","Uncategorized",Fresh
+"Turai Seeds","Uncategorized",Fresh
+"Bajra Seeds","Uncategorized",Processed
+"urad seeds","Uncategorized",Processed
+"Tomato Seeds","Uncategorized",Fresh
+"Lauki seeds ","Uncategorized",Processed
+"Kikoda seeds  ","Uncategorized",Processed
+"pea seeds","Uncategorized",Processed
+"Sarso Saag Seeds","Uncategorized",Processed
+"Spinach seeds","Uncategorized",Fresh
+"Fresh Methi/ताज़ी मेथी","Fresh Herbs|Un-Processed",Fresh
+"Fresh Methi/ताज़ी मेथी","Fresh Herbs|Un-Processed",Fresh
+"Fresh Methi/ताज़ी मेथी","Fresh Herbs|Un-Processed",Fresh
+"Wheat seeds","Uncategorized",Processed
+"Whole Urad/साबुत उड़द_P","All",Processed
+"Whole Urad/साबुत उड़द","All",Processed
+"Whole Urad/साबुत उड़द","All",Processed
+"Flaxseed","Uncategorized",Processed
+"Chickpea Seeds","Uncategorized",Processed
+"Garlic Seeds","Uncategorized",Processed
+"Papaya seeds","Uncategorized",Fresh
+"Star fruit/कमरख","All",Processed
+"Star fruit/कमरख","All",Processed
+"lauki \","Uncategorized",Processed
+"Laal Saag Seeds","Uncategorized",Processed
+"turai \","Uncategorized",Fresh
+"karela \","Uncategorized",Fresh
+"Mogri/मोगरी","Vegetables|Un-Processed",Processed
+"Mogri/मोगरी","Vegetables|Un-Processed",Processed
+"Masoor Seed","Uncategorized",Processed
+"Chia Seed","Uncategorized",Processed
+"TIL, Sesame/तिल_P","Uncategorized",Processed
+"TIL, Sesame/तिल","Uncategorized",Processed
+"TIL, Sesame/तिल","Uncategorized",Processed
+"TIL, Sesame/तिल","Uncategorized",Processed
+"psyllium seeds (Isabgol Seeds)","Uncategorized",Processed
+"Fresh Haldi (Sabud)/ताज़ी हल्दी (साबुत)","Vegetables|Un-Processed",Fresh
+"Fresh Haldi (Sabud)/ताज़ी हल्दी (साबुत)","Vegetables|Un-Processed",Fresh
+"Barley seeds","Uncategorized",Processed
+"Potato Seeds","Uncategorized",Fresh
+"Berseem seeds","Uncategorized",Processed
+"Oats Seeds","Uncategorized",Processed
+"Peas/मटर_P","Vegetables|Un-Processed",Processed
+"Peas/मटर_P","Vegetables|Un-Processed",Processed
+"Peas/मटर_P","Vegetables|Un-Processed",Processed
+"Makki ka aata/मक्की का आटा_P","All",Processed
+"Makki ka aata/मक्की का आटा","All",Processed
+"onion saplings","Uncategorized",Fresh
+"Fresh Peanuts/ताज़ी मूँगफली","Nuts|Un-Processed",Fresh
+"Fresh Peanuts/ताज़ी मूँगफली","Nuts|Un-Processed",Fresh
+"Bajra/बाजरा_P","Others|Un-Processed",Processed
+"Bajra/बाजरा","Others|Un-Processed",Processed
+"Bajra/बाजरा","Others|Un-Processed",Processed
+"Jwar/ज्वार_P","Others|Un-Processed",Processed
+"Jwar/ज्वार","Others|Un-Processed",Processed
+"Jwar/ज्वार","Others|Un-Processed",Processed
+"Soyabean/सोयाबीन_P","Others|Un-Processed",Processed
+"Soyabean/सोयाबीन","Others|Un-Processed",Processed
+"Soyabean/सोयाबीन","Others|Un-Processed",Processed
+"Carrot/गाजर","Vegetables|Un-Processed",Processed
+"Carrot/गाजर","Vegetables|Un-Processed",Processed
+"Haldi Achaar/हल्दी का अचार_P","Chutney/Jams/Sauces/Pickels|Processed",Processed
+"Haldi Achaar/हल्दी का अचार","Chutney/Jams/Sauces/Pickels|Processed",Processed
+"karrna","Uncategorized",Processed
+"Fresh Methi'","Uncategorized",Fresh
+"118.3","Uncategorized",Processed
+"Strawberry/स्ट्रॉबेरी","Fruits|Un-Processed",Fresh
+"Strawberry/स्ट्रॉबेरी","Fruits|Un-Processed",Fresh
+"0.7","Uncategorized",Processed
+"Tomato Ketchup/टमाटर केचप_P","Chutney/Jams/Sauces/Pickels|Processed",Fresh
+"Tomato Ketchup/टमाटर केचप","Chutney/Jams/Sauces/Pickels|Processed",Fresh
+"Bajra Daliya/बाजरा दलिया_P","Others|Un-Processed",Processed
+"Bajra Daliya/बाजरा दलिया","Others|Un-Processed",Processed
+"Jwar Daliya/ज्वार का दलिया_P","Others|Un-Processed",Processed
+"Jwar Daliya/ज्वार का दलिया","Others|Un-Processed",Processed
+"green ga","Uncategorized",Processed
+"95.10","Uncategorized",Processed
+"Sponge Gourd Seeds","Uncategorized",Processed
+"Strawberry Jam/स्ट्रॉबेरी जैम_P","Chutney/Jams/Sauces/Pickels|Processed",Fresh
+"Strawberry Jam/स्ट्रॉबेरी जैम","Chutney/Jams/Sauces/Pickels|Processed",Fresh
+"Gaajar ka aachar/गाजर का अचार_P                                                                                                                ","Chutney/Jams/Sauces/Pickels|Processed",Processed
+"Gaajar ka aachar/गाजर का अचार","Chutney/Jams/Sauces/Pickels|Processed",Processed
+"spinach","Uncategorized",Fresh
+"Lilve/लीलवे_P","Fresh Herbs|Un-Processed",Fresh
+"Lilve/लीलवे","Fresh Herbs|Un-Processed",Fresh
+"#137_GROW Event_Nature Rangers","Learnings",Processed
+"Groundnut Oil|Processed/मूँगफली का तेल","Oil|Processed",Processed
+"Farmpreneur Course","Uncategorized",Processed
+"64.5","Uncategorized",Processed
+"100.3.","Uncategorized",Processed
+"Muskmelon seeds","Uncategorized",Processed
+"Ajwain","Uncategorized",Processed
+"Andrographis","Uncategorized",Processed
+"Ashwagandha ","Uncategorized",Processed
+"Barseem Seeds","Uncategorized",Processed
+"Super Napier Grass Stick Seeds","Uncategorized",Processed
+"Napier Seeds","Uncategorized",Processed
+"Napier Seeds","Uncategorized",Processed
+"brinjal\","Uncategorized",Fresh
+"Parsley seeds","Uncategorized",Processed
+"Celery seeds","Uncategorized",Processed
+"10.5","Uncategorized",Processed
+"Wheat/गेहूं","Others|Un-Processed",Processed
+"Sharbati Wheat/शरबती गेहूं_P","Others|Un-Processed",Processed
+"Sharbati Wheat/शरबती गेहूं","Others|Un-Processed",Processed
+"Bansi Wheat/बंसी गेहूं_P ","Others|Un-Processed",Processed
+"Bansi Wheat/बंसी गेहूं","Others|Un-Processed",Processed
+"Khapli Wheat/खापली गेहूं_P","Others|Un-Processed",Processed
+"Khapli Wheat/खापली गेहूं","Others|Un-Processed",Processed
+"Bhaliya Wheat/भालिया गेहूं_P","Others|Un-Processed",Processed
+"Bhaliya Wheat/भालिया गेहूं","Others|Un-Processed",Processed
+"Black Wheat/काला गेहूं_P","Others|Un-Processed",Processed
+"Black Wheat/काला गेहूं","Others|Un-Processed",Processed
+"Flax Seeds/ अलसी के बीज_P","Others|Un-Processed",Processed
+"Flax Seeds/ अलसी के बीज","Others|Un-Processed",Processed
+"Chia Seed/चिया बीज_P","Others|Un-Processed",Processed
+"Chia Seed/चिया बीज","Others|Un-Processed",Processed
+"Brown Chana/भूरा चना_P","Others|Un-Processed",Processed
+"Brown Chana/भूरा चना","Others|Un-Processed",Processed
+"Chana Daal/चना दाल_P","Others|Un-Processed",Processed
+"Chana Daal/चना दाल","Others|Un-Processed",Processed
+" Black Masoor Daal/काला मसूर दाल_P","Others|Un-Processed",Processed
+"Tuar Daal/तुअर दाल/अरहर दाल","Others|Un-Processed",Processed
+"Tuar whole/तुअर/अरहर पूरे_P","Others|Un-Processed",Processed
+"Tuar whole/तुअर/अरहर पूरे","Others|Un-Processed",Processed
+" Black Masoor Daal/काला मसूर दाल","Others|Un-Processed",Processed
+"Orange Masoor Daal/ऑरेंज मसूर दाल_P","Others|Un-Processed",Processed
+"Orange Masoor Daal/ऑरेंज मसूर दाल","Others|Un-Processed",Processed
+"Oats/ओट्स_P","Others|Un-Processed",Processed
+"Oats/ओट्स","Others|Un-Processed",Processed
+"Barley/जौ_P","Others|Un-Processed",Processed
+"Barley/जौ","Others|Un-Processed",Processed
+"Mustard/सरसों के बीज_P","Nuts|Un-Processed",Processed
+"Mustard/सरसों के बीज","Nuts|Un-Processed",Processed
+"Mustard Oil/सरसों का तेल_P","Oil|Processed",Processed
+"Mustard Oil/सरसों का तेल","Oil|Processed",Processed
+"`","Uncategorized",Processed
+"Settle Invoice","Services",Processed
+"Pigeon Pea seeds","Uncategorized",Processed
+"White Sesame Seeds","Uncategorized",Processed
+"Castor Seeds","Uncategorized",Processed
+"Tuar Daal/तुअर दाल/अरहर दाल_P","Others|Un-Processed",Processed
+"1.510","Uncategorized",Processed
+"Shatavari","Uncategorized",Processed
+"Guduchi","Uncategorized",Processed
+"Amalaki","Uncategorized",Processed
+"Brahmi","Uncategorized",Processed
+"Ashwagandha","Uncategorized",Processed
+"Ashoka","Uncategorized",Processed
+"Lodhra","Uncategorized",Processed
+"Varuna","Uncategorized",Processed
+"Punarnava","Uncategorized",Processed
+"Sariva","Uncategorized",Processed
+"Manjistha","Uncategorized",Processed
+"Tagara","Uncategorized",Processed
+"Neem","Uncategorized",Processed
+"Yashtimadhu","Uncategorized",Processed
+"Trikatu","Uncategorized",Processed
+"Triphala","Uncategorized",Processed
+"Dashamoola","Uncategorized",Processed
+"Shatpushpa","Uncategorized",Processed
+"Musti","Uncategorized",Processed
+"314..1","Uncategorized",Processed
+"Kanchanara bark","Uncategorized",Processed
+"Guggul resin (Shuddha)","Uncategorized",Processed
+"Haritaki","Uncategorized",Processed
+"Bibhitaki","Uncategorized",Processed
+"Shunthi","Uncategorized",Processed
+"Maricha","Uncategorized",Processed
+"Pippali","Uncategorized",Processed
+"Ela (Cardamom)","Uncategorized",Processed
+"Twak (Cinnamon)","Uncategorized",Processed
+"Tejpatra (Bay leaf)","Uncategorized",Processed
+"Litchi/लीची_P","Fruits|Un-Processed",Processed
+"Litchi/लीची","Fruits|Un-Processed",Processed
+"Litchi/लीची","Fruits|Un-Processed",Processed
+"Bajra Whole","Uncategorized",Processed
+"Bansi Wheat Atta","Uncategorized",Processed
+"Bansi Wheat Atta","Uncategorized",Processed
+"Bhaliya Wheat Atta","Uncategorized",Processed
+"Bhaliya Wheat Atta","Uncategorized",Processed
+"Chia Seeds","Uncategorized",Processed
+"Chia Seeds","Uncategorized",Processed
+"Chilka Urad Dal","Uncategorized",Processed
+"Chilka Urad Dal","Uncategorized",Processed
+"Flax Seeds","Uncategorized",Processed
+"Flax Seeds","Uncategorized",Processed
+"Ginger Powder","Uncategorized",Processed
+"Ginger Powder","Uncategorized",Processed
+"Groundnut Oil","Uncategorized",Processed
+"Haldi Fingers","Uncategorized",Processed
+"Haldi Fingers","Uncategorized",Processed
+"Haldi Powder","Uncategorized",Processed
+"Haldi Powder","Uncategorized",Processed
+"Jau Whole","Uncategorized",Processed
+"Jowar Whole","Uncategorized",Processed
+"Kala Chana - Black Gram","Uncategorized",Processed
+"Kali Sabut Masoor Dal","Uncategorized",Processed
+"Kali Sabut Masoor Dal","Uncategorized",Processed
+"Lal Masoor Dal","Uncategorized",Processed
+"Lal Masoor Dal","Uncategorized",Processed
+"Mustard Oil","Uncategorized",Processed
+"Peanuts Raw","Uncategorized",Fresh
+"Peanuts Raw","Uncategorized",Fresh
+"Peanuts Raw","Uncategorized",Fresh
+"Sabut Urad Dal","Uncategorized",Processed
+"Sabut Urad Dal","Uncategorized",Processed
+"Sesame Oil","Uncategorized",Processed
+"Sharbati Wheat Atta","Uncategorized",Processed
+"Sharbati Wheat Atta","Uncategorized",Processed
+"Sharbati Wheat Atta","Uncategorized",Processed
+"Toor Dal","Uncategorized",Processed
+"Toor Dal","Uncategorized",Processed
+"Whole Oats","Uncategorized",Processed
+"Bajra Whole","Uncategorized",Processed
+"Bansi Wheat Atta","Uncategorized",Processed
+"Bansi Wheat Atta","Uncategorized",Processed
+"Bhaliya Wheat Atta","Uncategorized",Processed
+"Bhaliya Wheat Atta","Uncategorized",Processed
+"Black Wheat Atta","Uncategorized",Processed
+"Black Wheat Atta","Uncategorized",Processed
+"Chia Seeds","Uncategorized",Processed
+"Chia Seeds","Uncategorized",Processed
+"Chilka Urad Dal","Uncategorized",Processed
+"Chilka Urad Dal","Uncategorized",Processed
+"Flax Seeds","Uncategorized",Processed
+"Flax Seeds","Uncategorized",Processed
+"Ginger Powder","Uncategorized",Processed
+"Ginger Powder","Uncategorized",Processed
+"Groundnut Oil","Uncategorized",Processed
+"Haldi Fingers","Uncategorized",Processed
+"Haldi Fingers","Uncategorized",Processed
+"Haldi Powder","Uncategorized",Processed
+"Haldi Powder","Uncategorized",Processed
+"Jau Whole","Uncategorized",Processed
+"Jowar Whole","Uncategorized",Processed
+"Kala Chana - Black Gram","Uncategorized",Processed
+"Kali Sabut Masoor Dal","Uncategorized",Processed
+"Kali Sabut Masoor Dal","Uncategorized",Processed
+"Khapli Wheat Atta","Uncategorized",Processed
+"Khapli Wheat Atta","Uncategorized",Processed
+"Lal Masoor Dal","Uncategorized",Processed
+"Lal Masoor Dal","Uncategorized",Processed
+"Mustard Oil","Uncategorized",Processed
+"Peanuts Raw","Uncategorized",Fresh
+"Peanuts Raw","Uncategorized",Fresh
+"Peanuts Raw","Uncategorized",Fresh
+"Sabut Urad Dal","Uncategorized",Processed
+"Sabut Urad Dal","Uncategorized",Processed
+"Sesame Oil","Uncategorized",Processed
+"Sharbati Wheat Atta","Uncategorized",Processed
+"Sharbati Wheat Atta","Uncategorized",Processed
+"Sharbati Wheat Atta","Uncategorized",Processed
+"Toor Dal","Uncategorized",Processed
+"Toor Dal","Uncategorized",Processed
+"Whole Oats","Uncategorized",Processed
+"Whole Wheat Atta","Uncategorized",Processed
+"Whole Wheat Atta","Uncategorized",Processed
+"Bajra Whole","Uncategorized",Processed
+"Bansi Wheat Atta","Uncategorized",Processed
+"Bansi Wheat Atta","Uncategorized",Processed
+"Bhaliya Wheat Atta","Uncategorized",Processed
+"Bhaliya Wheat Atta","Uncategorized",Processed
+"Black Wheat Atta","Uncategorized",Processed
+"Black Wheat Atta","Uncategorized",Processed
+"Chia Seeds","Uncategorized",Processed
+"Chia Seeds","Uncategorized",Processed
+"Chilka Urad Dal","Uncategorized",Processed
+"Chilka Urad Dal","Uncategorized",Processed
+"Flax Seeds","Uncategorized",Processed
+"Flax Seeds","Uncategorized",Processed
+"Ginger Powder","Uncategorized",Processed
+"Ginger Powder","Uncategorized",Processed
+"Groundnut Oil","Uncategorized",Processed
+"Haldi Fingers","Uncategorized",Processed
+"Haldi Fingers","Uncategorized",Processed
+"Haldi Powder","Uncategorized",Processed
+"Haldi Powder","Uncategorized",Processed
+"Jau Wholehttps://simplability.odoo.com/odoo/action-445","Uncategorized",Processed
+"Jowar Whole","Uncategorized",Processed
+"Kala Chana - Black Gram","Uncategorized",Processed
+"Kali Sabut Masoor Dal","Uncategorized",Processed
+"Kali Sabut Masoor Dal","Uncategorized",Processed
+"Khapli Wheat Atta","Uncategorized",Processed
+"Khapli Wheat Atta","Uncategorized",Processed
+"Lal Masoor Dal","Uncategorized",Processed
+"Lal Masoor Dal","Uncategorized",Processed
+"Mustard Oil","Uncategorized",Processed
+"Peanuts Raw","Uncategorized",Fresh
+"Peanuts Raw","Uncategorized",Fresh
+"Peanuts Raw","Uncategorized",Fresh
+"Sabut Urad Dal","Uncategorized",Processed
+"Sabut Urad Dal","Uncategorized",Processed
+"Sesame Oil","Uncategorized",Processed
+"Sharbati Wheat Atta","Uncategorized",Processed
+"Sharbati Wheat Atta","Uncategorized",Processed
+"Sharbati Wheat Atta","Uncategorized",Processed
+"Toor Dal","Uncategorized",Processed
+"Toor Dal","Uncategorized",Processed
+"Whole Oats","Uncategorized",Processed
+"Whole Wheat Atta","Uncategorized",Processed
+"Whole Wheat Atta","Uncategorized",Processed
+"Moong Dal","Uncategorized",Processed
+"Moong Dal","Uncategorized",Processed
+"Moong Dal","Uncategorized",Processed
+"Besan","Uncategorized",Processed
+"Besan","Uncategorized",Processed
+"Besan","Uncategorized",Processed
+"Red Chilli Powder","Uncategorized",Processed
+"Moringa Powder","Uncategorized",Processed
+"Kadi Patta Powder","Uncategorized",Processed
+"Beetroot Powder","Uncategorized",Processed
+"Hibiscus Dry","Uncategorized",Processed
+"Garlic Pickle","Uncategorized",Processed
+"Beetroot Pickle","Uncategorized",Processed
+"Keri (Raw Mango) Pickle","Uncategorized",Fresh
+"Gunda Pickle","Uncategorized",Processed
+"Onion Pickle","Uncategorized",Fresh
+"Moong Dal","Uncategorized",Processed
+"Moong Dal","Uncategorized",Processed
+"Moong Dal","Uncategorized",Processed
+"Besan","Uncategorized",Processed
+"Besan","Uncategorized",Processed
+"Besan","Uncategorized",Processed
+"Red Chilli Powder","Uncategorized",Processed
+"Moringa Powder","Uncategorized",Processed
+"Kadi Patta","Uncategorized",Processed
+"Beetroot Powder","Uncategorized",Processed
+"Hibiscus Dry","Uncategorized",Processed
+"Garlic Pickle","Uncategorized",Processed
+"Beetroot Pickle","Uncategorized",Processed
+"Keri (Raw Mango) Pickle","Uncategorized",Fresh
+"Gunda Pickle","Uncategorized",Processed
+"Onion Pickle","Uncategorized",Fresh
+"Bansi Wheat Atta","Uncategorized",Processed
+"Khapli Wheat","Uncategorized",Processed
+"Reg Wheat","Uncategorized",Processed
+"Bhaliya Wheat","Uncategorized",Processed
+"Black Wheat","Uncategorized",Processed
+"Discount","Services",Processed
+"Moong ki phali","Uncategorized",Processed
+"Brinjal Round","Uncategorized",Fresh
+"papaya","Uncategorized",Fresh
+"corn","Uncategorized",Fresh
+"moringa leaves","Uncategorized",Processed
+"fresh lemongrass new","Uncategorized",Fresh
+"tomato","Uncategorized",Fresh
+"Peach","Uncategorized",Processed
+"Fresh Bay Leaf New","Uncategorized",Fresh
+"Raw Mango","Uncategorized",Fresh
+"Baby Corn New","Uncategorized",Fresh
+"Garlic New","Uncategorized",Processed
+"Potato New","Uncategorized",Fresh
+"cluster bean","Uncategorized",Processed
+"Onion New","Uncategorized",Fresh
+"Curry Leaves","Uncategorized",Fresh
+"Okra New","Uncategorized",Processed
+"Turai New","Uncategorized",Fresh
+"Chikoo New","Uncategorized",Processed
+"Moong ki Phali New","Uncategorized",Processed
+"Karonde New","Uncategorized",Processed
+"Celery New","Uncategorized",Processed
+"Arvi Ke Patte New","Uncategorized",Processed
+"Litchi New","Uncategorized",Processed
+"Karela New","Uncategorized",Fresh
+"Fresh Oregano New","Uncategorized",Fresh
+"Beetroot New","Uncategorized",Processed
+"Lemon New","Uncategorized",Processed
+"Tomato puree","Uncategorized",Fresh
+"tomato pury","Uncategorized",Fresh
+"Tomato chutney","Uncategorized",Fresh
+"Raw totapuri. mango","Uncategorized",Fresh
+"beetroot stick pickle","Uncategorized",Processed
+"Drumstick pickle","Uncategorized",Fresh
+"Karonda pickle","Uncategorized",Processed
+"Chana dal","Uncategorized",Processed
+"Moti Mirchi","Uncategorized",Processed
+"Whole Wheat Atta","Uncategorized",Processed
+"Khapli Wheat Atta","Uncategorized",Processed
+"Black Wheat Atta","Uncategorized",Processed
+"Whole Wheat Atta","Uncategorized",Processed
+"Khapli Wheat Atta","Uncategorized",Processed
+"Black Wheat Atta","Uncategorized",Processed
+"Khapli Wheat Atta","Uncategorized",Processed
+"Khapli Wheat Atta","Uncategorized",Processed
+"Black Wheat Atta","Uncategorized",Processed
+"Black Wheat Atta","Uncategorized",Processed
+"Whole Wheat Atta","Uncategorized",Processed
+"Whole Wheat Atta","Uncategorized",Processed
+"Whole Wheat Atta","Uncategorized",Processed
+"Black Wheat Atta","Uncategorized",Processed
+"Khapli Wheat Atta","Uncategorized",Processed
+"Shipping Cost","All",Processed
+"Tomato Chutney","Uncategorized",Fresh
+"Tomato Puree","Uncategorized",Fresh
+"Drumstick Pickle","Uncategorized",Fresh
+"Bajra Whole","Uncategorized",Processed
+"Bansi Wheat Atta","Uncategorized",Processed
+"Beetroot Pickle","Uncategorized",Processed
+"Beetroot Powder","Uncategorized",Processed
+"Besan","Uncategorized",Processed
+"Bhaliya Wheat Atta","Uncategorized",Processed
+"Black Wheat Atta","Uncategorized",Processed
+"Chia Seeds","Uncategorized",Processed
+"Drumstick Pickle","Uncategorized",Fresh
+"Flax Seeds","Uncategorized",Processed
+"Garlic Pickle","Uncategorized",Processed
+"Gunda Pickle","Uncategorized",Processed
+"Haldi Fingers","Uncategorized",Processed
+"Haldi Powder","Uncategorized",Processed
+"Hibiscus Dry","Uncategorized",Processed
+"Jau Whole","Uncategorized",Processed
+"Kadi Patta","Uncategorized",Processed
+"Kala Chana - Black Gram","Uncategorized",Processed
+"Kali Sabut Masoor Dal","Uncategorized",Processed
+"Keri (Raw Mango) Pickle","Uncategorized",Fresh
+"Khapli Wheat Atta","Uncategorized",Processed
+"Lal Masoor Dal","Uncategorized",Processed
+"Moong Dal","Uncategorized",Processed
+"Moringa Powder","Uncategorized",Processed
+"Onion Pickle","Uncategorized",Fresh
+"Peanuts Raw","Uncategorized",Fresh
+"Red Chilli Powder","Uncategorized",Processed
+"Sabut Urad Dal","Uncategorized",Processed
+"Tomato Chutney","Uncategorized",Fresh
+"Tomato Puree","Uncategorized",Fresh
+"Toor Dal","Uncategorized",Processed
+"Whole Wheat Atta","Uncategorized",Processed
+"Bajra Whole","Uncategorized",Processed
+"Bansi Wheat Atta","Uncategorized",Processed
+"Beetroot Pickle","Uncategorized",Processed
+"Beetroot Powder","Uncategorized",Processed
+"Besan","Uncategorized",Processed
+"Bhaliya Wheat Atta","Uncategorized",Processed
+"Black Wheat Atta","Uncategorized",Processed
+"Chia Seeds","Uncategorized",Processed
+"Drumstick Pickle","Uncategorized",Fresh
+"Flax Seeds","Uncategorized",Processed
+"Garlic Pickle","Uncategorized",Processed
+"Gunda Pickle","Uncategorized",Processed
+"Haldi Fingers","Uncategorized",Processed
+"Haldi Powder","Uncategorized",Processed
+"Hibiscus Dry","Uncategorized",Processed
+"Jau Whole","Uncategorized",Processed
+"Kadi Patta","Uncategorized",Processed
+"Kala Chana - Black Gram","Uncategorized",Processed
+"Kali Sabut Masoor Dal","Uncategorized",Processed
+"Keri (Raw Mango) Pickle","Uncategorized",Fresh
+"Khapli Wheat Atta","Uncategorized",Processed
+"Lal Masoor Dal","Uncategorized",Processed
+"Moong Dal","Uncategorized",Processed
+"Moringa Powder","Uncategorized",Processed
+"Onion Pickle","Uncategorized",Fresh
+"Peanuts Raw","Uncategorized",Fresh
+"Red Chilli Powder","Uncategorized",Processed
+"Sabut Urad Dal","Uncategorized",Processed
+"Tomato Chutney","Uncategorized",Fresh
+"Tomato Puree","Uncategorized",Fresh
+"Toor Dal","Uncategorized",Processed
+"Whole Wheat Atta","Uncategorized",Processed
+"Bajra Whole","Uncategorized",Processed
+"Bansi Wheat Atta","Uncategorized",Processed
+"Beetroot Pickle","Uncategorized",Processed
+"Beetroot Powder","Uncategorized",Processed
+"Besan","Uncategorized",Processed
+"Bhaliya Wheat Atta","Uncategorized",Processed
+"Black Wheat Atta","Uncategorized",Processed
+"Chia Seeds","Uncategorized",Processed
+"Drumstick Pickle","Uncategorized",Fresh
+"Flax Seeds","Uncategorized",Processed
+"Garlic Pickle","Uncategorized",Processed
+"Gunda Pickle","Uncategorized",Processed
+"Haldi Fingers","Uncategorized",Processed
+"Haldi Powder","Uncategorized",Processed
+"Hibiscus Dry","Uncategorized",Processed
+"Jau Whole","Uncategorized",Processed
+"Kadi Patta","Uncategorized",Processed
+"Kala Chana - Black Gram","Uncategorized",Processed
+"Kali Sabut Masoor Dal","Uncategorized",Processed
+"Keri (Raw Mango) Pickle","Uncategorized",Fresh
+"Khapli Wheat Atta","Uncategorized",Processed
+"Lal Masoor Dal","Uncategorized",Processed
+"Moong Dal","Uncategorized",Processed
+"Moringa Powder","Uncategorized",Processed
+"Onion Pickle","Uncategorized",Fresh
+"Peanuts Raw","Uncategorized",Fresh
+"Red Chilli Powder","Uncategorized",Processed
+"Sabut Urad Dal","Uncategorized",Processed
+"Tomato Chutney","Uncategorized",Fresh
+"Tomato Puree","Uncategorized",Fresh
+"Toor Dal","Uncategorized",Processed
+"Whole Wheat Atta","Uncategorized",Processed
+"Bajra Whole","Uncategorized",Processed
+"Bansi Wheat Atta","Uncategorized",Processed
+"Beetroot Pickle","Uncategorized",Processed
+"Beetroot Powder","Uncategorized",Processed
+"Besan","Uncategorized",Processed
+"Bhaliya Wheat Atta","Uncategorized",Processed
+"Black Wheat Atta","Uncategorized",Processed
+"Chia Seeds","Uncategorized",Processed
+"Drumstick Pickle","Uncategorized",Fresh
+"Flax Seeds","Uncategorized",Processed
+"Garlic Pickle","Uncategorized",Processed
+"Gunda Pickle","Uncategorized",Processed
+"Haldi Fingers","Uncategorized",Processed
+"Haldi Powder","Uncategorized",Processed
+"Hibiscus Dry","Uncategorized",Processed
+"Jau Whole","Uncategorized",Processed
+"Kadi Patta","Uncategorized",Processed
+"Kala Chana - Black Gram","Uncategorized",Processed
+"Kali Sabut Masoor Dal","Uncategorized",Processed
+"Keri (Raw Mango) Pickle","Uncategorized",Fresh
+"Khapli Wheat Atta","Uncategorized",Processed
+"Lal Masoor Dal","Uncategorized",Processed
+"Moong Dal","Uncategorized",Processed
+"Moringa Powder","Uncategorized",Processed
+"Onion Pickle","Uncategorized",Fresh
+"Peanuts Raw","Uncategorized",Fresh
+"Red Chilli Powder","Uncategorized",Processed
+"Sabut Urad Dal","Uncategorized",Processed
+"Tomato Chutney","Uncategorized",Fresh
+"Tomato Puree","Uncategorized",Fresh
+"Toor Dal","Uncategorized",Processed
+"Whole Wheat Atta","Uncategorized",Processed
+"Bajra Whole","Uncategorized",Processed
+"Bansi Wheat Atta","Uncategorized",Processed
+"Beetroot Pickle","Uncategorized",Processed
+"Beetroot Powder","Uncategorized",Processed
+"Besan","Uncategorized",Processed
+"Bhaliya Wheat Atta","Uncategorized",Processed
+"Black Wheat Atta","Uncategorized",Processed
+"Chia Seeds","Uncategorized",Processed
+"Drumstick Pickle","Uncategorized",Fresh
+"Flax Seeds","Uncategorized",Processed
+"Garlic Pickle","Uncategorized",Processed
+"Gunda Pickle","Uncategorized",Processed
+"Haldi Fingers","Uncategorized",Processed
+"Haldi Powder","Uncategorized",Processed
+"Hibiscus Dry","Uncategorized",Processed
+"Jau Whole","Uncategorized",Processed
+"Kadi Patta","Uncategorized",Processed
+"Kala Chana - Black Gram","Uncategorized",Processed
+"Kali Sabut Masoor Dal","Uncategorized",Processed
+"Keri (Raw Mango) Pickle","Uncategorized",Fresh
+"Khapli Wheat Atta","Uncategorized",Processed
+"Lal Masoor Dal","Uncategorized",Processed
+"Moong Dal","Uncategorized",Processed
+"Moringa Powder","Uncategorized",Processed
+"Onion Pickle","Uncategorized",Fresh
+"Peanuts Raw","Uncategorized",Fresh
+"Red Chilli Powder","Uncategorized",Processed
+"Sabut Urad Dal","Uncategorized",Processed
+"Tomato Chutney","Uncategorized",Fresh
+"Tomato Puree","Uncategorized",Fresh
+"Toor Dal","Uncategorized",Processed
+"Whole Wheat Atta","Uncategorized",Processed
+"Gunda/गोंदा_P","Vegetables|Un-Processed",Processed
+"Gunda/गोंदा_P","Vegetables|Un-Processed",Processed
+"Gunda/गोंदा_P","Vegetables|Un-Processed",Processed
+"Gunda/गोंदा","Vegetables|Un-Processed",Processed
+"Gunda/गोंदा","Vegetables|Un-Processed",Processed
+"Gunda/गोंदा","Vegetables|Un-Processed",Processed
+"Kairo Weather Unit","Uncategorized",Processed
+"10% on your order","Uncategorized",Processed
+"Arvi Patta","Uncategorized",Processed
+"Baby Onion","Uncategorized",Fresh
+"Bhindi- Bharwa","Uncategorized",Fresh
+"Brinjal Normal [Baingan]","Uncategorized",Fresh
+"Brinjal Round","Uncategorized",Fresh
+"Chikoo","Uncategorized",Processed
+"Cluster Beans (Guar Phali)","Uncategorized",Processed
+"Desi bhutta","Uncategorized",Processed
+"Desi Tomato","Uncategorized",Fresh
+"Drumstick","Uncategorized",Fresh
+"Dussheri Mango","Uncategorized",Fresh
+"Fresh Curry Leaves","Uncategorized",Fresh
+"Garlic","Uncategorized",Processed
+"Garlic Peeled","Uncategorized",Processed
+"Green Chilli - Hot","Uncategorized",Processed
+"Green Chilli - Mild","Uncategorized",Processed
+"Karela (Bitter Gourd)","Uncategorized",Fresh
+"Kesar Mango","Uncategorized",Fresh
+"Khatta Karonda","Uncategorized",Processed
+"Lauki (Bottle Gourd)","Uncategorized",Processed
+"Moong ki phali","Uncategorized",Processed
+"Musk Melon","Uncategorized",Processed
+"Okra (Bhindi)","Uncategorized",Fresh
+"Papaya","Uncategorized",Fresh
+"Raw Papaya","Uncategorized",Fresh
+"Raw totapuri. mango","Uncategorized",Fresh
+"Sindoori Mango","Uncategorized",Fresh
+"Spinach","Uncategorized",Fresh
+"Sweet Corn","Uncategorized",Fresh
+"tomato","Uncategorized",Fresh
+"Turai (Ridge Gourd)","Uncategorized",Fresh
+"Urad chhilka","Uncategorized",Processed
+"Chana Dal","Uncategorized",Processed
+"Chana Dal","Uncategorized",Processed
+"ShipRocket","All / Deliveries",Processed
+"peach","Uncategorized",Processed
+"moringa stick waste","Uncategorized",Processed
+"jawar","Uncategorized",Processed
+"cllus","Uncategorized",Processed
+"20% on your order","Uncategorized",Processed
+"15% on your order","Uncategorized",Processed
+"20% on your order","Uncategorized",Processed
+"Bansi Wheat Atta","Uncategorized",Processed
+"Bansi Wheat Atta","Uncategorized",Processed
+"Khapli Wheat Atta","Uncategorized",Processed
+"Bhaliya Wheat Atta","Uncategorized",Processed
+"Bhaliya Wheat Atta","Uncategorized",Processed
+"Black Wheat Atta","Uncategorized",Processed
+"Whole Wheat Atta","Uncategorized",Processed
+"Dry Curry Leaves","Uncategorized",Fresh
+"Lemongrass","Uncategorized",Fresh
+"Bay Leaf","Uncategorized",Processed
+"Bonemeal Powder 50 kg","Uncategorized",Processed
+"Trichoderma Liquid","Uncategorized",Processed
+"NPK Liquid","Uncategorized",Processed
+"Pseudomonas Liquid","Uncategorized",Processed
+"Ginger Seeds","Uncategorized",Processed
+"Sesamum, Seeds","Uncategorized",Processed
+"Sunfower Seeds","Uncategorized",Processed
+"Sunflower Seeds","Uncategorized",Processed
+"Micro Zyme","3105",Processed
+"Mycorrhiza","Uncategorized",Processed
+"Vidari","Uncategorized",Processed
+"Wild Forest Honey","Uncategorized",Processed
+"Wild Forest Honey/शहद","Uncategorized",Processed
+"garmotha","Uncategorized",Processed
+"Gokshura","Uncategorized",Processed
+"Kachr Chhal","Uncategorized",Processed
+"Gugulu","Uncategorized",Processed
+"Purva","Uncategorized",Processed
+"Shatapushpa","Uncategorized",Processed
+"Jatamansi","Uncategorized",Processed
+"Kutki","Uncategorized",Processed
+"Bala","Uncategorized",Processed
+"gkesar","Uncategorized",Processed
+"Packaging","Uncategorized",Processed

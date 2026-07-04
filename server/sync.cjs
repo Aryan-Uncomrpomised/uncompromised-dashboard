@@ -39,9 +39,9 @@ const insertMoveLine = db.prepare(`
   INSERT OR REPLACE INTO move_lines (
     id, name, ref, move_id_id, move_id_name, move_name, product_id_id, product_id_name,
     quantity, price_unit, debit, credit, amount_residual, date, date_maturity,
-    partner_id_id, partner_id_name, account_id_id, account_id_code, reconciled, parent_state, account_type
+    partner_id_id, partner_id_name, account_id_id, account_id_code, reconciled, parent_state, account_type, farm
   ) VALUES (
-    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
   )
 `);
 
@@ -62,11 +62,11 @@ const insertProduct = db.prepare(`
 `);
 
 const insertPartner = db.prepare(`
-  INSERT OR REPLACE INTO partners (id, name, city) VALUES (?, ?, ?)
+  INSERT OR IGNORE INTO partners (id, name, city, tags) VALUES (?, ?, ?, ?)
 `);
 
 async function syncSales() {
-  console.log('Syncing Sales & Income...');
+  console.log('Syncing Sales & Spoilage...');
   const accountIds = [81, 82, 1270]; // Produce, Experiences, Learning
 
   const moveLines = await executeKw('account.move.line', 'search_read', [
@@ -75,7 +75,7 @@ async function syncSales() {
       ['parent_state', '=', 'posted']
     ]
   ], {
-    fields: ['id', 'name', 'ref', 'move_id', 'move_name', 'product_id', 'quantity', 'price_unit', 'debit', 'credit', 'date', 'partner_id', 'account_id'],
+    fields: ['id', 'name', 'ref', 'move_id', 'move_name', 'product_id', 'quantity', 'price_unit', 'debit', 'credit', 'date', 'partner_id', 'account_id', 'analytic_distribution'],
     limit: 100000,
     order: 'date desc'
   });
@@ -85,7 +85,7 @@ async function syncSales() {
     for (const line of lines) {
       const pId = line.partner_id ? line.partner_id[0] : null;
       const pName = line.partner_id ? line.partner_id[1] : null;
-      if (pId) insertPartner.run(pId, pName, 'Unknown'); // We don't have city in this query
+      if (pId) insertPartner.run(pId, pName, 'Unknown', null); // We don't have city in this query
 
       const mId = line.move_id ? line.move_id[0] : null;
       const mName = line.move_id ? line.move_id[1] : null;
@@ -93,11 +93,29 @@ async function syncSales() {
       const prName = line.product_id ? line.product_id[1] : null;
       const aId = line.account_id ? line.account_id[0] : null;
       const aCode = line.account_id ? line.account_id[1].split(' ')[0] : null;
+      
+      let farm = null;
+      if (line.analytic_distribution) {
+        const keys = Object.keys(line.analytic_distribution);
+        if (keys.length > 0) {
+          const analyticCode = keys[0].replace(/,/g, '');
+          farm = FARM_CODE_MAPPING[analyticCode];
+          if (!farm) {
+            if (analyticCode.startsWith('1710')) farm = 'Unknown/UF 23000/Bloom';
+            else if (analyticCode.startsWith('1711') || analyticCode.startsWith('3119')) farm = 'Unknown/UF 23001/Badi';
+            else if (analyticCode.startsWith('1712') || analyticCode.startsWith('3129')) farm = 'Unknown/UF 23002/Khadija';
+            else if (analyticCode.startsWith('3139')) farm = 'Unknown/UF 23003/Thoor';
+            else if (analyticCode.startsWith('3149')) farm = 'Unknown/UF 23004/Gattani';
+            else if (analyticCode.startsWith('32994')) farm = 'Unknown/UF 24005/Chandrangan';
+            else if (analyticCode.startsWith('318294') || analyticCode.startsWith('318394')) farm = 'Unknown/UF 25007/Sarai (Dabok)';
+          }
+        }
+      }
 
       insertMoveLine.run(
         line.id, line.name || '', line.ref || '', mId, mName, line.move_name || '', prId, prName,
         line.quantity || 0, line.price_unit || 0, line.debit || 0, line.credit || 0, 0, // amount_residual=0 for income
-        line.date || '', '', pId, pName, aId, aCode, 0, 'posted', 'income'
+        line.date || '', '', pId, pName, aId, aCode, 0, 'posted', 'income', farm
       );
     }
   });
@@ -132,7 +150,7 @@ async function syncReceivables() {
     for (const line of lines) {
       const pId = line.partner_id ? line.partner_id[0] : null;
       const pName = line.partner_id ? line.partner_id[1] : null;
-      if (pId) insertPartner.run(pId, pName, 'Unknown');
+      if (pId) insertPartner.run(pId, pName, 'Unknown', null);
 
       const mId = line.move_id ? line.move_id[0] : null;
       const mName = line.move_id ? line.move_id[1] : null;
@@ -142,7 +160,7 @@ async function syncReceivables() {
       insertMoveLine.run(
         line.id, line.name || '', '', mId, mName, line.move_name || '', null, null,
         0, 0, line.debit || 0, line.credit || 0, line.amount_residual || 0,
-        line.date || '', line.date_maturity || '', pId, pName, aId, aCode, 0, line.parent_state || 'posted', 'asset_receivable'
+        line.date || '', line.date_maturity || '', pId, pName, aId, aCode, 0, line.parent_state || 'posted', 'asset_receivable', null
       );
     }
   });
@@ -257,9 +275,53 @@ async function syncVendorBills() {
   console.log(`Synced ${bills.length} vendor bill lines.`);
 }
 
+async function syncPartners() {
+  console.log('Syncing Partners & Tags...');
+  
+  // 1. Fetch Categories/Tags
+  const categories = await executeKw('res.partner.category', 'search_read', [[]], {
+    fields: ['id', 'name'],
+    limit: 5000
+  });
+  
+  const categoryMap = {};
+  categories.forEach(c => {
+    categoryMap[c.id] = c.name;
+  });
+
+  // 2. Fetch Partners
+  const partners = await executeKw('res.partner', 'search_read', [[['active', '=', true]]], {
+    fields: ['id', 'name', 'city', 'category_id'],
+    limit: 10000
+  });
+
+  const insertBulkPartner = db.prepare(`
+    INSERT OR REPLACE INTO partners (id, name, city, tags) VALUES (?, ?, ?, ?)
+  `);
+
+  const insertMany = db.transaction((records) => {
+    for (const partner of records) {
+      let tags = null;
+      if (partner.category_id && partner.category_id.length > 0) {
+        tags = partner.category_id.map(id => categoryMap[id] || '').filter(Boolean).join(', ');
+      }
+      insertBulkPartner.run(
+        partner.id,
+        partner.name || '',
+        partner.city || '',
+        tags || null
+      );
+    }
+  });
+
+  insertMany(partners);
+  console.log(`Synced ${partners.length} partners.`);
+}
+
 async function runSync() {
   console.log(`\n[${new Date().toISOString()}] Starting Odoo background sync...`);
   try {
+    await syncPartners();
     await syncProducts();
     await syncSales();
     await syncReceivables();

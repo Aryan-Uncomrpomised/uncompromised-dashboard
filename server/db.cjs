@@ -53,12 +53,13 @@ const initDB = () => {
     );
   `);
 
-  // Partners Table
+  // Partners Table (for tracking tags like V-Fresh B2C)
   db.exec(`
     CREATE TABLE IF NOT EXISTS partners (
       id INTEGER PRIMARY KEY,
       name TEXT,
-      city TEXT
+      city TEXT,
+      tags TEXT
     );
   `);
 

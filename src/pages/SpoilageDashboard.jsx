@@ -13,6 +13,8 @@ const SpoilageDashboard = () => {
   
   // Page-Level Filter
   const [globalCategory, setGlobalCategory] = useState('All Categories');
+  const [selectedFarm, setSelectedFarm] = useState('All Farms');
+  const [selectedCrop, setSelectedCrop] = useState('All Crops');
 
   // Visual-Level Filters
   const [topCropsCategory, setTopCropsCategory] = useState('All Categories');
@@ -38,6 +40,19 @@ const SpoilageDashboard = () => {
   const baseData = useMemo(() => {
     let filtered = rawData;
 
+    // First extract all available options from the raw data before filtering
+    const allFarms = new Set();
+    const allCrops = new Set();
+    const allCategories = new Set();
+    rawData.forEach(line => {
+      if (line.farm) allFarms.add(line.farm);
+      let cleanProduct = line.product || 'Unknown Product';
+      if (cleanProduct.includes(']')) cleanProduct = cleanProduct.split(']')[1].trim();
+      cleanProduct = cleanProduct.replace(/_P$/, '').trim();
+      allCrops.add(cleanProduct);
+      allCategories.add(line.partner || 'Unknown');
+    });
+
     if (filters.startDate) {
       filtered = filtered.filter(item => {
         if (!item.date) return true;
@@ -54,26 +69,27 @@ const SpoilageDashboard = () => {
     if (globalCategory !== 'All Categories') {
       filtered = filtered.filter(item => (item.partner || 'Unknown') === globalCategory);
     }
-
-    // Prepare distinct lists for dropdowns
-    const availableCategories = new Set();
-    const availableCrops = new Set();
-
-    filtered.forEach(line => {
-      availableCategories.add(line.partner || 'Unknown');
-      
-      let cleanProduct = line.product || 'Unknown Product';
-      if (cleanProduct.includes(']')) cleanProduct = cleanProduct.split(']')[1].trim();
-      cleanProduct = cleanProduct.replace(/_P$/, '').trim();
-      availableCrops.add(cleanProduct);
-    });
+    
+    if (selectedFarm !== 'All Farms') {
+      filtered = filtered.filter(item => item.farm === selectedFarm);
+    }
+    
+    if (selectedCrop !== 'All Crops') {
+      filtered = filtered.filter(item => {
+        let cleanProduct = item.product || 'Unknown Product';
+        if (cleanProduct.includes(']')) cleanProduct = cleanProduct.split(']')[1].trim();
+        cleanProduct = cleanProduct.replace(/_P$/, '').trim();
+        return cleanProduct === selectedCrop;
+      });
+    }
 
     return {
       lines: filtered,
-      categoryOptions: Array.from(availableCategories).sort(),
-      cropOptions: Array.from(availableCrops).sort()
+      categoryOptions: Array.from(allCategories).sort(),
+      cropOptions: Array.from(allCrops).sort(),
+      farmOptions: Array.from(allFarms).sort()
     };
-  }, [rawData, filters, globalCategory]);
+  }, [rawData, filters, globalCategory, selectedFarm, selectedCrop]);
 
   // 2. Top Stats
   const topStats = useMemo(() => {
@@ -206,7 +222,7 @@ const SpoilageDashboard = () => {
 
       if (tableSearch && !cleanProduct.toLowerCase().includes(tableSearch.toLowerCase())) return;
 
-      data.push({ date, category, product: cleanProduct, qty: line.revised_qty || 0 });
+      data.push({ date, category, product: cleanProduct, qty: line.revised_qty || 0, farm: line.farm || '-' });
     });
     return data.sort((a, b) => b.date.localeCompare(a.date));
   }, [baseData, tableSearch]);
@@ -241,8 +257,8 @@ const SpoilageDashboard = () => {
           <p style={{ color: 'var(--text-muted)', marginTop: '4px' }}>Track spoilage, decay, and pilferage across all crops.</p>
         </div>
         
-        <div style={{ display: 'flex', gap: '16px', background: 'var(--glass-bg)', padding: '12px 20px', borderRadius: '16px', border: 'var(--glass-border)', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
-          <div className="flex items-center gap-4">
+        <div style={{ display: 'flex', gap: '16px', background: 'var(--glass-bg)', padding: '12px 20px', borderRadius: '16px', border: 'var(--glass-border)', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+          <div className="flex items-center gap-4 flex-wrap">
             <span style={{ fontSize: '14px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}><Filter size={14}/> Page Filter:</span>
             <select 
               className="drp-trigger" 
@@ -252,6 +268,28 @@ const SpoilageDashboard = () => {
             >
               <option value="All Categories">All Categories</option>
               {baseData.categoryOptions.map(c => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+            <select 
+              className="drp-trigger" 
+              style={{ width: 'auto', appearance: 'auto', background: 'var(--bg-secondary)', padding: '6px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
+              value={selectedFarm}
+              onChange={(e) => setSelectedFarm(e.target.value)}
+            >
+              <option value="All Farms">All Farms</option>
+              {baseData.farmOptions.map(f => (
+                <option key={f} value={f}>{f}</option>
+              ))}
+            </select>
+            <select 
+              className="drp-trigger" 
+              style={{ width: '150px', appearance: 'auto', background: 'var(--bg-secondary)', padding: '6px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
+              value={selectedCrop}
+              onChange={(e) => setSelectedCrop(e.target.value)}
+            >
+              <option value="All Crops">All Crops</option>
+              {baseData.cropOptions.map(c => (
                 <option key={c} value={c}>{c}</option>
               ))}
             </select>

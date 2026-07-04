@@ -2,13 +2,15 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { ResponsiveContainer, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend } from 'recharts';
 import { useFilters } from '../context/FilterContext';
 import DateRangePicker from '../components/DateRangePicker';
-import { Tractor, Sprout, Calendar as CalendarIcon, Package } from 'lucide-react';
+import { Tractor, Sprout, Calendar as CalendarIcon, Package, Search } from 'lucide-react';
 
 const ProduceDashboard = () => {
   const { filters, setFilters } = useFilters();
   const [rawData, setRawData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedFarm, setSelectedFarm] = useState('All Farms');
+  const [selectedCrop, setSelectedCrop] = useState('All Crops');
+  const [tableSearch, setTableSearch] = useState('');
 
   useEffect(() => {
     fetch('/api/produce')
@@ -25,6 +27,21 @@ const ProduceDashboard = () => {
 
   const processedData = useMemo(() => {
     let filtered = rawData;
+
+    // Extract options before filtering
+    const allFarms = new Set();
+    const allCrops = new Set();
+    rawData.forEach(line => {
+      let farmName = line.farm || '(Blank)';
+      if (farmName.includes('/')) {
+        const parts = farmName.split('/');
+        farmName = parts.length > 1 ? parts[1].trim() : farmName;
+      }
+      if (farmName !== '(Blank)' && farmName !== 'Unknown Farm') {
+        allFarms.add(farmName);
+      }
+      allCrops.add(line.product_new || line.product_name);
+    });
 
     if (filters.startDate) {
       filtered = filtered.filter(item => item.date >= filters.startDate);
@@ -65,14 +82,17 @@ const ProduceDashboard = () => {
       if (selectedFarm !== 'All Farms' && farmName !== selectedFarm) {
         return;
       }
+      
+      const cropName = line.product_new || line.product_name;
+      if (selectedCrop !== 'All Crops' && cropName !== selectedCrop) {
+        return;
+      }
 
       const qty = line.qty_purchased || 0;
       if (qty === 0) return;
 
       totalHarvest += qty;
-      productsSet.add(line.product_new || line.product_name);
-
-
+      productsSet.add(cropName);
 
       // Daily Aggregation
       const date = line.date;
@@ -80,12 +100,12 @@ const ProduceDashboard = () => {
       dailyMap[date].qty += qty;
 
       // Farm/Plot Aggregation
-      const farmKey = `${farmName}|${plotName}|${line.product_new}`;
+      const farmKey = `${farmName}|${plotName}|${cropName}`;
       if (!farmMap[farmKey]) {
         farmMap[farmKey] = {
           farm: farmName,
           plot: plotName,
-          product: line.product_new || line.product_name,
+          product: cropName,
           qty: 0,
           entries: 0
         };
@@ -126,9 +146,10 @@ const ProduceDashboard = () => {
       farmBreakdown,
       farmChartData,
       topCrops,
-      farmOptions: Array.from(availableFarms).sort()
+      farmOptions: Array.from(allFarms).sort(),
+      cropOptions: Array.from(allCrops).sort()
     };
-  }, [rawData, filters, selectedFarm]);
+  }, [rawData, filters, selectedFarm, selectedCrop]);
 
   if (loading) {
     return (
@@ -163,13 +184,24 @@ const ProduceDashboard = () => {
           <div className="flex items-center gap-4">
             <select 
               className="drp-trigger" 
-              style={{ width: 'auto', appearance: 'auto', background: 'var(--bg-secondary)' }}
+              style={{ width: 'auto', appearance: 'auto', background: 'var(--bg-secondary)', padding: '6px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
               value={selectedFarm}
               onChange={(e) => setSelectedFarm(e.target.value)}
             >
               <option value="All Farms">All Farms</option>
               {processedData.farmOptions.map(f => (
                 <option key={f} value={f}>{f}</option>
+              ))}
+            </select>
+            <select 
+              className="drp-trigger" 
+              style={{ width: '150px', appearance: 'auto', background: 'var(--bg-secondary)', padding: '6px 12px', borderRadius: '8px', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
+              value={selectedCrop}
+              onChange={(e) => setSelectedCrop(e.target.value)}
+            >
+              <option value="All Crops">All Crops</option>
+              {processedData.cropOptions.map(c => (
+                <option key={c} value={c}>{c}</option>
               ))}
             </select>
             <DateRangePicker value={dateValue} onChange={handleDateChange} />
@@ -272,8 +304,18 @@ const ProduceDashboard = () => {
 
       {/* Data Table */}
       <div className="card">
-        <div className="card-header">
+        <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span className="card-title">Farm & Plot Breakdown</span>
+          <div style={{ position: 'relative' }}>
+            <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+            <input 
+              type="text" 
+              placeholder="Search Crop..." 
+              value={tableSearch}
+              onChange={(e) => setTableSearch(e.target.value)}
+              style={{ padding: '6px 12px 6px 30px', borderRadius: '8px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '13px', outline: 'none' }}
+            />
+          </div>
         </div>
         <div className="data-table-container" style={{ marginTop: '16px' }}>
           <table className="data-table">
@@ -287,7 +329,7 @@ const ProduceDashboard = () => {
               </tr>
             </thead>
             <tbody>
-              {processedData.farmBreakdown.map((row, idx) => (
+              {processedData.farmBreakdown.filter(row => !tableSearch || row.product.toLowerCase().includes(tableSearch.toLowerCase())).map((row, idx) => (
                 <tr key={idx}>
                   <td style={{fontWeight: 500}}>{row.farm}</td>
                   <td style={{textAlign: 'center'}}><span className="status-badge" style={{background: 'rgba(59,130,246,0.1)', color: '#3b82f6'}}>{row.plot}</span></td>
@@ -296,7 +338,7 @@ const ProduceDashboard = () => {
                   <td style={{textAlign: 'right', color: 'var(--text-muted)'}}>{row.entries}</td>
                 </tr>
               ))}
-              {processedData.farmBreakdown.length === 0 && (
+              {processedData.farmBreakdown.filter(row => !tableSearch || row.product.toLowerCase().includes(tableSearch.toLowerCase())).length === 0 && (
                 <tr>
                   <td colSpan="5" style={{textAlign: 'center', padding: '2rem'}}>No produce records found for this period.</td>
                 </tr>

@@ -9,7 +9,7 @@ app.use(express.json());
 // Top-level orders
 app.get('/api/sales', (req, res) => {
   try {
-    const lines = db.prepare(`SELECT * FROM move_lines WHERE account_type = 'income'`).all();
+    const lines = db.prepare(`SELECT * FROM move_lines WHERE account_type = 'income' AND (partner_id_name IS NULL OR partner_id_name != 'Beyond Zero Farms LLP - Others MSME')`).all();
     
     const saleOrdersMap = {};
     const posOrdersMap = {};
@@ -60,7 +60,7 @@ app.get('/api/sales-lines', (req, res) => {
       productMap[p.id] = { name: p.name, category: p.categ_id_name || 'Uncategorized' };
     });
 
-    const lines = db.prepare(`SELECT * FROM move_lines WHERE account_type = 'income'`).all();
+    const lines = db.prepare(`SELECT * FROM move_lines WHERE account_type = 'income' AND (partner_id_name IS NULL OR partner_id_name != 'Beyond Zero Farms LLP - Others MSME')`).all();
     
     const saleLines = [];
     const posLines = [];
@@ -115,11 +115,14 @@ app.get('/api/inventory', (req, res) => {
 app.get('/api/receivables', (req, res) => {
   try {
     const lines = db.prepare(`
-      SELECT * FROM move_lines 
-      WHERE account_type = 'asset_receivable' 
-      AND parent_state = 'posted'
-      AND account_id_code != 'Trade'
-      ORDER BY date_maturity DESC
+      SELECT ml.*, p.tags as partner_tags 
+      FROM move_lines ml
+      LEFT JOIN partners p ON ml.partner_id_id = p.id
+      WHERE ml.account_type = 'asset_receivable' 
+      AND ml.parent_state = 'posted'
+      AND ml.account_id_code != 'Trade'
+      AND (ml.partner_id_name IS NULL OR ml.partner_id_name != 'Beyond Zero Farms LLP - Others MSME')
+      ORDER BY ml.date_maturity DESC
     `).all();
 
     const formattedLines = lines.map(line => ({
@@ -128,6 +131,7 @@ app.get('/api/receivables', (req, res) => {
       date: line.date,
       date_maturity: line.date_maturity,
       partner_id: line.partner_id_id ? [line.partner_id_id, line.partner_id_name] : null,
+      partner_tags: line.partner_tags,
       amount_residual: line.amount_residual,
       debit: line.debit,
       credit: line.credit,
@@ -146,7 +150,7 @@ app.get('/api/receivables', (req, res) => {
 app.get('/api/spoilage', (req, res) => {
   try {
     const lines = db.prepare(`
-      SELECT date, partner_id_name, product_id_name, quantity, price_unit
+      SELECT date, partner_id_name, product_id_name, quantity, price_unit, farm
       FROM move_lines
       WHERE account_type = 'income'
       AND parent_state = 'posted'
@@ -173,6 +177,7 @@ app.get('/api/spoilage', (req, res) => {
         date: line.date,
         partner: line.partner_id_name,
         product: line.product_id_name,
+        farm: line.farm,
         revised_qty: line.quantity * factor,
         value: (line.quantity * factor) * line.price_unit
       };
