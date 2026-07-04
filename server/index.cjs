@@ -77,7 +77,8 @@ app.get('/api/sales-lines', (req, res) => {
         price_subtotal_incl: netRevenue,
         price_subtotal: netRevenue,
         price_unit: line.price_unit,
-        account_code: line.account_id_code
+        account_code: line.account_id_code,
+        date: line.date
       };
 
       if (isWebsite) {

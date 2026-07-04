@@ -1,113 +1,166 @@
-import React, { useState, useEffect } from 'react';
-import { ResponsiveContainer, ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, PieChart, Pie, Cell } from 'recharts';
+import React, { useState, useEffect, useMemo } from 'react';
+import { ResponsiveContainer, ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, Area } from 'recharts';
 import { useFilters } from '../context/FilterContext';
 import DateRangePicker from '../components/DateRangePicker';
-
-const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'];
+import { Sprout, DollarSign, Trash2, ShoppingCart, Calendar as CalendarIcon, Search, Activity } from 'lucide-react';
 
 const OperationsDashboard = () => {
-  const { filters } = useFilters();
+  const { filters, setFilters } = useFilters();
   const [data, setData] = useState({
-    farmYield: [],
+    produce: [],
     spoilage: [],
-    salesLines: [],
-    posLines: [],
-    productMap: {}
+    sales: []
   });
   const [loading, setLoading] = useState(true);
+  const [matrixSearch, setMatrixSearch] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const [salesRes, produceRes] = await Promise.all([
+        const [salesRes, produceRes, spoilageRes] = await Promise.all([
           fetch('/api/sales-lines'),
-          fetch('/api/produce')
+          fetch('/api/produce'),
+          fetch('/api/spoilage')
         ]);
         
-        if (!salesRes.ok) throw new Error('Failed to fetch sales lines');
-        if (!produceRes.ok) throw new Error('Failed to fetch produce bills');
+        if (!salesRes.ok || !produceRes.ok || !spoilageRes.ok) throw new Error('API Error');
         
         const salesData = await salesRes.json();
         const produceData = await produceRes.json();
+        const spoilageData = await spoilageRes.json();
         
         setData({
-          farmYield: produceData.lines || [],
-          spoilage: [],  // To be populated from Odoo (Spoilage)
-          salesLines: salesData.saleLines || [],
-          posLines: salesData.posLines || [],
-          productMap: salesData.productMap || {}
+          produce: produceData.lines || [],
+          spoilage: spoilageData.lines || [],
+          sales: [...(salesData.saleLines || []), ...(salesData.posLines || [])]
         });
       } catch (err) {
-        console.error(err);
+        console.error('Error fetching master data:', err);
       } finally {
         setLoading(false);
       }
     };
     fetchData();
-  }, [filters]);
+  }, []);
 
-  if (loading) return <div className="p-8 text-center text-slate-400">Loading master operations data...</div>;
+  const cleanProductName = (rawName) => {
+    if (!rawName) return 'Unknown';
+    let clean = rawName;
+    if (clean.includes(']')) clean = clean.split(']')[1].trim();
+    clean = clean.replace(/_P$/, '').trim();
+    return clean;
+  };
 
-  const productStats = {};
-  
-  data.posLines.forEach(line => {
-    const productId = line.product_id ? line.product_id[0] : null;
-    if (!productId) return;
-    
-    // Check filters
-    if (filters.datePreset !== 'all' && filters.datePreset !== 'custom') {
-      // Basic filter logic (would need robust order date mapping if we had full order details here)
-      // For now, assuming API returns pre-filtered or we show all time if we don't have line dates.
+  const processedData = useMemo(() => {
+    let { produce, spoilage, sales } = data;
+
+    // Apply Global Date Filter
+    if (filters.startDate) {
+      produce = produce.filter(i => (i.date || '').split(' ')[0] >= filters.startDate);
+      spoilage = spoilage.filter(i => (i.date || '').split(' ')[0] >= filters.startDate);
+      sales = sales.filter(i => (i.date || '').split(' ')[0] >= filters.startDate);
     }
-    
-    if (!productStats[productId]) {
-      productStats[productId] = {
-        id: productId,
-        name: line.product_id[1],
-        soldQty: 0,
-        revenue: 0,
-        farmQty: 0,
-        spoiledQty: 0
-      };
+    if (filters.endDate) {
+      produce = produce.filter(i => (i.date || '').split(' ')[0] <= filters.endDate);
+      spoilage = spoilage.filter(i => (i.date || '').split(' ')[0] <= filters.endDate);
+      sales = sales.filter(i => (i.date || '').split(' ')[0] <= filters.endDate);
     }
-    
-    productStats[productId].soldQty += (line.qty || 0);
-    productStats[productId].revenue += (line.price_subtotal_incl || line.price_subtotal || 0);
-  });
 
-  data.farmYield.forEach(line => {
-    const productId = line.product_id;
-    if (!productId) return;
-    
-    // Check filters
-    if (filters.datePreset !== 'all' && filters.datePreset !== 'custom') {
-      if (filters.startDate && line.date < filters.startDate) return;
-      if (filters.endDate && line.date > filters.endDate) return;
-    }
-    
-    if (!productStats[productId]) {
-      productStats[productId] = {
-        id: productId,
-        name: line.product_name, // fallback
-        soldQty: 0,
-        revenue: 0,
-        farmQty: 0,
-        spoiledQty: 0
-      };
-    }
-    
-    productStats[productId].farmQty += (line.qty_purchased || 0);
-  });
+    // 1. Compute Master Matrix
+    const cropMap = {};
+    let totalHarvest = 0;
+    let totalSpoilage = 0;
+    let totalSales = 0;
+    let totalRevenue = 0;
 
-  const masterTableData = Object.values(productStats).sort((a, b) => b.revenue - a.revenue);
+    const getOrInitCrop = (name) => {
+      if (!cropMap[name]) {
+        cropMap[name] = { product: name, harvest: 0, sales: 0, spoilage: 0, revenue: 0 };
+      }
+      return cropMap[name];
+    };
 
-  const totalFarmKg = masterTableData.reduce((sum, p) => sum + p.farmQty, 0);
-  const totalSoldKg = masterTableData.reduce((sum, p) => sum + p.soldQty, 0);
-  const totalSpoiledKg = 600; // Hardcoded from Spoilage Dashboard for now until API is built
-  const totalRevenue = masterTableData.reduce((sum, p) => sum + p.revenue, 0);
-  
-  const spoilageRate = totalFarmKg > 0 ? ((totalSpoiledKg / totalFarmKg) * 100).toFixed(1) : 0;
+    produce.forEach(line => {
+      const qty = line.qty_purchased || 0;
+      if (qty <= 0) return;
+      const crop = getOrInitCrop(cleanProductName(line.product_new || line.product_name));
+      crop.harvest += qty;
+      totalHarvest += qty;
+    });
+
+    spoilage.forEach(line => {
+      const qty = line.revised_qty || 0;
+      if (qty <= 0) return;
+      const crop = getOrInitCrop(cleanProductName(line.product));
+      crop.spoilage += qty;
+      totalSpoilage += qty;
+    });
+
+    sales.forEach(line => {
+      const qty = line.qty || 0;
+      const rev = line.price_subtotal_incl || 0;
+      if (qty <= 0 && rev <= 0) return;
+      const crop = getOrInitCrop(cleanProductName(line.product_id ? line.product_id[1] : null));
+      crop.sales += qty;
+      crop.revenue += rev;
+      totalSales += qty;
+      totalRevenue += rev;
+    });
+
+    const matrixData = Object.values(cropMap)
+      .map(crop => ({
+        ...crop,
+        yieldPercent: crop.harvest > 0 ? ((crop.sales / crop.harvest) * 100) : 0,
+        unaccounted: crop.harvest - crop.sales - crop.spoilage
+      }))
+      .filter(crop => crop.harvest > 0 || crop.sales > 0 || crop.spoilage > 0)
+      .sort((a, b) => b.harvest - a.harvest);
+
+    // 2. Compute Timeline Data
+    const dailyMap = {};
+    const getOrInitDay = (d) => {
+      if (!dailyMap[d]) dailyMap[d] = { date: d, harvest: 0, sales: 0, spoilage: 0 };
+      return dailyMap[d];
+    };
+
+    produce.forEach(line => {
+      if (!line.date) return;
+      getOrInitDay(line.date.split(' ')[0]).harvest += (line.qty_purchased || 0);
+    });
+    spoilage.forEach(line => {
+      if (!line.date) return;
+      getOrInitDay(line.date.split(' ')[0]).spoilage += (line.revised_qty || 0);
+    });
+    sales.forEach(line => {
+      if (!line.date) return;
+      getOrInitDay(line.date.split(' ')[0]).sales += (line.qty || 0);
+    });
+
+    const timelineData = Object.values(dailyMap).sort((a, b) => a.date.localeCompare(b.date));
+
+    return {
+      totalHarvest,
+      totalSpoilage,
+      totalSales,
+      totalRevenue,
+      overallYield: totalHarvest > 0 ? ((totalSales / totalHarvest) * 100) : 0,
+      matrixData,
+      timelineData
+    };
+  }, [data, filters]);
+
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--color-primary)]"></div>
+      </div>
+    );
+  }
+
+  const formatNumber = (num) => Number(num).toLocaleString('en-IN', { maximumFractionDigits: 1 });
+  const formatCurrency = (num) => '₹' + Number(num).toLocaleString('en-IN', { maximumFractionDigits: 0 });
 
   const handleDateChange = (range) => {
     setFilters(prev => ({ ...prev, datePreset: 'custom', startDate: range.start, endDate: range.end, dateLabel: range.label }));
@@ -119,92 +172,138 @@ const OperationsDashboard = () => {
     label: filters.dateLabel || 'All Time'
   };
 
+  const filteredMatrix = processedData.matrixData.filter(row => 
+    !matrixSearch || row.product.toLowerCase().includes(matrixSearch.toLowerCase())
+  );
+
   return (
-    <div className="p-6 fade-in">
+    <div className="animate-fade-in space-y-6">
       <div className="mb-8" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
-          <h1 style={{ fontSize: '24px', fontWeight: 700, color: 'var(--text-primary)' }}>Operations Master Dashboard</h1>
-          <p style={{ color: 'var(--text-muted)', marginTop: '4px' }}>Lifecycle tracking from Farm Yield to Sales and Spoilage.</p>
+          <h1 style={{ fontSize: '24px', fontWeight: 700, color: 'var(--text-primary)' }}>Master Operations</h1>
+          <p style={{ color: 'var(--text-muted)', marginTop: '4px' }}>End-to-end crop lifecycle from Harvest to Sales to Spoilage.</p>
         </div>
         
-        {/* Local Filter Bar */}
         <div style={{ display: 'flex', gap: '16px', background: 'var(--glass-bg)', padding: '12px 20px', borderRadius: '16px', border: 'var(--glass-border)', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
-          <div className="filter-group">
-            <label className="filter-label">Date Range</label>
+          <div className="flex items-center gap-4">
             <DateRangePicker value={dateValue} onChange={handleDateChange} />
           </div>
         </div>
       </div>
 
-      <div className="dashboard-grid mb-8">
-        <div className="col-span-4 card" style={{ borderTop: '4px solid #10b981' }}>
-          <div className="card-header">
-            <span className="card-title">1. Farm Inbound (Yield)</span>
+      {/* KPI Banner */}
+      <div className="dashboard-grid">
+        <div className="card stat-card col-span-12 md:col-span-3">
+          <div className="stat-icon" style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }}>
+            <Sprout size={24} />
           </div>
-          <div className="metric-value">{totalFarmKg.toLocaleString(undefined, { maximumFractionDigits: 1 })} <span style={{ fontSize: '16px', color: 'var(--text-muted)' }}>KG</span></div>
-          <div style={{ marginTop: '8px', color: '#10b981', fontSize: '14px', fontWeight: 500 }}>
-            Syncing from Produce
-          </div>
-        </div>
-
-        <div className="col-span-4 card" style={{ borderTop: '4px solid #3b82f6' }}>
-          <div className="card-header">
-            <span className="card-title">2. Total Sales (Outbound)</span>
-          </div>
-          <div className="metric-value">{totalSoldKg.toLocaleString(undefined, { maximumFractionDigits: 1 })} <span style={{ fontSize: '16px', color: 'var(--text-muted)' }}>KG</span></div>
-          <div style={{ marginTop: '8px', color: 'var(--text-muted)', fontSize: '14px' }}>
-            Revenue: <span style={{ color: '#3b82f6', fontWeight: 600 }}>₹{Math.round(totalRevenue).toLocaleString()}</span>
+          <div className="stat-content">
+            <p className="stat-title">Total Harvested</p>
+            <h3 className="stat-value" style={{ color: '#10b981' }}>{formatNumber(processedData.totalHarvest)} <span style={{fontSize: '14px', color: 'var(--text-muted)'}}>Kg</span></h3>
           </div>
         </div>
-
-        <div className="col-span-4 card" style={{ borderTop: '4px solid #ef4444' }}>
-          <div className="card-header">
-            <span className="card-title">3. Total Spoilage (Waste)</span>
+        <div className="card stat-card col-span-12 md:col-span-3">
+          <div className="stat-icon" style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }}>
+            <ShoppingCart size={24} />
           </div>
-          <div className="metric-value">{totalSpoiledKg.toLocaleString()} <span style={{ fontSize: '16px', color: 'var(--text-muted)' }}>KG</span></div>
-          <div style={{ marginTop: '8px', color: '#ef4444', fontSize: '14px', fontWeight: 500 }}>
-            Spoilage Rate: {spoilageRate}%
+          <div className="stat-content">
+            <p className="stat-title">Total Sold</p>
+            <h3 className="stat-value" style={{ color: '#3b82f6' }}>{formatNumber(processedData.totalSales)} <span style={{fontSize: '14px', color: 'var(--text-muted)'}}>Kg</span></h3>
+          </div>
+        </div>
+        <div className="card stat-card col-span-12 md:col-span-3">
+          <div className="stat-icon" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' }}>
+            <Trash2 size={24} />
+          </div>
+          <div className="stat-content">
+            <p className="stat-title">Total Spoiled</p>
+            <h3 className="stat-value" style={{ color: '#ef4444' }}>{formatNumber(processedData.totalSpoilage)} <span style={{fontSize: '14px', color: 'var(--text-muted)'}}>Kg</span></h3>
+          </div>
+        </div>
+        <div className="card stat-card col-span-12 md:col-span-3">
+          <div className="stat-icon" style={{ backgroundColor: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b' }}>
+            <DollarSign size={24} />
+          </div>
+          <div className="stat-content">
+            <p className="stat-title">Total Revenue</p>
+            <h3 className="stat-value" style={{ color: '#f59e0b' }}>{formatCurrency(processedData.totalRevenue)}</h3>
           </div>
         </div>
       </div>
 
-      <div className="card col-span-12">
+      {/* Timeline Chart */}
+      <div className="card">
         <div className="card-header">
-          <span className="card-title">Lifecycle Master Table (By Product)</span>
+          <span className="card-title flex items-center gap-2"><Activity size={18} /> Operations Timeline (Kg)</span>
         </div>
-        <div className="data-table-container" style={{ maxHeight: '600px', overflowY: 'auto' }}>
+        <div style={{ height: '350px', marginTop: '16px' }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <ComposedChart data={processedData.timelineData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" />
+              <XAxis dataKey="date" stroke="var(--text-muted)" tick={{fill: 'var(--text-muted)'}} />
+              <YAxis stroke="var(--text-muted)" tick={{fill: 'var(--text-muted)'}} />
+              <RechartsTooltip 
+                contentStyle={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)', borderRadius: '8px' }}
+                formatter={(val, name) => [formatNumber(val) + ' Kg', name.charAt(0).toUpperCase() + name.slice(1)]}
+              />
+              <Legend verticalAlign="bottom" height={36}/>
+              <Area type="monotone" dataKey="harvest" fill="rgba(16, 185, 129, 0.1)" stroke="#10b981" strokeWidth={2} name="Harvest" />
+              <Line type="monotone" dataKey="sales" stroke="#3b82f6" strokeWidth={3} dot={false} name="Sales" />
+              <Line type="monotone" dataKey="spoilage" stroke="#ef4444" strokeWidth={2} strokeDasharray="5 5" dot={false} name="Spoilage" />
+            </ComposedChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Master Matrix */}
+      <div className="card">
+        <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span className="card-title">Crop Accountability Matrix</span>
+          <div style={{ position: 'relative' }}>
+            <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+            <input 
+              type="text" 
+              placeholder="Search Crop..." 
+              value={matrixSearch}
+              onChange={(e) => setMatrixSearch(e.target.value)}
+              style={{ padding: '6px 12px 6px 30px', borderRadius: '8px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '13px', outline: 'none' }}
+            />
+          </div>
+        </div>
+        <div className="data-table-container" style={{ marginTop: '16px' }}>
           <table className="data-table">
-            <thead style={{ position: 'sticky', top: 0, background: 'var(--bg-secondary)', zIndex: 1 }}>
+            <thead>
               <tr>
-                <th>Rank</th>
-                <th>Product Name</th>
-                <th style={{ textAlign: 'right' }}>Farm Yield (KG)</th>
-                <th style={{ textAlign: 'right' }}>Sold Qty (KG)</th>
-                <th style={{ textAlign: 'right' }}>Spoiled Qty (KG)</th>
-                <th style={{ textAlign: 'right' }}>Spoilage %</th>
-                <th style={{ textAlign: 'right' }}>Total Revenue</th>
+                <th style={{textAlign: 'left'}}>Crop</th>
+                <th style={{textAlign: 'right', color: '#10b981'}}>Harvest (Kg)</th>
+                <th style={{textAlign: 'right', color: '#3b82f6'}}>Sales (Kg)</th>
+                <th style={{textAlign: 'right', color: '#ef4444'}}>Spoilage (Kg)</th>
+                <th style={{textAlign: 'right', color: '#f59e0b'}}>Revenue</th>
+                <th style={{textAlign: 'right'}}>Unaccounted (Kg)</th>
+                <th style={{textAlign: 'right'}}>Yield Conversion</th>
               </tr>
             </thead>
             <tbody>
-              {masterTableData.length > 0 ? masterTableData.map((prod, idx) => (
-                <tr key={prod.id}>
-                  <td>#{idx + 1}</td>
-                  <td style={{ fontWeight: 500, color: 'var(--text-primary)' }}>{prod.name}</td>
-                  <td style={{ textAlign: 'right', color: '#10b981' }}>{prod.farmQty > 0 ? prod.farmQty.toLocaleString() : '-'}</td>
-                  <td style={{ textAlign: 'right' }}>{prod.soldQty > 0 ? prod.soldQty.toLocaleString(undefined, { maximumFractionDigits: 2 }) : '-'}</td>
-                  <td style={{ textAlign: 'right', color: '#ef4444' }}>{prod.spoiledQty > 0 ? prod.spoiledQty.toLocaleString() : '-'}</td>
-                  <td style={{ textAlign: 'right' }}>
-                    {prod.farmQty > 0 ? ((prod.spoiledQty / prod.farmQty) * 100).toFixed(1) + '%' : '-'}
+              {filteredMatrix.map((row, idx) => (
+                <tr key={idx}>
+                  <td style={{fontWeight: 600, color: 'var(--text-primary)'}}>{row.product}</td>
+                  <td style={{textAlign: 'right', fontWeight: 500, color: '#10b981'}}>{formatNumber(row.harvest)}</td>
+                  <td style={{textAlign: 'right', fontWeight: 500, color: '#3b82f6'}}>{formatNumber(row.sales)}</td>
+                  <td style={{textAlign: 'right', fontWeight: 500, color: '#ef4444'}}>{formatNumber(row.spoilage)}</td>
+                  <td style={{textAlign: 'right', color: '#f59e0b'}}>{formatCurrency(row.revenue)}</td>
+                  <td style={{textAlign: 'right', color: 'var(--text-muted)'}}>
+                    {row.unaccounted > 0 ? `+${formatNumber(row.unaccounted)}` : formatNumber(row.unaccounted)}
                   </td>
-                  <td style={{ textAlign: 'right', fontWeight: 600, color: '#3b82f6' }}>
-                    ₹{Math.round(prod.revenue).toLocaleString()}
+                  <td style={{textAlign: 'right'}}>
+                    <span className="status-badge" style={{background: row.yieldPercent > 70 ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', color: row.yieldPercent > 70 ? '#10b981' : '#ef4444'}}>
+                      {formatNumber(row.yieldPercent)}%
+                    </span>
                   </td>
                 </tr>
-              )) : (
+              ))}
+              {filteredMatrix.length === 0 && (
                 <tr>
-                  <td colSpan="7" style={{ textAlign: 'center', padding: '24px', color: 'var(--text-muted)' }}>
-                    No product data found.
-                  </td>
+                  <td colSpan="7" style={{textAlign: 'center', padding: '32px', color: 'var(--text-muted)'}}>No data available.</td>
                 </tr>
               )}
             </tbody>
