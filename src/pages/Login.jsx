@@ -74,9 +74,12 @@ const Login = () => {
           )}
           
           <div>
-            <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '8px' }}>Username</label>
+            <label htmlFor="username" style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '8px' }}>Username</label>
             <input 
+              id="username"
+              name="username"
               type="text" 
+              autoComplete="username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               style={{ width: '100%', background: 'var(--bg-secondary)', border: 'var(--glass-border)', borderRadius: '12px', padding: '12px 16px', color: 'var(--text-primary)', outline: 'none' }}
@@ -86,9 +89,12 @@ const Login = () => {
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '8px' }}>Password</label>
+            <label htmlFor="password" style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '8px' }}>Password</label>
             <input 
+              id="password"
+              name="password"
               type="password" 
+              autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               style={{ width: '100%', background: 'var(--bg-secondary)', border: 'var(--glass-border)', borderRadius: '12px', padding: '12px 16px', color: 'var(--text-primary)', outline: 'none' }}
