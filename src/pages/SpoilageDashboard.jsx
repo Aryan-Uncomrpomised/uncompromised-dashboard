@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { Trash2, ArrowDownRight } from 'lucide-react';
-import { useFilter } from '../context/FilterContext';
+import { useFilters } from '../context/FilterContext';
 
 const COLORS = ['#f59e0b', '#ef4444', '#8b5cf6', '#10b981', '#3b82f6'];
 
 const SpoilageDashboard = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { filterData } = useFilter();
+  const { filters } = useFilters();
 
   useEffect(() => {
     fetch('/api/spoilage')
@@ -23,7 +23,11 @@ const SpoilageDashboard = () => {
       });
   }, []);
 
-  const filteredLines = filterData(data);
+  const filteredLines = data.filter(line => {
+    if (!line.date) return true;
+    const d = line.date.split(' ')[0];
+    return d >= filters.startDate && d <= filters.endDate;
+  });
 
   const totalSpoilage = filteredLines.reduce((sum, line) => sum + (line.revised_qty || 0), 0);
 
