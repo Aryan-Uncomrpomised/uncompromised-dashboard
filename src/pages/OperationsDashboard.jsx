@@ -46,9 +46,15 @@ const OperationsDashboard = () => {
 
   const cleanProductName = (rawName) => {
     if (!rawName) return 'Unknown';
-    let clean = rawName;
+    let clean = String(rawName);
+    // Remove SKU prefix like "[179.1] " or "[179]"
     if (clean.includes(']')) clean = clean.split(']')[1].trim();
+    // Remove _P suffix
     clean = clean.replace(/_P$/, '').trim();
+    // Remove packaging sizes like (1kg), (500g), etc.
+    clean = clean.replace(/\(\s*\d+(\.\d+)?\s*(kg|g|gm|pc|pcs)\s*\)/i, '').trim();
+    // Fix weird stray parenthesis like "Chikoo/चीकू)"
+    clean = clean.replace(/\)$/, '').trim();
     return clean;
   };
 
