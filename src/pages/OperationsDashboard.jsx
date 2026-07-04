@@ -13,6 +13,7 @@ const OperationsDashboard = () => {
   });
   const [loading, setLoading] = useState(true);
   const [matrixSearch, setMatrixSearch] = useState('');
+  const [selectedFarm, setSelectedFarm] = useState('All Farms');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -60,6 +61,18 @@ const OperationsDashboard = () => {
 
   const processedData = useMemo(() => {
     let { produce, spoilage, sales } = data;
+
+    // Extract unique farms before filtering
+    const allFarms = new Set();
+    produce.forEach(p => {
+      if (p.farm) allFarms.add(p.farm);
+    });
+    const farmOptions = Array.from(allFarms).sort();
+
+    // Apply Farm Filter to Produce
+    if (selectedFarm && selectedFarm !== 'All Farms') {
+      produce = produce.filter(p => p.farm === selectedFarm);
+    }
 
     // Helper to shift dates by N days for margin mapping
     const addDays = (dateStr, days) => {
@@ -159,11 +172,12 @@ const OperationsDashboard = () => {
       totalSpoilage,
       totalSales,
       totalRevenue,
+      farmOptions,
       overallYield: totalHarvest > 0 ? ((totalSales / totalHarvest) * 100) : 0,
       matrixData,
       timelineData
     };
-  }, [data, filters]);
+  }, [data, filters, selectedFarm]);
 
 
   if (loading) {
@@ -201,6 +215,17 @@ const OperationsDashboard = () => {
         
         <div style={{ display: 'flex', gap: '16px', background: 'var(--glass-bg)', padding: '12px 20px', borderRadius: '16px', border: 'var(--glass-border)', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
           <div className="flex items-center gap-4">
+            <select 
+              className="drp-trigger" 
+              style={{ width: 'auto', appearance: 'auto', background: 'var(--bg-secondary)' }}
+              value={selectedFarm}
+              onChange={(e) => setSelectedFarm(e.target.value)}
+            >
+              <option value="All Farms">All Farms</option>
+              {processedData.farmOptions.map(f => (
+                <option key={f} value={f}>{f}</option>
+              ))}
+            </select>
             <DateRangePicker value={dateValue} onChange={handleDateChange} />
           </div>
         </div>
