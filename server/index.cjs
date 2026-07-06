@@ -144,43 +144,23 @@ app.get('/api/inventory', async (req, res) => {
 // Receivables
 app.get('/api/receivables', async (req, res) => {
   try {
-    // Equivalent to:
-    // SELECT ml.*, p.tags as partner_tags FROM move_lines ml LEFT JOIN partners p ON ml.partner_id_id = p.id
-    const lines = await db.collection('move_lines').aggregate([
-      {
-        $match: {
-          account_type: 'asset_receivable',
-          parent_state: 'posted',
-          account_id_code: { $ne: 'Trade' },
-          $or: [
-            { partner_id_name: null },
-            { partner_id_name: { $ne: 'Beyond Zero Farms LLP - Others MSME' } }
-          ]
-        }
-      },
-      {
-        $lookup: {
-          from: 'partners',
-          localField: 'partner_id_id',
-          foreignField: 'id',
-          as: 'partner_info'
-        }
-      },
-      {
-        $unwind: {
-          path: '$partner_info',
-          preserveNullAndEmptyArrays: true
-        }
-      },
-      {
-        $addFields: {
-          partner_tags: '$partner_info.tags'
-        }
-      },
-      {
-        $sort: { date_maturity: -1 }
-      }
-    ]).toArray();
+    const lines = await db.collection('move_lines').find({
+      account_type: 'asset_receivable',
+      parent_state: 'posted',
+      account_id_code: { $ne: 'Trade' },
+      $or: [
+        { partner_id_name: null },
+        { partner_id_name: { $ne: 'Beyond Zero Farms LLP - Others MSME' } }
+      ]
+    }).sort({ date_maturity: -1 }).toArray();
+
+    // In-memory lookup for partners to avoid slow aggregation
+    const partnerIds = [...new Set(lines.map(l => l.partner_id_id).filter(Boolean))];
+    const partners = await db.collection('partners').find({ id: { $in: partnerIds } }).toArray();
+    const partnerMap = {};
+    partners.forEach(p => {
+      partnerMap[p.id] = p.tags;
+    });
 
     const formattedLines = lines.map(line => ({
       id: line.id,
@@ -188,7 +168,7 @@ app.get('/api/receivables', async (req, res) => {
       date: line.date,
       date_maturity: line.date_maturity,
       partner_id: line.partner_id_id ? [line.partner_id_id, line.partner_id_name] : null,
-      partner_tags: line.partner_tags,
+      partner_tags: partnerMap[line.partner_id_id] || null,
       amount_residual: line.amount_residual,
       debit: line.debit,
       credit: line.credit,
