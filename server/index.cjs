@@ -1,15 +1,37 @@
 const express = require('express');
 const cors = require('cors');
-const db = require('./db.cjs');
+const { connectDB } = require('./db.cjs');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Initialize MongoDB connection
+let db;
+connectDB().then(database => {
+  db = database;
+}).catch(console.error);
+
+// Middleware to ensure DB is connected
+const ensureDB = (req, res, next) => {
+  if (!db) {
+    return res.status(503).json({ error: 'Database connecting, please try again' });
+  }
+  next();
+};
+
+app.use('/api', ensureDB);
+
 // Top-level orders
-app.get('/api/sales', (req, res) => {
+app.get('/api/sales', async (req, res) => {
   try {
-    const lines = db.prepare(`SELECT * FROM move_lines WHERE account_type = 'income' AND (partner_id_name IS NULL OR partner_id_name != 'Beyond Zero Farms LLP - Others MSME')`).all();
+    const lines = await db.collection('move_lines').find({
+      account_type: 'income',
+      $or: [
+        { partner_id_name: null },
+        { partner_id_name: { $ne: 'Beyond Zero Farms LLP - Others MSME' } }
+      ]
+    }).toArray();
     
     const saleOrdersMap = {};
     const posOrdersMap = {};
@@ -52,15 +74,21 @@ app.get('/api/sales', (req, res) => {
 });
 
 // Detailed Order Lines
-app.get('/api/sales-lines', (req, res) => {
+app.get('/api/sales-lines', async (req, res) => {
   try {
-    const products = db.prepare(`SELECT * FROM products`).all();
+    const products = await db.collection('products').find({}).toArray();
     const productMap = {};
     products.forEach(p => {
       productMap[p.id] = { name: p.name, category: p.categ_id_name || 'Uncategorized' };
     });
 
-    const lines = db.prepare(`SELECT * FROM move_lines WHERE account_type = 'income' AND (partner_id_name IS NULL OR partner_id_name != 'Beyond Zero Farms LLP - Others MSME')`).all();
+    const lines = await db.collection('move_lines').find({
+      account_type: 'income',
+      $or: [
+        { partner_id_name: null },
+        { partner_id_name: { $ne: 'Beyond Zero Farms LLP - Others MSME' } }
+      ]
+    }).toArray();
     
     const saleLines = [];
     const posLines = [];
@@ -95,9 +123,9 @@ app.get('/api/sales-lines', (req, res) => {
 });
 
 // Inventory
-app.get('/api/inventory', (req, res) => {
+app.get('/api/inventory', async (req, res) => {
   try {
-    const products = db.prepare(`SELECT * FROM products WHERE type = 'product'`).all();
+    const products = await db.collection('products').find({ type: 'product' }).toArray();
     const formatted = products.map(p => ({
       id: p.id,
       name: p.name,
@@ -112,18 +140,45 @@ app.get('/api/inventory', (req, res) => {
 });
 
 // Receivables
-app.get('/api/receivables', (req, res) => {
+app.get('/api/receivables', async (req, res) => {
   try {
-    const lines = db.prepare(`
-      SELECT ml.*, p.tags as partner_tags 
-      FROM move_lines ml
-      LEFT JOIN partners p ON ml.partner_id_id = p.id
-      WHERE ml.account_type = 'asset_receivable' 
-      AND ml.parent_state = 'posted'
-      AND ml.account_id_code != 'Trade'
-      AND (ml.partner_id_name IS NULL OR ml.partner_id_name != 'Beyond Zero Farms LLP - Others MSME')
-      ORDER BY ml.date_maturity DESC
-    `).all();
+    // Equivalent to:
+    // SELECT ml.*, p.tags as partner_tags FROM move_lines ml LEFT JOIN partners p ON ml.partner_id_id = p.id
+    const lines = await db.collection('move_lines').aggregate([
+      {
+        $match: {
+          account_type: 'asset_receivable',
+          parent_state: 'posted',
+          account_id_code: { $ne: 'Trade' },
+          $or: [
+            { partner_id_name: null },
+            { partner_id_name: { $ne: 'Beyond Zero Farms LLP - Others MSME' } }
+          ]
+        }
+      },
+      {
+        $lookup: {
+          from: 'partners',
+          localField: 'partner_id_id',
+          foreignField: 'id',
+          as: 'partner_info'
+        }
+      },
+      {
+        $unwind: {
+          path: '$partner_info',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $addFields: {
+          partner_tags: '$partner_info.tags'
+        }
+      },
+      {
+        $sort: { date_maturity: -1 }
+      }
+    ]).toArray();
 
     const formattedLines = lines.map(line => ({
       id: line.id,
@@ -147,16 +202,13 @@ app.get('/api/receivables', (req, res) => {
 });
 
 // Spoilage
-app.get('/api/spoilage', (req, res) => {
+app.get('/api/spoilage', async (req, res) => {
   try {
-    const lines = db.prepare(`
-      SELECT date, partner_id_name, product_id_name, quantity, price_unit, farm
-      FROM move_lines
-      WHERE account_type = 'income'
-      AND parent_state = 'posted'
-      AND partner_id_name IN ('Beyond Zero Farms LLP MSME', 'Spoilage  Pilferage', 'Spoilage Decay', 'Spoilage Sorting')
-      ORDER BY date DESC
-    `).all();
+    const lines = await db.collection('move_lines').find({
+      account_type: 'income',
+      parent_state: 'posted',
+      partner_id_name: { $in: ['Beyond Zero Farms LLP MSME', 'Spoilage  Pilferage', 'Spoilage Decay', 'Spoilage Sorting'] }
+    }).sort({ date: -1 }).toArray();
 
     const processedLines = lines.map(line => {
       let factor = 1;
@@ -191,12 +243,9 @@ app.get('/api/spoilage', (req, res) => {
 });
 
 // Produce
-app.get('/api/produce', (req, res) => {
+app.get('/api/produce', async (req, res) => {
   try {
-    const lines = db.prepare(`
-      SELECT * FROM vendor_bills 
-      ORDER BY date DESC
-    `).all();
+    const lines = await db.collection('vendor_bills').find({}).sort({ date: -1 }).toArray();
     res.json({ lines });
   } catch (err) {
     console.error('Error fetching produce bills:', err);
@@ -208,17 +257,15 @@ const path = require('path');
 
 // Serve static frontend files in production
 if (process.env.NODE_ENV === 'production') {
-  // Assuming the build folder is in ../dist (relative to server directory)
   const distPath = path.join(__dirname, '..', 'dist');
   app.use(express.static(distPath));
 
-  // Catch-all route to serve React app for client-side routing
   app.get('*', (req, res) => {
     res.sendFile(path.join(distPath, 'index.html'));
   });
 }
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => console.log(`Odoo proxy server running on port ${PORT} (SQLite backed)`));
+app.listen(PORT, () => console.log(`Odoo proxy server running on port ${PORT} (MongoDB backed)`));
 
 module.exports = app;

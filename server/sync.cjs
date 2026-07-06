@@ -1,5 +1,5 @@
 const xmlrpc = require('xmlrpc');
-const db = require('./db.cjs');
+const { connectDB, client } = require('./db.cjs');
 const { UOM_RATIO, FARM_CODE_MAPPING } = require('./produceMappings.cjs');
 
 const ODOO_HOST = process.env.ODOO_HOST || 'simplability.odoo.com';
@@ -34,40 +34,9 @@ const executeKw = async (model, method, args, kwargs = {}) => {
   });
 };
 
-// Prepared statements for SQLite
-const insertMoveLine = db.prepare(`
-  INSERT OR REPLACE INTO move_lines (
-    id, name, ref, move_id_id, move_id_name, move_name, product_id_id, product_id_name,
-    quantity, price_unit, debit, credit, amount_residual, date, date_maturity,
-    partner_id_id, partner_id_name, account_id_id, account_id_code, reconciled, parent_state, account_type, farm
-  ) VALUES (
-    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
-  )
-`);
-
-const insertVendorBill = db.prepare(`
-  INSERT OR REPLACE INTO vendor_bills (
-    id, ref, date, partner_id, partner_name, product_id, product_name, product_new,
-    account_id, account_name, quantity, uom_name, price_unit, discount, amount_total,
-    analytic_code, farm, qty_purchased, parent_state
-  ) VALUES (
-    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
-  )
-`);
-
-const insertProduct = db.prepare(`
-  INSERT OR REPLACE INTO products (
-    id, name, categ_id_id, categ_id_name, qty_available, virtual_available, type
-  ) VALUES (?, ?, ?, ?, ?, ?, ?)
-`);
-
-const insertPartner = db.prepare(`
-  INSERT OR IGNORE INTO partners (id, name, city, tags) VALUES (?, ?, ?, ?)
-`);
-
-async function syncSales() {
+async function syncSales(db) {
   console.log('Syncing Sales & Spoilage...');
-  const accountIds = [81, 82, 1270]; // Produce, Experiences, Learning
+  const accountIds = [81, 82, 1270];
 
   const moveLines = await executeKw('account.move.line', 'search_read', [
     [
@@ -80,51 +49,85 @@ async function syncSales() {
     order: 'date desc'
   });
 
-  const insertMany = db.transaction((lines) => {
-    db.exec("DELETE FROM move_lines WHERE account_type = 'income'");
-    for (const line of lines) {
-      const pId = line.partner_id ? line.partner_id[0] : null;
-      const pName = line.partner_id ? line.partner_id[1] : null;
-      if (pId) insertPartner.run(pId, pName, 'Unknown', null); // We don't have city in this query
+  await db.collection('move_lines').deleteMany({ account_type: 'income' });
 
-      const mId = line.move_id ? line.move_id[0] : null;
-      const mName = line.move_id ? line.move_id[1] : null;
-      const prId = line.product_id ? line.product_id[0] : null;
-      const prName = line.product_id ? line.product_id[1] : null;
-      const aId = line.account_id ? line.account_id[0] : null;
-      const aCode = line.account_id ? line.account_id[1].split(' ')[0] : null;
-      
-      let farm = null;
-      if (line.analytic_distribution) {
-        const keys = Object.keys(line.analytic_distribution);
-        if (keys.length > 0) {
-          const analyticCode = keys[0].replace(/,/g, '');
-          farm = FARM_CODE_MAPPING[analyticCode];
-          if (!farm) {
-            if (analyticCode.startsWith('1710')) farm = 'Unknown/UF 23000/Bloom';
-            else if (analyticCode.startsWith('1711') || analyticCode.startsWith('3119')) farm = 'Unknown/UF 23001/Badi';
-            else if (analyticCode.startsWith('1712') || analyticCode.startsWith('3129')) farm = 'Unknown/UF 23002/Khadija';
-            else if (analyticCode.startsWith('3139')) farm = 'Unknown/UF 23003/Thoor';
-            else if (analyticCode.startsWith('3149')) farm = 'Unknown/UF 23004/Gattani';
-            else if (analyticCode.startsWith('32994')) farm = 'Unknown/UF 24005/Chandrangan';
-            else if (analyticCode.startsWith('318294') || analyticCode.startsWith('318394')) farm = 'Unknown/UF 25007/Sarai (Dabok)';
-          }
+  const partnerOps = [];
+  const lineOps = moveLines.map(line => {
+    const pId = line.partner_id ? line.partner_id[0] : null;
+    const pName = line.partner_id ? line.partner_id[1] : null;
+    if (pId) {
+      partnerOps.push({
+        updateOne: {
+          filter: { id: pId },
+          update: { $setOnInsert: { id: pId, name: pName, city: 'Unknown', tags: null } },
+          upsert: true
+        }
+      });
+    }
+
+    const mId = line.move_id ? line.move_id[0] : null;
+    const mName = line.move_id ? line.move_id[1] : null;
+    const prId = line.product_id ? line.product_id[0] : null;
+    const prName = line.product_id ? line.product_id[1] : null;
+    const aId = line.account_id ? line.account_id[0] : null;
+    const aCode = line.account_id ? line.account_id[1].split(' ')[0] : null;
+    
+    let farm = null;
+    if (line.analytic_distribution) {
+      const keys = Object.keys(line.analytic_distribution);
+      if (keys.length > 0) {
+        const analyticCode = keys[0].replace(/,/g, '');
+        farm = FARM_CODE_MAPPING[analyticCode];
+        if (!farm) {
+          if (analyticCode.startsWith('1710')) farm = 'Unknown/UF 23000/Bloom';
+          else if (analyticCode.startsWith('1711') || analyticCode.startsWith('3119')) farm = 'Unknown/UF 23001/Badi';
+          else if (analyticCode.startsWith('1712') || analyticCode.startsWith('3129')) farm = 'Unknown/UF 23002/Khadija';
+          else if (analyticCode.startsWith('3139')) farm = 'Unknown/UF 23003/Thoor';
+          else if (analyticCode.startsWith('3149')) farm = 'Unknown/UF 23004/Gattani';
+          else if (analyticCode.startsWith('32994')) farm = 'Unknown/UF 24005/Chandrangan';
+          else if (analyticCode.startsWith('318294') || analyticCode.startsWith('318394')) farm = 'Unknown/UF 25007/Sarai (Dabok)';
         }
       }
-
-      insertMoveLine.run(
-        line.id, line.name || '', line.ref || '', mId, mName, line.move_name || '', prId, prName,
-        line.quantity || 0, line.price_unit || 0, line.debit || 0, line.credit || 0, 0, // amount_residual=0 for income
-        line.date || '', '', pId, pName, aId, aCode, 0, 'posted', 'income', farm
-      );
     }
+
+    return {
+      insertOne: {
+        document: {
+          id: line.id,
+          name: line.name || '',
+          ref: line.ref || '',
+          move_id_id: mId,
+          move_id_name: mName,
+          move_name: line.move_name || '',
+          product_id_id: prId,
+          product_id_name: prName,
+          quantity: line.quantity || 0,
+          price_unit: line.price_unit || 0,
+          debit: line.debit || 0,
+          credit: line.credit || 0,
+          amount_residual: 0,
+          date: line.date || '',
+          date_maturity: '',
+          partner_id_id: pId,
+          partner_id_name: pName,
+          account_id_id: aId,
+          account_id_code: aCode,
+          reconciled: 0,
+          parent_state: 'posted',
+          account_type: 'income',
+          farm: farm
+        }
+      }
+    };
   });
 
-  insertMany(moveLines);
+  if (partnerOps.length > 0) await db.collection('partners').bulkWrite(partnerOps);
+  if (lineOps.length > 0) await db.collection('move_lines').bulkWrite(lineOps);
+
   console.log(`Synced ${moveLines.length} income lines.`);
 }
 
-async function syncReceivables() {
+async function syncReceivables(db) {
   console.log('Syncing Receivables...');
   const accounts = await executeKw('account.account', 'search_read', [
     [['account_type', '=', 'asset_receivable']]
@@ -145,54 +148,96 @@ async function syncReceivables() {
     order: 'date_maturity desc'
   });
 
-  const insertMany = db.transaction((lines) => {
-    db.exec("DELETE FROM move_lines WHERE account_type = 'asset_receivable'");
-    for (const line of lines) {
-      const pId = line.partner_id ? line.partner_id[0] : null;
-      const pName = line.partner_id ? line.partner_id[1] : null;
-      if (pId) insertPartner.run(pId, pName, 'Unknown', null);
+  await db.collection('move_lines').deleteMany({ account_type: 'asset_receivable' });
 
-      const mId = line.move_id ? line.move_id[0] : null;
-      const mName = line.move_id ? line.move_id[1] : null;
-      const aId = line.account_id ? line.account_id[0] : null;
-      const aCode = line.account_id ? line.account_id[1].split(' ')[0] : null;
-
-      insertMoveLine.run(
-        line.id, line.name || '', '', mId, mName, line.move_name || '', null, null,
-        0, 0, line.debit || 0, line.credit || 0, line.amount_residual || 0,
-        line.date || '', line.date_maturity || '', pId, pName, aId, aCode, 0, line.parent_state || 'posted', 'asset_receivable', null
-      );
+  const partnerOps = [];
+  const lineOps = moveLines.map(line => {
+    const pId = line.partner_id ? line.partner_id[0] : null;
+    const pName = line.partner_id ? line.partner_id[1] : null;
+    if (pId) {
+      partnerOps.push({
+        updateOne: {
+          filter: { id: pId },
+          update: { $setOnInsert: { id: pId, name: pName, city: 'Unknown', tags: null } },
+          upsert: true
+        }
+      });
     }
+
+    const mId = line.move_id ? line.move_id[0] : null;
+    const mName = line.move_id ? line.move_id[1] : null;
+    const aId = line.account_id ? line.account_id[0] : null;
+    const aCode = line.account_id ? line.account_id[1].split(' ')[0] : null;
+
+    return {
+      insertOne: {
+        document: {
+          id: line.id,
+          name: line.name || '',
+          ref: '',
+          move_id_id: mId,
+          move_id_name: mName,
+          move_name: line.move_name || '',
+          product_id_id: null,
+          product_id_name: null,
+          quantity: 0,
+          price_unit: 0,
+          debit: line.debit || 0,
+          credit: line.credit || 0,
+          amount_residual: line.amount_residual || 0,
+          date: line.date || '',
+          date_maturity: line.date_maturity || '',
+          partner_id_id: pId,
+          partner_id_name: pName,
+          account_id_id: aId,
+          account_id_code: aCode,
+          reconciled: 0,
+          parent_state: line.parent_state || 'posted',
+          account_type: 'asset_receivable',
+          farm: null
+        }
+      }
+    };
   });
 
-  insertMany(moveLines);
+  if (partnerOps.length > 0) await db.collection('partners').bulkWrite(partnerOps);
+  if (lineOps.length > 0) await db.collection('move_lines').bulkWrite(lineOps);
+
   console.log(`Synced ${moveLines.length} receivable lines.`);
 }
 
-async function syncProducts() {
+async function syncProducts(db) {
   console.log('Syncing Products & Inventory...');
   const products = await executeKw('product.product', 'search_read', [[]], {
     fields: ['name', 'categ_id', 'qty_available', 'virtual_available', 'type'],
     limit: 10000
   });
 
-  const insertMany = db.transaction((prods) => {
-    db.exec('DELETE FROM products');
-    for (const p of prods) {
-      const cId = p.categ_id ? p.categ_id[0] : null;
-      const cName = p.categ_id ? p.categ_id[1] : 'Uncategorized';
-      insertProduct.run(
-        p.id, p.name || '', cId, cName,
-        p.qty_available || 0, p.virtual_available || 0, p.type || ''
-      );
-    }
+  await db.collection('products').deleteMany({});
+
+  const ops = products.map(p => {
+    const cId = p.categ_id ? p.categ_id[0] : null;
+    const cName = p.categ_id ? p.categ_id[1] : 'Uncategorized';
+    return {
+      insertOne: {
+        document: {
+          id: p.id,
+          name: p.name || '',
+          categ_id_id: cId,
+          categ_id_name: cName,
+          qty_available: p.qty_available || 0,
+          virtual_available: p.virtual_available || 0,
+          type: p.type || ''
+        }
+      }
+    };
   });
 
-  insertMany(products);
+  if (ops.length > 0) await db.collection('products').bulkWrite(ops);
   console.log(`Synced ${products.length} products.`);
 }
 
-async function syncVendorBills() {
+async function syncVendorBills(db) {
   console.log('Syncing Vendor Bills (Produce)...');
   const bills = await executeKw('account.move.line', 'search_read', [
     [
@@ -206,79 +251,82 @@ async function syncVendorBills() {
     order: 'date desc'
   });
 
-  const insertMany = db.transaction((lines) => {
-    db.exec('DELETE FROM vendor_bills');
-    for (const line of lines) {
-      if (!line.product_id) continue;
-      
-      const pId = line.partner_id ? line.partner_id[0] : null;
-      const pName = line.partner_id ? line.partner_id[1] : null;
-      const prodId = line.product_id ? line.product_id[0] : null;
-      const prodName = line.product_id ? line.product_id[1] : '';
-      
-      let productNew = prodName;
-      const pos = productNew.indexOf(']');
-      if (pos >= 0) productNew = productNew.substring(pos + 1).trim();
-      productNew = productNew.replace('_P', '').trim();
+  await db.collection('vendor_bills').deleteMany({});
 
-      const aId = line.account_id ? line.account_id[0] : null;
-      const aName = line.account_id ? line.account_id[1] : null;
-      const uomName = line.product_uom_id ? line.product_uom_id[1] : null;
-      
-      // Analytic Code & Farm mapping
-      let analyticCode = null;
-      let farm = null;
-      if (line.analytic_distribution) {
-        // e.g. { '3,14,94,240': 100 }
-        const keys = Object.keys(line.analytic_distribution);
-        if (keys.length > 0) {
-          // Remove commas
-          analyticCode = keys[0].replace(/,/g, '');
-          farm = FARM_CODE_MAPPING[analyticCode];
-          if (!farm) {
-            if (analyticCode.startsWith('1710')) farm = 'Unknown/UF 23000/Bloom';
-            else if (analyticCode.startsWith('1711') || analyticCode.startsWith('3119')) farm = 'Unknown/UF 23001/Badi';
-            else if (analyticCode.startsWith('1712') || analyticCode.startsWith('3129')) farm = 'Unknown/UF 23002/Khadija';
-            else if (analyticCode.startsWith('3139')) farm = 'Unknown/UF 23003/Thoor';
-            else if (analyticCode.startsWith('3149')) farm = 'Unknown/UF 23004/Gattani';
-            else if (analyticCode.startsWith('32994')) farm = 'Unknown/UF 24005/Chandrangan';
-            else if (analyticCode.startsWith('318294') || analyticCode.startsWith('318394')) farm = 'Unknown/UF 25007/Sarai (Dabok)';
-          }
+  const ops = [];
+  for (const line of bills) {
+    if (!line.product_id) continue;
+    
+    const pId = line.partner_id ? line.partner_id[0] : null;
+    const pName = line.partner_id ? line.partner_id[1] : null;
+    const prodId = line.product_id ? line.product_id[0] : null;
+    const prodName = line.product_id ? line.product_id[1] : '';
+    
+    let productNew = prodName;
+    const pos = productNew.indexOf(']');
+    if (pos >= 0) productNew = productNew.substring(pos + 1).trim();
+    productNew = productNew.replace('_P', '').trim();
+
+    const aId = line.account_id ? line.account_id[0] : null;
+    const aName = line.account_id ? line.account_id[1] : null;
+    const uomName = line.product_uom_id ? line.product_uom_id[1] : null;
+    
+    let analyticCode = null;
+    let farm = null;
+    if (line.analytic_distribution) {
+      const keys = Object.keys(line.analytic_distribution);
+      if (keys.length > 0) {
+        analyticCode = keys[0].replace(/,/g, '');
+        farm = FARM_CODE_MAPPING[analyticCode];
+        if (!farm) {
+          if (analyticCode.startsWith('1710')) farm = 'Unknown/UF 23000/Bloom';
+          else if (analyticCode.startsWith('1711') || analyticCode.startsWith('3119')) farm = 'Unknown/UF 23001/Badi';
+          else if (analyticCode.startsWith('1712') || analyticCode.startsWith('3129')) farm = 'Unknown/UF 23002/Khadija';
+          else if (analyticCode.startsWith('3139')) farm = 'Unknown/UF 23003/Thoor';
+          else if (analyticCode.startsWith('3149')) farm = 'Unknown/UF 23004/Gattani';
+          else if (analyticCode.startsWith('32994')) farm = 'Unknown/UF 24005/Chandrangan';
+          else if (analyticCode.startsWith('318294') || analyticCode.startsWith('318394')) farm = 'Unknown/UF 25007/Sarai (Dabok)';
         }
       }
-
-      // UOM Ratio
-      const ratio = uomName && UOM_RATIO[uomName] ? UOM_RATIO[uomName] : 1;
-      const qtyPurchased = (line.quantity || 0) * ratio;
-
-      insertVendorBill.run(
-        line.id,
-        line.ref || line.name || '',
-        line.date || '',
-        pId, pName,
-        prodId, prodName, productNew,
-        aId, aName,
-        line.quantity || 0,
-        uomName,
-        line.price_unit || 0,
-        line.discount || 0,
-        line.price_total || 0,
-        analyticCode,
-        farm,
-        qtyPurchased,
-        line.parent_state || 'posted'
-      );
     }
-  });
 
-  insertMany(bills);
+    const ratio = uomName && UOM_RATIO[uomName] ? UOM_RATIO[uomName] : 1;
+    const qtyPurchased = (line.quantity || 0) * ratio;
+
+    ops.push({
+      insertOne: {
+        document: {
+          id: line.id,
+          ref: line.ref || line.name || '',
+          date: line.date || '',
+          partner_id: pId,
+          partner_name: pName,
+          product_id: prodId,
+          product_name: prodName,
+          product_new: productNew,
+          account_id: aId,
+          account_name: aName,
+          quantity: line.quantity || 0,
+          uom_name: uomName,
+          price_unit: line.price_unit || 0,
+          discount: line.discount || 0,
+          amount_total: line.price_total || 0,
+          analytic_code: analyticCode,
+          farm: farm,
+          qty_purchased: qtyPurchased,
+          parent_state: line.parent_state || 'posted'
+        }
+      }
+    });
+  }
+
+  if (ops.length > 0) await db.collection('vendor_bills').bulkWrite(ops);
   console.log(`Synced ${bills.length} vendor bill lines.`);
 }
 
-async function syncPartners() {
+async function syncPartners(db) {
   console.log('Syncing Partners & Tags...');
   
-  // 1. Fetch Categories/Tags
   const categories = await executeKw('res.partner.category', 'search_read', [[]], {
     fields: ['id', 'name'],
     limit: 5000
@@ -289,46 +337,51 @@ async function syncPartners() {
     categoryMap[c.id] = c.name;
   });
 
-  // 2. Fetch Partners
   const partners = await executeKw('res.partner', 'search_read', [[['active', '=', true]]], {
     fields: ['id', 'name', 'city', 'category_id'],
     limit: 10000
   });
 
-  const insertBulkPartner = db.prepare(`
-    INSERT OR REPLACE INTO partners (id, name, city, tags) VALUES (?, ?, ?, ?)
-  `);
-
-  const insertMany = db.transaction((records) => {
-    for (const partner of records) {
-      let tags = null;
-      if (partner.category_id && partner.category_id.length > 0) {
-        tags = partner.category_id.map(id => categoryMap[id] || '').filter(Boolean).join(', ');
-      }
-      insertBulkPartner.run(
-        partner.id,
-        partner.name || '',
-        partner.city || '',
-        tags || null
-      );
+  const ops = partners.map(partner => {
+    let tags = null;
+    if (partner.category_id && partner.category_id.length > 0) {
+      tags = partner.category_id.map(id => categoryMap[id] || '').filter(Boolean).join(', ');
     }
+    return {
+      updateOne: {
+        filter: { id: partner.id },
+        update: { $set: {
+          id: partner.id,
+          name: partner.name || '',
+          city: partner.city || '',
+          tags: tags || null
+        }},
+        upsert: true
+      }
+    };
   });
 
-  insertMany(partners);
+  if (ops.length > 0) await db.collection('partners').bulkWrite(ops);
   console.log(`Synced ${partners.length} partners.`);
 }
 
 async function runSync() {
   console.log(`\n[${new Date().toISOString()}] Starting Odoo background sync...`);
   try {
-    await syncPartners();
-    await syncProducts();
-    await syncSales();
-    await syncReceivables();
-    await syncVendorBills();
+    const db = await connectDB();
+    await syncPartners(db);
+    await syncProducts(db);
+    await syncSales(db);
+    await syncReceivables(db);
+    await syncVendorBills(db);
     console.log(`[${new Date().toISOString()}] Sync complete.`);
   } catch (err) {
     console.error('Error during sync:', err);
+  } finally {
+    if (require.main === module && client) {
+      // If we run as a script, close the connection when done
+      await client.close();
+    }
   }
 }
 

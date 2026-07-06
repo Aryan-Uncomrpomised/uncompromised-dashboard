@@ -11,11 +11,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "better-sqlite3": "^12.11.1",
     "cors": "^2.8.6",
     "date-fns": "^4.4.0",
+    "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "lucide-react": "^1.23.0",
+    "mongodb": "^7.4.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-router-dom": "^7.18.1",
