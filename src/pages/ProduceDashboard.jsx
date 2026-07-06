@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { ResponsiveContainer, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend } from 'recharts';
+import { ResponsiveContainer, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ComposedChart } from 'recharts';
 import { useFilters } from '../context/FilterContext';
 import DateRangePicker from '../components/DateRangePicker';
 import { Tractor, Sprout, Calendar as CalendarIcon, Package, Search } from 'lucide-react';
@@ -125,7 +125,32 @@ const ProduceDashboard = () => {
       if (!chartFarmMap[item.farm]) chartFarmMap[item.farm] = 0;
       chartFarmMap[item.farm] += item.qty;
     });
-    const farmChartData = Object.keys(chartFarmMap).map(k => ({ name: k, value: chartFarmMap[k] })).sort((a, b) => b.value - a.value).slice(0, 10);
+    const FARM_AREAS_SQFT = {
+      'Bloom': 4186,
+      'Badi': 23816,
+      'Khadija': 126699,
+      'Thoor': 29920,
+      'Gattani': 23054,
+      'Jaisa': 0,
+      'Chandrangan': 191542,
+      'Pratapnagar': 0,
+      'Sarai(Dabok)': 817371
+    };
+
+    const start = new Date(filters.startDate || '2020-01-01');
+    const end = new Date(filters.endDate || new Date().toISOString().split('T')[0]);
+    const months = Math.max(1, (end - start) / (1000 * 60 * 60 * 24 * 30.44));
+
+    const farmChartData = Object.keys(chartFarmMap).map(k => {
+      const volume = chartFarmMap[k];
+      const area = FARM_AREAS_SQFT[k] || 1;
+      const psfm = area > 1 ? (volume / area) / months : 0;
+      return { 
+        name: k, 
+        value: volume,
+        psfm: Number(psfm.toFixed(3))
+      };
+    }).sort((a, b) => b.value - a.value).slice(0, 10);
 
     const cropMap = {};
     farmBreakdown.forEach(item => {
@@ -287,17 +312,23 @@ const ProduceDashboard = () => {
           </div>
           <div style={{ height: '300px', marginTop: '16px' }}>
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={processedData.farmChartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+              <ComposedChart data={processedData.farmChartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" />
                 <XAxis dataKey="name" stroke="var(--text-muted)" tick={{fill: 'var(--text-muted)'}} />
-                <YAxis stroke="var(--text-muted)" tick={{fill: 'var(--text-muted)'}} />
+                <YAxis yAxisId="left" stroke="var(--text-muted)" tick={{fill: 'var(--text-muted)'}} />
+                <YAxis yAxisId="right" orientation="right" stroke="#f59e0b" tick={{fill: '#f59e0b'}} />
                 <RechartsTooltip 
                   cursor={{fill: 'rgba(255,255,255,0.05)'}}
                   contentStyle={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)', borderRadius: '8px' }}
-                  formatter={(val) => [formatNumber(val) + ' Kg', 'Harvest']}
+                  formatter={(val, name) => {
+                    if (name === 'value') return [formatNumber(val) + ' Kg', 'Volume'];
+                    if (name === 'psfm') return [val + ' Kg/sqft/mo', 'PSFM'];
+                    return [val, name];
+                  }}
                 />
-                <Bar dataKey="value" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-              </BarChart>
+                <Bar yAxisId="left" dataKey="value" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                <Line yAxisId="right" type="monotone" dataKey="psfm" stroke="#f59e0b" strokeWidth={3} dot={{r: 4}} activeDot={{r: 6}} />
+              </ComposedChart>
             </ResponsiveContainer>
           </div>
         </div>
