@@ -27,41 +27,53 @@ app.use('/api', ensureDB);
 // Top-level orders
 app.get('/api/sales', async (req, res) => {
   try {
-    const lines = await db.collection('move_lines').find({
-      account_type: 'income',
-      $or: [
-        { partner_id_name: null },
-        { partner_id_name: { $ne: 'Beyond Zero Farms LLP - Others MSME' } }
-      ]
-    }).toArray();
+    const orders = await db.collection('move_lines').aggregate([
+      {
+        $match: {
+          account_type: 'income',
+          $or: [
+            { partner_id_name: null },
+            { partner_id_name: { $ne: 'Beyond Zero Farms LLP - Others MSME' } }
+          ]
+        }
+      },
+      {
+        $group: {
+          _id: '$move_id_id',
+          id: { $first: '$move_id_id' },
+          name: { $first: '$move_id_name' },
+          partner_id_id: { $first: '$partner_id_id' },
+          partner_id_name: { $first: '$partner_id_name' },
+          date: { $first: '$date' },
+          ref: { $first: '$ref' },
+          move_name: { $first: '$move_name' },
+          credit: { $sum: '$credit' },
+          debit: { $sum: '$debit' }
+        }
+      }
+    ]).toArray();
     
     const saleOrdersMap = {};
     const posOrdersMap = {};
     const partnerMap = {};
 
-    lines.forEach(line => {
-      const isWebsite = (line.ref || line.move_name || '').toUpperCase().startsWith('S');
-      const orderId = line.move_id_id;
-      const orderName = line.move_id_name;
-      const partner = line.partner_id_id ? [line.partner_id_id, line.partner_id_name] : null;
+    orders.forEach(order => {
+      const isWebsite = (order.ref || order.move_name || '').toUpperCase().startsWith('S');
+      const orderId = order.id;
+      const orderName = order.name;
+      const partner = order.partner_id_id ? [order.partner_id_id, order.partner_id_name] : null;
 
-      if (line.partner_id_id) {
-        partnerMap[line.partner_id_id] = { name: line.partner_id_name, city: 'Unknown' };
+      if (order.partner_id_id) {
+        partnerMap[order.partner_id_id] = { name: order.partner_id_name, city: 'Unknown' };
       }
 
-      const netRevenue = (line.credit || 0) - (line.debit || 0);
-      const dateStr = line.date ? `${line.date} 12:00:00` : '';
+      const netRevenue = (order.credit || 0) - (order.debit || 0);
+      const dateStr = order.date ? `${order.date} 12:00:00` : '';
 
       if (isWebsite) {
-        if (!saleOrdersMap[orderId]) {
-          saleOrdersMap[orderId] = { id: orderId, name: orderName, amount_total: 0, date_order: dateStr, state: 'done', partner_id: partner };
-        }
-        saleOrdersMap[orderId].amount_total += netRevenue;
+        saleOrdersMap[orderId] = { id: orderId, name: orderName, amount_total: netRevenue, date_order: dateStr, state: 'done', partner_id: partner };
       } else {
-        if (!posOrdersMap[orderId]) {
-          posOrdersMap[orderId] = { id: orderId, name: orderName, amount_total: 0, date_order: dateStr, state: 'paid', partner_id: partner };
-        }
-        posOrdersMap[orderId].amount_total += netRevenue;
+        posOrdersMap[orderId] = { id: orderId, name: orderName, amount_total: netRevenue, date_order: dateStr, state: 'paid', partner_id: partner };
       }
     });
 
@@ -84,12 +96,19 @@ app.get('/api/sales-lines', async (req, res) => {
       productMap[p.id] = { name: p.name, category: p.categ_id_name || 'Uncategorized' };
     });
 
+    // Use projection to massively reduce memory footprint
     const lines = await db.collection('move_lines').find({
       account_type: 'income',
       $or: [
         { partner_id_name: null },
         { partner_id_name: { $ne: 'Beyond Zero Farms LLP - Others MSME' } }
       ]
+    }).project({
+      move_id_id: 1, move_id_name: 1,
+      product_id_id: 1, product_id_name: 1,
+      quantity: 1, credit: 1, debit: 1,
+      price_unit: 1, account_id_code: 1,
+      date: 1, ref: 1, move_name: 1, _id: 0
     }).toArray();
     
     const saleLines = [];
