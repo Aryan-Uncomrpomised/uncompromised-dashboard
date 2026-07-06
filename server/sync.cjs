@@ -243,13 +243,28 @@ async function syncVendorBills(db) {
     [
       ['parent_state', '=', 'posted'],
       ['move_id.move_type', 'in', ['in_invoice', 'in_receipt', 'in_refund']],
-      ['partner_id.name', 'in', ['Beyond Zero Farms LLP MSME', 'UF Processing', 'Market produce-MANDI']]
+      ['partner_id.name', 'in', ['Beyond Zero Farms LLP MSME', 'UF Processing', 'Market produce-MANDI']],
+      ['display_type', '=', 'product']
     ]
   ], {
-    fields: ['ref', 'name', 'date', 'partner_id', 'product_id', 'account_id', 'quantity', 'product_uom_id', 'price_unit', 'discount', 'price_total', 'analytic_distribution', 'parent_state'],
+    fields: ['ref', 'name', 'date', 'move_id', 'partner_id', 'product_id', 'account_id', 'quantity', 'product_uom_id', 'price_unit', 'discount', 'price_total', 'analytic_distribution', 'parent_state'],
     limit: 50000,
     order: 'date desc'
   });
+
+  // Fetch true Bill Date (invoice_date) from account.move instead of Accounting Date (date)
+  const moveIds = [...new Set(bills.map(b => b.move_id ? b.move_id[0] : null).filter(Boolean))];
+  let moveDates = {};
+  if (moveIds.length > 0) {
+    const moves = await executeKw('account.move', 'search_read', [
+      [['id', 'in', moveIds]]
+    ], {
+      fields: ['id', 'invoice_date']
+    });
+    moves.forEach(m => {
+      if (m.invoice_date) moveDates[m.id] = m.invoice_date;
+    });
+  }
 
   await db.collection('vendor_bills').deleteMany({});
 
@@ -293,12 +308,15 @@ async function syncVendorBills(db) {
     const ratio = uomName && UOM_RATIO[uomName] ? UOM_RATIO[uomName] : 1;
     const qtyPurchased = (line.quantity || 0) * ratio;
 
+    const mId = line.move_id ? line.move_id[0] : null;
+    const billDate = (mId && moveDates[mId]) ? moveDates[mId] : line.date;
+
     ops.push({
       insertOne: {
         document: {
           id: line.id,
           ref: line.ref || line.name || '',
-          date: line.date || '',
+          date: billDate || '',
           partner_id: pId,
           partner_name: pName,
           product_id: prodId,
