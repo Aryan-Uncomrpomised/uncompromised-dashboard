@@ -1,0 +1,34 @@
+name: Hourly Odoo to MongoDB Sync
+
+on:
+  schedule:
+    # Run at minute 0 past every hour
+    - cron: '0 * * * *'
+  # Allow manual trigger from GitHub Actions UI
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          
+      - name: Install Dependencies
+        run: npm ci
+        
+      - name: Run Sync Script
+        env:
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          ODOO_HOST: ${{ secrets.ODOO_HOST }}
+          ODOO_DB: ${{ secrets.ODOO_DB }}
+          ODOO_USERNAME: ${{ secrets.ODOO_USERNAME }}
+          ODOO_API_KEY: ${{ secrets.ODOO_API_KEY }}
+        run: node server/sync.cjs
