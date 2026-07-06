@@ -1,13 +1,17 @@
 import { createContext, useContext, useState } from 'react';
+import { subDays, format } from 'date-fns';
 
 const FilterContext = createContext();
 
 export const FilterProvider = ({ children }) => {
+  const todayStr = format(new Date(), 'yyyy-MM-dd');
+  const thirtyDaysAgoStr = format(subDays(new Date(), 29), 'yyyy-MM-dd');
+
   const [filters, setFilters] = useState({
-    datePreset: 'custom',
-    startDate: '2020-01-01',
-    endDate: new Date().toISOString().split('T')[0],
-    dateLabel: 'All Time',
+    datePreset: 'quick',
+    startDate: thirtyDaysAgoStr,
+    endDate: todayStr,
+    dateLabel: 'Last 30 days',
     category: 'all',
     city: 'all',
     customer: 'all'
