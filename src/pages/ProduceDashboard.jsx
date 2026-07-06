@@ -4,6 +4,7 @@ import { useFilters } from '../context/FilterContext';
 import DateRangePicker from '../components/DateRangePicker';
 import { Tractor, Sprout, Calendar as CalendarIcon, Package, Search } from 'lucide-react';
 import { cleanProductName } from '../utils/formatters';
+import { fetchWithCache } from '../utils/apiCache';
 
 const ProduceDashboard = () => {
   const { filters, setFilters } = useFilters();
@@ -14,16 +15,13 @@ const ProduceDashboard = () => {
   const [tableSearch, setTableSearch] = useState('');
 
   useEffect(() => {
-    fetch('/api/produce')
-      .then(res => res.json())
-      .then(data => {
-        setRawData(data.lines || []);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error('Error fetching produce:', err);
-        setLoading(false);
-      });
+    fetchWithCache('/api/produce', (data) => {
+      setRawData(data.lines || []);
+      setLoading(false);
+    }, (err) => {
+      console.error('Error fetching produce:', err);
+      setLoading(false);
+    });
   }, []);
 
   const processedData = useMemo(() => {

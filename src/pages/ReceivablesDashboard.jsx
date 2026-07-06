@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 
 import { IndianRupee, Clock, AlertTriangle, Users } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Cell } from 'recharts';
+import { fetchWithCache } from '../utils/apiCache';
 
 const ReceivablesDashboard = () => {
   const [loading, setLoading] = useState(true);
@@ -9,18 +10,15 @@ const ReceivablesDashboard = () => {
   const [rawData, setRawData] = useState([]);
 
   useEffect(() => {
-    fetch('/api/receivables')
-      .then(res => res.json())
-      .then(data => {
-        if (data.error) throw new Error(data.error);
-        setRawData(data.lines || []);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error(err);
-        setError('Failed to fetch receivables data');
-        setLoading(false);
-      });
+    fetchWithCache('/api/receivables', (data) => {
+      if (data.error) throw new Error(data.error);
+      setRawData(data.lines || []);
+      setLoading(false);
+    }, (err) => {
+      console.error(err);
+      setError('Failed to fetch receivables data');
+      setLoading(false);
+    });
   }, []);
 
   const [asOfFilter, setAsOfFilter] = useState(new Date().toISOString().split('T')[0]);

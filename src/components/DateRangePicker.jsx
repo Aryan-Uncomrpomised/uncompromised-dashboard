@@ -122,11 +122,25 @@ export default function DateRangePicker({ value, onChange }) {
             <div className="drp-custom-picker">
               <div className="drp-input-group">
                 <label>From Date</label>
-                <input type="date" value={customFrom} max={format(new Date(), "yyyy-MM-dd")} onChange={e => setCustomFrom(e.target.value)} />
+                <input 
+                  type="date" 
+                  value={customFrom} 
+                  max={format(new Date(), "yyyy-MM-dd")} 
+                  onChange={e => setCustomFrom(e.target.value)} 
+                  onClick={e => e.target.showPicker?.()}
+                  onFocus={e => e.target.showPicker?.()}
+                />
               </div>
               <div className="drp-input-group">
                 <label>To Date</label>
-                <input type="date" value={customTo} max={format(new Date(), "yyyy-MM-dd")} onChange={e => setCustomTo(e.target.value)} />
+                <input 
+                  type="date" 
+                  value={customTo} 
+                  max={format(new Date(), "yyyy-MM-dd")} 
+                  onChange={e => setCustomTo(e.target.value)} 
+                  onClick={e => e.target.showPicker?.()}
+                  onFocus={e => e.target.showPicker?.()}
+                />
               </div>
               <button className="drp-apply-btn" onClick={applyCustom} disabled={!customFrom || !customTo}>
                 Apply Range

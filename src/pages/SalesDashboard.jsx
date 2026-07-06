@@ -4,6 +4,7 @@ import { cleanProductName } from '../utils/formatters';
 import { TrendingUp, DollarSign, ShoppingCart, Activity, Server, Users, ChevronDown } from 'lucide-react';
 import { useFilters } from '../context/FilterContext';
 import DateRangePicker from '../components/DateRangePicker';
+import { fetchWithCache } from '../utils/apiCache';
 
 const COLORS = ['#2563eb', '#059669', '#d97706', '#dc2626', '#7c3aed', '#0284c7', '#db2777', '#14b8a6'];
 
@@ -83,41 +84,57 @@ const SalesDashboard = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    Promise.all([
-      fetch('/api/sales').then(r => r.json()),
-      fetch('/api/sales-lines').then(r => r.json())
-    ]).then(([sales, lines]) => {
-      if (sales.error || lines.error) throw new Error(sales.error || lines.error);
-      
-      setRawData({
-        saleOrders: sales.saleOrders || [],
-        posOrders: sales.posOrders || [],
-        partnerMap: sales.partnerMap || {},
-        saleLines: lines.saleLines || [],
-        posLines: lines.posLines || [],
-        productMap: lines.productMap || {}
-      });
+    let salesData = null;
+    let linesData = null;
 
-      const uniqueCities = new Set();
-      const uniqueCustomers = new Set();
-      
-      const specificCategories = ['Fresh Produce', 'Grains', 'Pulses', 'Pickles', 'Super Foods', 'Oilseeds', 'Spices', 'Flour', 'Connected (Experiences)'];
+    const checkComplete = () => {
+      if (salesData && linesData) {
+        setRawData({
+          saleOrders: salesData.saleOrders || [],
+          posOrders: salesData.posOrders || [],
+          partnerMap: salesData.partnerMap || {},
+          saleLines: linesData.saleLines || [],
+          posLines: linesData.posLines || [],
+          productMap: linesData.productMap || {}
+        });
 
-      Object.values(sales.partnerMap || {}).forEach(p => {
-        if (p.city) uniqueCities.add(p.city);
-        if (p.name) uniqueCustomers.add(p.name);
-      });
+        const uniqueCities = new Set();
+        const uniqueCustomers = new Set();
+        
+        const specificCategories = ['Fresh Produce', 'Grains', 'Pulses', 'Pickles', 'Super Foods', 'Oilseeds', 'Spices', 'Flour', 'Connected (Experiences)'];
 
-      setFilterOptions({
-        cities: Array.from(uniqueCities).sort(),
-        customers: Array.from(uniqueCustomers).sort(),
-        categories: specificCategories
-      });
+        Object.values(salesData.partnerMap || {}).forEach(p => {
+          if (p.city) uniqueCities.add(p.city);
+          if (p.name) uniqueCustomers.add(p.name);
+        });
 
+        setFilterOptions({
+          cities: Array.from(uniqueCities).sort(),
+          customers: Array.from(uniqueCustomers).sort(),
+          categories: specificCategories
+        });
+
+        setLoading(false);
+      }
+    };
+
+    fetchWithCache('/api/sales', (sales) => {
+      if (sales.error) throw new Error(sales.error);
+      salesData = sales;
+      checkComplete();
+    }, (err) => {
+      console.error('Error fetching sales:', err);
+      setError('Failed to fetch sales data');
       setLoading(false);
-    }).catch(err => {
-      console.error(err);
-      setError('Failed to fetch data from Odoo Proxy');
+    });
+
+    fetchWithCache('/api/sales-lines', (lines) => {
+      if (lines.error) throw new Error(lines.error);
+      linesData = lines;
+      checkComplete();
+    }, (err) => {
+      console.error('Error fetching sales lines:', err);
+      setError('Failed to fetch sales lines');
       setLoading(false);
     });
   }, [setFilterOptions]);

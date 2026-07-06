@@ -4,6 +4,7 @@ import { useFilters } from '../context/FilterContext';
 import DateRangePicker from '../components/DateRangePicker';
 import { Trash2, AlertTriangle, Package, Calendar as CalendarIcon, Filter, Search } from 'lucide-react';
 import { cleanProductName } from '../utils/formatters';
+import { fetchWithCache } from '../utils/apiCache';
 
 const COLORS = ['#f59e0b', '#ef4444', '#8b5cf6', '#10b981', '#3b82f6', '#ec4899', '#14b8a6'];
 
@@ -25,16 +26,13 @@ const SpoilageDashboard = () => {
   const [pivotSearch, setPivotSearch] = useState('');
 
   useEffect(() => {
-    fetch('/api/spoilage')
-      .then(res => res.json())
-      .then(data => {
-        setRawData(data.lines || []);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error('Error fetching spoilage:', err);
-        setLoading(false);
-      });
+    fetchWithCache('/api/spoilage', (data) => {
+      setRawData(data.lines || []);
+      setLoading(false);
+    }, (err) => {
+      console.error('Error fetching spoilage:', err);
+      setLoading(false);
+    });
   }, []);
 
   // 1. Base Filtered Data (applies to EVERYTHING on the page)
@@ -470,54 +468,6 @@ const SpoilageDashboard = () => {
         </div>
       </div>
 
-      {/* Raw Data Table */}
-      <div className="card">
-        <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span className="card-title">Detailed Spoilage Records</span>
-          <div style={{ position: 'relative' }}>
-            <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-            <input 
-              type="text" 
-              placeholder="Search Crop..." 
-              value={tableSearch}
-              onChange={(e) => setTableSearch(e.target.value)}
-              style={{ padding: '6px 12px 6px 30px', borderRadius: '8px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '13px', outline: 'none' }}
-            />
-          </div>
-        </div>
-        <div className="data-table-container" style={{ marginTop: '16px' }}>
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th style={{textAlign: 'left'}}>Date</th>
-                <th style={{textAlign: 'left'}}>Category</th>
-                <th style={{textAlign: 'left'}}>Product</th>
-                <th style={{textAlign: 'right'}}>Spoiled Qty (Kg)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tableData.slice(0, 50).map((row, idx) => (
-                <tr key={idx}>
-                  <td style={{color: 'var(--text-muted)'}}>{row.date}</td>
-                  <td><span className="status-badge" style={{background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444'}}>{row.category}</span></td>
-                  <td style={{fontWeight: 500}}>{row.product}</td>
-                  <td style={{textAlign: 'right', fontWeight: 600, color: 'var(--color-danger)'}}>{formatNumber(row.qty)}</td>
-                </tr>
-              ))}
-              {tableData.length === 0 && (
-                <tr>
-                  <td colSpan="4" style={{textAlign: 'center', padding: '32px', color: 'var(--text-muted)'}}>No spoilage records found.</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-          {tableData.length > 50 && (
-            <div style={{textAlign: 'center', padding: '12px', color: 'var(--text-muted)', fontSize: '14px'}}>
-              Showing latest 50 records of {tableData.length} total.
-            </div>
-          )}
-        </div>
-      </div>
     </div>
   );
 };

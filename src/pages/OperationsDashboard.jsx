@@ -4,6 +4,8 @@ import { useFilters } from '../context/FilterContext';
 import DateRangePicker from '../components/DateRangePicker';
 import { Sprout, DollarSign, Trash2, ShoppingCart, Calendar as CalendarIcon, Search, Activity } from 'lucide-react';
 import { cleanProductName } from '../utils/formatters';
+import { fetchWithCache } from '../utils/apiCache';
+
 const OperationsDashboard = () => {
   const { filters, setFilters } = useFilters();
   const [data, setData] = useState({
@@ -16,33 +18,45 @@ const OperationsDashboard = () => {
   const [selectedFarm, setSelectedFarm] = useState('All Farms');
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const [salesRes, produceRes, spoilageRes] = await Promise.all([
-          fetch('/api/sales-lines'),
-          fetch('/api/produce'),
-          fetch('/api/spoilage')
-        ]);
-        
-        if (!salesRes.ok || !produceRes.ok || !spoilageRes.ok) throw new Error('API Error');
-        
-        const salesData = await salesRes.json();
-        const produceData = await produceRes.json();
-        const spoilageData = await spoilageRes.json();
-        
-        setData({
-          produce: produceData.lines || [],
-          spoilage: spoilageData.lines || [],
-          sales: [...(salesData.saleLines || []), ...(salesData.posLines || [])]
-        });
-      } catch (err) {
-        console.error('Error fetching master data:', err);
-      } finally {
+    let salesLoaded = false;
+    let produceLoaded = false;
+    let spoilageLoaded = false;
+
+    const checkComplete = () => {
+      if (salesLoaded && produceLoaded && spoilageLoaded) {
         setLoading(false);
       }
     };
-    fetchData();
+
+    fetchWithCache('/api/sales-lines', (salesData) => {
+      setData(prev => ({ ...prev, sales: [...(salesData.saleLines || []), ...(salesData.posLines || [])] }));
+      salesLoaded = true;
+      checkComplete();
+    }, (err) => {
+      console.error('Error fetching sales:', err);
+      salesLoaded = true;
+      checkComplete();
+    });
+
+    fetchWithCache('/api/produce', (produceData) => {
+      setData(prev => ({ ...prev, produce: produceData.lines || [] }));
+      produceLoaded = true;
+      checkComplete();
+    }, (err) => {
+      console.error('Error fetching produce:', err);
+      produceLoaded = true;
+      checkComplete();
+    });
+
+    fetchWithCache('/api/spoilage', (spoilageData) => {
+      setData(prev => ({ ...prev, spoilage: spoilageData.lines || [] }));
+      spoilageLoaded = true;
+      checkComplete();
+    }, (err) => {
+      console.error('Error fetching spoilage:', err);
+      spoilageLoaded = true;
+      checkComplete();
+    });
   }, []);
 
 
