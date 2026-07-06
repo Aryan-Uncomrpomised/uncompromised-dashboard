@@ -144,7 +144,7 @@ const ProduceDashboard = () => {
     const farmChartData = Object.keys(chartFarmMap).map(k => {
       const volume = chartFarmMap[k];
       const area = FARM_AREAS_SQFT[k] || 1;
-      const psfm = area > 1 ? (volume / area) / months : 0;
+      const psfm = area > 1 ? ((volume / area) * 1000) / months : 0;
       return { 
         name: k, 
         value: volume,
@@ -322,7 +322,7 @@ const ProduceDashboard = () => {
                   contentStyle={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)', borderRadius: '8px' }}
                   formatter={(val, name) => {
                     if (name === 'value') return [formatNumber(val) + ' Kg', 'Volume'];
-                    if (name === 'psfm') return [val + ' Kg/sqft/mo', 'PSFM'];
+                    if (name === 'psfm') return [val + ' Kg/1000 sqft/mo', 'Yield (per 1000 sqft)'];
                     return [val, name];
                   }}
                 />
