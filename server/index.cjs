@@ -222,11 +222,18 @@ app.get('/api/receivables', async (req, res) => {
 // Spoilage
 app.get('/api/spoilage', async (req, res) => {
   try {
-    const lines = await db.collection('move_lines').find({
+    const { startDate, endDate } = req.query;
+    const match = {
       account_type: 'income',
       parent_state: 'posted',
       partner_id_name: { $in: ['Beyond Zero Farms LLP MSME', 'Spoilage  Pilferage', 'Spoilage Decay', 'Spoilage Sorting'] }
-    }).sort({ date: -1 }).toArray();
+    };
+    if (startDate || endDate) {
+      match.date = {};
+      if (startDate) match.date.$gte = startDate;
+      if (endDate) match.date.$lte = endDate;
+    }
+    const lines = await db.collection('move_lines').find(match).sort({ date: -1 }).toArray();
 
     const processedLines = lines.map(line => {
       let factor = 1;
@@ -263,11 +270,17 @@ app.get('/api/spoilage', async (req, res) => {
 // Produce
 app.get('/api/produce', async (req, res) => {
   try {
-    const lines = await db.collection('vendor_bills').find({}).sort({ date: -1 }).toArray();
+    const { startDate, endDate } = req.query;
+    const match = {};
+    if (startDate || endDate) {
+      match.date = {};
+      if (startDate) match.date.$gte = startDate;
+      if (endDate) match.date.$lte = endDate;
+    }
+    const lines = await db.collection('vendor_bills').find(match).sort({ date: -1 }).toArray();
     res.json({ lines });
-  } catch (err) {
-    console.error('Error fetching produce bills:', err);
-    res.status(500).json({ error: err.message });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 

@@ -15,14 +15,16 @@ const ProduceDashboard = () => {
   const [tableSearch, setTableSearch] = useState('');
 
   useEffect(() => {
-    fetchWithCache('/api/produce', (data) => {
+    const start = filters.startDate || '';
+    const end = filters.endDate || '';
+    fetchWithCache(`/api/produce?startDate=${start}&endDate=${end}`, (data) => {
       setRawData(data.lines || []);
       setLoading(false);
     }, (err) => {
       console.error('Error fetching produce:', err);
       setLoading(false);
     });
-  }, []);
+  }, [filters.startDate, filters.endDate]);
 
   const processedData = useMemo(() => {
     let filtered = rawData;

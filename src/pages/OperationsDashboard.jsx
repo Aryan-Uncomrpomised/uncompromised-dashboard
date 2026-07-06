@@ -28,7 +28,10 @@ const OperationsDashboard = () => {
       }
     };
 
-    fetchWithCache('/api/sales-lines', (salesData) => {
+    const start = filters.startDate || '';
+    const end = filters.endDate || '';
+
+    fetchWithCache(`/api/sales-lines?startDate=${start}&endDate=${end}`, (salesData) => {
       setData(prev => ({ ...prev, sales: [...(salesData.saleLines || []), ...(salesData.posLines || [])] }));
       salesLoaded = true;
       checkComplete();
@@ -38,7 +41,7 @@ const OperationsDashboard = () => {
       checkComplete();
     });
 
-    fetchWithCache('/api/produce', (produceData) => {
+    fetchWithCache(`/api/produce?startDate=${start}&endDate=${end}`, (produceData) => {
       setData(prev => ({ ...prev, produce: produceData.lines || [] }));
       produceLoaded = true;
       checkComplete();
@@ -48,7 +51,7 @@ const OperationsDashboard = () => {
       checkComplete();
     });
 
-    fetchWithCache('/api/spoilage', (spoilageData) => {
+    fetchWithCache(`/api/spoilage?startDate=${start}&endDate=${end}`, (spoilageData) => {
       setData(prev => ({ ...prev, spoilage: spoilageData.lines || [] }));
       spoilageLoaded = true;
       checkComplete();
@@ -57,7 +60,7 @@ const OperationsDashboard = () => {
       spoilageLoaded = true;
       checkComplete();
     });
-  }, []);
+  }, [filters.startDate, filters.endDate]);
 
 
 
