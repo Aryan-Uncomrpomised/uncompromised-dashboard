@@ -219,7 +219,7 @@ const ReceivablesDashboard = () => {
         </div>
 
         {/* Chart: Aging Buckets */}
-        <div className="col-span-12 card mt-6">
+        <div className="col-span-8 card mt-6">
           <div className="card-header">
             <span className="card-title">Receivables Aging</span>
           </div>
@@ -241,6 +241,38 @@ const ReceivablesDashboard = () => {
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Simple Table: Ledger Balances */}
+        <div className="col-span-4 card mt-6">
+          <div className="card-header">
+            <span className="card-title">Ledger Balances</span>
+          </div>
+          <div className="data-table-container" style={{ marginTop: '16px', height: '300px', overflowY: 'auto' }}>
+            <table className="data-table" style={{ width: '100%' }}>
+              <thead style={{ position: 'sticky', top: 0, backgroundColor: 'var(--bg-secondary)', zIndex: 1 }}>
+                <tr>
+                  <th style={{textAlign: 'left', padding: '8px'}}>Ledger Name</th>
+                  <th style={{textAlign: 'left', padding: '8px'}}>POC</th>
+                  <th style={{textAlign: 'right', padding: '8px'}}>Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                {agedData.customers.map(cust => (
+                  <tr key={cust.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                    <td style={{ fontWeight: 500, padding: '8px', fontSize: '13px' }}>{cust.name}</td>
+                    <td style={{ padding: '8px', fontSize: '13px' }}>{cust.poc === 'Prerna' ? <span className="status-badge" style={{background: 'rgba(139, 92, 246, 0.1)', color: '#8b5cf6', padding: '2px 8px', borderRadius: '12px', fontSize: '11px'}}>{cust.poc}</span> : <span style={{color: 'var(--text-muted)'}}>{cust.poc}</span>}</td>
+                    <td style={{ textAlign: 'right', fontWeight: 600, padding: '8px', fontSize: '13px', color: cust.total < 0 ? 'var(--color-danger)' : 'inherit' }}>{formatCurrency(cust.total)}</td>
+                  </tr>
+                ))}
+                {agedData.customers.length === 0 && (
+                  <tr>
+                    <td colSpan="3" style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted)' }}>No records found.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
 
