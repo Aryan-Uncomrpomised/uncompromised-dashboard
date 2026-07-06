@@ -3,6 +3,7 @@ import { ResponsiveContainer, BarChart, Bar, LineChart, Line, XAxis, YAxis, Cart
 import { useFilters } from '../context/FilterContext';
 import DateRangePicker from '../components/DateRangePicker';
 import { Trash2, AlertTriangle, Package, Calendar as CalendarIcon, Filter, Search } from 'lucide-react';
+import { cleanProductName } from '../utils/formatters';
 
 const COLORS = ['#f59e0b', '#ef4444', '#8b5cf6', '#10b981', '#3b82f6', '#ec4899', '#14b8a6'];
 
@@ -46,9 +47,7 @@ const SpoilageDashboard = () => {
     const allCategories = new Set();
     rawData.forEach(line => {
       if (line.farm) allFarms.add(line.farm);
-      let cleanProduct = line.product || 'Unknown Product';
-      if (cleanProduct.includes(']')) cleanProduct = cleanProduct.split(']')[1].trim();
-      cleanProduct = cleanProduct.replace(/_P$/, '').trim();
+      let cleanProduct = cleanProductName(line.product);
       allCrops.add(cleanProduct);
       allCategories.add(line.partner || 'Unknown');
     });
@@ -76,9 +75,7 @@ const SpoilageDashboard = () => {
     
     if (selectedCrop !== 'All Crops') {
       filtered = filtered.filter(item => {
-        let cleanProduct = item.product || 'Unknown Product';
-        if (cleanProduct.includes(']')) cleanProduct = cleanProduct.split(']')[1].trim();
-        cleanProduct = cleanProduct.replace(/_P$/, '').trim();
+        let cleanProduct = cleanProductName(item.product);
         return cleanProduct === selectedCrop;
       });
     }
@@ -101,9 +98,7 @@ const SpoilageDashboard = () => {
       const qty = line.revised_qty || 0;
       totalSpoilage += qty;
       
-      let cleanProduct = line.product || 'Unknown Product';
-      if (cleanProduct.includes(']')) cleanProduct = cleanProduct.split(']')[1].trim();
-      cleanProduct = cleanProduct.replace(/_P$/, '').trim();
+      let cleanProduct = cleanProductName(line.product);
       cropMap.add(cleanProduct);
 
       const category = line.partner || 'Unknown';
@@ -130,9 +125,7 @@ const SpoilageDashboard = () => {
       if (topCropsCategory !== 'All Categories' && category !== topCropsCategory) return;
       
       const qty = line.revised_qty || 0;
-      let cleanProduct = line.product || 'Unknown Product';
-      if (cleanProduct.includes(']')) cleanProduct = cleanProduct.split(']')[1].trim();
-      cleanProduct = cleanProduct.replace(/_P$/, '').trim();
+      let cleanProduct = cleanProductName(line.product);
       
       cropMap[cleanProduct] = (cropMap[cleanProduct] || 0) + qty;
     });
@@ -147,9 +140,7 @@ const SpoilageDashboard = () => {
   const trendData = useMemo(() => {
     const dailyMap = {};
     baseData.lines.forEach(line => {
-      let cleanProduct = line.product || 'Unknown Product';
-      if (cleanProduct.includes(']')) cleanProduct = cleanProduct.split(']')[1].trim();
-      cleanProduct = cleanProduct.replace(/_P$/, '').trim();
+      let cleanProduct = cleanProductName(line.product);
       
       if (trendCrop !== 'All Crops' && cleanProduct !== trendCrop) return;
 
@@ -166,9 +157,7 @@ const SpoilageDashboard = () => {
   const pieData = useMemo(() => {
     const categoryMap = {};
     baseData.lines.forEach(line => {
-      let cleanProduct = line.product || 'Unknown Product';
-      if (cleanProduct.includes(']')) cleanProduct = cleanProduct.split(']')[1].trim();
-      cleanProduct = cleanProduct.replace(/_P$/, '').trim();
+      let cleanProduct = cleanProductName(line.product);
       
       if (pieCrop !== 'All Crops' && cleanProduct !== pieCrop) return;
 
@@ -187,9 +176,7 @@ const SpoilageDashboard = () => {
   const pivotTableData = useMemo(() => {
     const pivotMap = {};
     baseData.lines.forEach(line => {
-      let cleanProduct = line.product || 'Unknown Product';
-      if (cleanProduct.includes(']')) cleanProduct = cleanProduct.split(']')[1].trim();
-      cleanProduct = cleanProduct.replace(/_P$/, '').trim();
+      let cleanProduct = cleanProductName(line.product);
 
       if (pivotSearch && !cleanProduct.toLowerCase().includes(pivotSearch.toLowerCase())) return;
 
@@ -215,10 +202,8 @@ const SpoilageDashboard = () => {
     baseData.lines.forEach(line => {
       const date = line.date ? line.date.split(' ')[0] : 'Unknown';
       const category = line.partner || 'Unknown';
-      const product = line.product || 'Unknown Product';
+      const product = cleanProductName(line.product);
       let cleanProduct = product;
-      if (cleanProduct.includes(']')) cleanProduct = cleanProduct.split(']')[1].trim();
-      cleanProduct = cleanProduct.replace(/_P$/, '').trim();
 
       if (tableSearch && !cleanProduct.toLowerCase().includes(tableSearch.toLowerCase())) return;
 

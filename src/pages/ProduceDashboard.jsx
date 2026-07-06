@@ -3,6 +3,7 @@ import { ResponsiveContainer, BarChart, Bar, LineChart, Line, XAxis, YAxis, Cart
 import { useFilters } from '../context/FilterContext';
 import DateRangePicker from '../components/DateRangePicker';
 import { Tractor, Sprout, Calendar as CalendarIcon, Package, Search } from 'lucide-react';
+import { cleanProductName } from '../utils/formatters';
 
 const ProduceDashboard = () => {
   const { filters, setFilters } = useFilters();
@@ -40,7 +41,7 @@ const ProduceDashboard = () => {
       if (farmName !== '(Blank)' && farmName !== 'Unknown Farm') {
         allFarms.add(farmName);
       }
-      allCrops.add(line.product_new || line.product_name);
+      allCrops.add(cleanProductName(line.product_new || line.product_name));
     });
 
     if (filters.startDate) {
@@ -83,7 +84,7 @@ const ProduceDashboard = () => {
         return;
       }
       
-      const cropName = line.product_new || line.product_name;
+      const cropName = cleanProductName(line.product_new || line.product_name);
       if (selectedCrop !== 'All Crops' && cropName !== selectedCrop) {
         return;
       }

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { AreaChart, Area, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ComposedChart, Legend, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
+import { cleanProductName } from '../utils/formatters';
 import { TrendingUp, DollarSign, ShoppingCart, Activity, Server, Users, ChevronDown } from 'lucide-react';
 import { useFilters } from '../context/FilterContext';
 import DateRangePicker from '../components/DateRangePicker';
@@ -261,7 +262,7 @@ const SalesDashboard = () => {
 
   activeLines.forEach(line => {
     const productId = line.product_id ? line.product_id[0] : null;
-    const productName = line.product_id ? line.product_id[1] : 'Unknown';
+    const productName = cleanProductName(line.product_id ? line.product_id[1] : 'Unknown');
     const revenue = getRevenue(line);
     const productInfo = rawData.productMap[productId];
     const categoryName = productInfo ? productInfo.category : 'Uncategorized';

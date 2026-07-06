@@ -3,7 +3,7 @@ import { ResponsiveContainer, ComposedChart, Bar, Line, XAxis, YAxis, CartesianG
 import { useFilters } from '../context/FilterContext';
 import DateRangePicker from '../components/DateRangePicker';
 import { Sprout, DollarSign, Trash2, ShoppingCart, Calendar as CalendarIcon, Search, Activity } from 'lucide-react';
-
+import { cleanProductName } from '../utils/formatters';
 const OperationsDashboard = () => {
   const { filters, setFilters } = useFilters();
   const [data, setData] = useState({
@@ -45,19 +45,7 @@ const OperationsDashboard = () => {
     fetchData();
   }, []);
 
-  const cleanProductName = (rawName) => {
-    if (!rawName) return 'Unknown';
-    let clean = String(rawName);
-    // Remove SKU prefix like "[179.1] " or "[179]"
-    if (clean.includes(']')) clean = clean.split(']')[1].trim();
-    // Remove _P suffix
-    clean = clean.replace(/_P$/, '').trim();
-    // Remove packaging sizes like (1kg), (500g), etc.
-    clean = clean.replace(/\(\s*\d+(\.\d+)?\s*(kg|g|gm|pc|pcs)\s*\)/i, '').trim();
-    // Fix weird stray parenthesis like "Chikoo/चीकू)"
-    clean = clean.replace(/\)$/, '').trim();
-    return clean;
-  };
+
 
   const processedData = useMemo(() => {
     let { produce, spoilage, sales } = data;
