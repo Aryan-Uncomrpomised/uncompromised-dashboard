@@ -8,16 +8,18 @@ app.use(express.json());
 
 // Initialize MongoDB connection
 let db;
-connectDB().then(database => {
-  db = database;
-}).catch(console.error);
 
 // Middleware to ensure DB is connected
-const ensureDB = (req, res, next) => {
-  if (!db) {
-    return res.status(503).json({ error: 'Database connecting, please try again' });
+const ensureDB = async (req, res, next) => {
+  try {
+    if (!db) {
+      db = await connectDB();
+    }
+    next();
+  } catch (error) {
+    console.error('Database connection error:', error);
+    res.status(500).json({ error: 'Database connection failed' });
   }
-  next();
 };
 
 app.use('/api', ensureDB);
