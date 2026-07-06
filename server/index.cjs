@@ -27,16 +27,23 @@ app.use('/api', ensureDB);
 // Top-level orders
 app.get('/api/sales', async (req, res) => {
   try {
+    const { startDate, endDate } = req.query;
+    const match = {
+      account_type: 'income',
+      $or: [
+        { partner_id_name: null },
+        { partner_id_name: { $ne: 'Beyond Zero Farms LLP - Others MSME' } }
+      ]
+    };
+
+    if (startDate || endDate) {
+      match.date = {};
+      if (startDate) match.date.$gte = startDate;
+      if (endDate) match.date.$lte = endDate;
+    }
+
     const orders = await db.collection('move_lines').aggregate([
-      {
-        $match: {
-          account_type: 'income',
-          $or: [
-            { partner_id_name: null },
-            { partner_id_name: { $ne: 'Beyond Zero Farms LLP - Others MSME' } }
-          ]
-        }
-      },
+      { $match: match },
       {
         $group: {
           _id: '$move_id_id',
@@ -90,20 +97,30 @@ app.get('/api/sales', async (req, res) => {
 // Detailed Order Lines
 app.get('/api/sales-lines', async (req, res) => {
   try {
+    const { startDate, endDate } = req.query;
+    
     const products = await db.collection('products').find({}).toArray();
     const productMap = {};
     products.forEach(p => {
       productMap[p.id] = { name: p.name, category: p.categ_id_name || 'Uncategorized' };
     });
 
-    // Use projection to massively reduce memory footprint
-    const lines = await db.collection('move_lines').find({
+    const match = {
       account_type: 'income',
       $or: [
         { partner_id_name: null },
         { partner_id_name: { $ne: 'Beyond Zero Farms LLP - Others MSME' } }
       ]
-    }).project({
+    };
+
+    if (startDate || endDate) {
+      match.date = {};
+      if (startDate) match.date.$gte = startDate;
+      if (endDate) match.date.$lte = endDate;
+    }
+
+    // Use projection to massively reduce memory footprint
+    const lines = await db.collection('move_lines').find(match).project({
       move_id_id: 1, move_id_name: 1,
       product_id_id: 1, product_id_name: 1,
       quantity: 1, credit: 1, debit: 1,

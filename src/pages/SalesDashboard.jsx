@@ -118,7 +118,10 @@ const SalesDashboard = () => {
       }
     };
 
-    fetchWithCache('/api/sales', (sales) => {
+    const start = filters.startDate || '';
+    const end = filters.endDate || '';
+
+    fetchWithCache(`/api/sales?startDate=${start}&endDate=${end}`, (sales) => {
       if (sales.error) throw new Error(sales.error);
       salesData = sales;
       checkComplete();
@@ -128,7 +131,7 @@ const SalesDashboard = () => {
       setLoading(false);
     });
 
-    fetchWithCache('/api/sales-lines', (lines) => {
+    fetchWithCache(`/api/sales-lines?startDate=${start}&endDate=${end}`, (lines) => {
       if (lines.error) throw new Error(lines.error);
       linesData = lines;
       checkComplete();
@@ -137,7 +140,7 @@ const SalesDashboard = () => {
       setError('Failed to fetch sales lines');
       setLoading(false);
     });
-  }, [setFilterOptions]);
+  }, [filters.startDate, filters.endDate, setFilterOptions]);
 
   // Early return removed to show skeleton UI during load
   if (error) return <div style={{ padding: '24px', color: 'red' }}>{error}</div>;
