@@ -627,7 +627,6 @@ const SalesDashboard = () => {
                     <Bar dataKey="experiences" name="Experiences" stackId="a" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
                   </>
                 )}
-                <Line type="monotone" dataKey="revenue" name="Total Revenue" stroke="var(--accent-primary)" strokeWidth={3} dot={false} />
               </ComposedChart>
             </ResponsiveContainer>
           </div>
