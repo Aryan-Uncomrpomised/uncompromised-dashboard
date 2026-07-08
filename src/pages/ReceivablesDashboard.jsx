@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 
-import { IndianRupee, Clock, AlertTriangle, Users } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Cell } from 'recharts';
+import { IndianRupee, Clock, AlertTriangle, Users, Filter } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts';
 import { fetchWithCache } from '../utils/apiCache';
 
 const ReceivablesDashboard = () => {
@@ -22,6 +22,7 @@ const ReceivablesDashboard = () => {
   }, []);
 
   const [asOfFilter, setAsOfFilter] = useState(new Date().toISOString().split('T')[0]);
+  const [selectedPoc, setSelectedPoc] = useState('All POCs');
 
   const asOfDate = new Date(asOfFilter);
   asOfDate.setHours(23, 59, 59, 999);
@@ -107,6 +108,57 @@ const ReceivablesDashboard = () => {
       customers
     };
   }, [rawData, asOfDate]);
+
+  const pocData = useMemo(() => {
+    const pocMap = {
+      'Ashima': { name: 'Ashima', value: 0, count: 0 },
+      'Prerna': { name: 'Prerna', value: 0, count: 0 },
+      'Saurabh': { name: 'Saurabh', value: 0, count: 0 },
+      'Sikander': { name: 'Sikander', value: 0, count: 0 },
+      'Unassigned': { name: 'Unassigned', value: 0, count: 0 }
+    };
+
+    agedData.customers.forEach(cust => {
+      const pocName = cust.poc || 'Unassigned';
+      if (!pocMap[pocName]) {
+        pocMap[pocName] = { name: pocName, value: 0, count: 0 };
+      }
+      pocMap[pocName].value += cust.total;
+      pocMap[pocName].count += 1;
+    });
+
+    return Object.values(pocMap).filter(item => item.value > 0 || item.count > 0);
+  }, [agedData.customers]);
+
+  const filteredCustomers = useMemo(() => {
+    return agedData.customers.filter(c => {
+      if (selectedPoc === 'All POCs') return true;
+      if (selectedPoc === 'Unassigned') return !c.poc;
+      return c.poc === selectedPoc;
+    });
+  }, [agedData.customers, selectedPoc]);
+
+  const filteredTotals = useMemo(() => {
+    let totalOutstanding = 0;
+    let notDue = 0;
+    let bucket1_30 = 0;
+    let bucket31_60 = 0;
+    let bucket61_90 = 0;
+    let bucket91_120 = 0;
+    let older = 0;
+
+    filteredCustomers.forEach(cust => {
+      totalOutstanding += cust.total;
+      notDue += cust.notDue;
+      bucket1_30 += cust.b1_30;
+      bucket31_60 += cust.b31_60;
+      bucket61_90 += cust.b61_90;
+      bucket91_120 += cust.b91_120;
+      older += cust.older;
+    });
+
+    return { totalOutstanding, notDue, bucket1_30, bucket31_60, bucket61_90, bucket91_120, older };
+  }, [filteredCustomers]);
 
   const formatCurrency = (val) => {
     if (Math.abs(val) < 0.01) return '0.00';
@@ -292,10 +344,130 @@ const ReceivablesDashboard = () => {
           </div>
         </div>
 
+        {/* --- SECTION: POC PIVOT & VISUAL --- */}
+        <div className="col-span-6 card mt-6">
+          <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span className="card-title">Outstanding Receivables by POC</span>
+            {selectedPoc !== 'All POCs' && (
+              <button 
+                onClick={() => setSelectedPoc('All POCs')}
+                style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: 'none', padding: '4px 10px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', fontWeight: 600 }}
+              >
+                Clear Filter
+              </button>
+            )}
+          </div>
+          <div className="data-table-container" style={{ marginTop: '16px' }}>
+            <table className="data-table" style={{ width: '100%' }}>
+              <thead>
+                <tr>
+                  <th style={{ textAlign: 'left' }}>Row Labels (POC)</th>
+                  <th style={{ textAlign: 'right' }}>Sum of Column9 (Total)</th>
+                  <th style={{ textAlign: 'right' }}>Ledgers</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pocData.map(item => (
+                  <tr 
+                    key={item.name} 
+                    onClick={() => setSelectedPoc(selectedPoc === item.name ? 'All POCs' : item.name)}
+                    style={{ 
+                      cursor: 'pointer', 
+                      borderBottom: '1px solid var(--border-color)',
+                      backgroundColor: selectedPoc === item.name ? 'rgba(59, 130, 246, 0.08)' : 'transparent',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    <td style={{ fontWeight: 500 }}>
+                      <span className="status-badge" style={{
+                        background: item.name === 'Prerna' ? 'rgba(139, 92, 246, 0.1)' :
+                                    item.name === 'Sikander' ? 'rgba(16, 185, 129, 0.1)' :
+                                    item.name === 'Saurabh' ? 'rgba(59, 130, 246, 0.1)' :
+                                    item.name === 'Ashima' ? 'rgba(236, 72, 153, 0.1)' :
+                                    'rgba(245, 158, 11, 0.1)',
+                        color: item.name === 'Prerna' ? '#8b5cf6' :
+                               item.name === 'Sikander' ? '#10b981' :
+                               item.name === 'Saurabh' ? '#3b82f6' :
+                               item.name === 'Ashima' ? '#ec4899' :
+                               '#f59e0b',
+                        padding: '2px 8px',
+                        borderRadius: '12px',
+                        fontSize: '11px',
+                        fontWeight: '600'
+                      }}>{item.name}</span>
+                    </td>
+                    <td style={{ textAlign: 'right', fontWeight: 600 }}>{formatCurrency(item.value)}</td>
+                    <td style={{ textAlign: 'right', color: 'var(--text-muted)' }}>{item.count}</td>
+                  </tr>
+                ))}
+                <tr style={{ fontWeight: 'bold', borderTop: '2px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
+                  <td style={{ textAlign: 'left' }}>Grand Total</td>
+                  <td style={{ textAlign: 'right', color: 'var(--color-primary)' }}>{formatCurrency(agedData.totalOutstanding)}</td>
+                  <td style={{ textAlign: 'right' }}>{agedData.customers.length}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div style={{ marginTop: '12px', fontSize: '12px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <AlertTriangle size={12} />
+            <span>Click on a POC row to filter the detailed breakdown table below.</span>
+          </div>
+        </div>
+
+        <div className="col-span-6 card mt-6">
+          <div className="card-header">
+            <span className="card-title">POC Outstanding Distribution</span>
+          </div>
+          <div style={{ height: '230px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '16px' }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={pocData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={50}
+                  outerRadius={80}
+                  paddingAngle={4}
+                  dataKey="value"
+                  label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                  style={{ outline: 'none' }}
+                >
+                  {pocData.map((entry, index) => {
+                    const colors = {
+                      'Prerna': '#8b5cf6',
+                      'Sikander': '#10b981',
+                      'Saurabh': '#3b82f6',
+                      'Ashima': '#ec4899',
+                      'Unassigned': '#f59e0b'
+                    };
+                    return <Cell key={`cell-${index}`} fill={colors[entry.name] || 'var(--accent-secondary)'} />;
+                  })}
+                </Pie>
+                <RechartsTooltip formatter={(value) => '₹' + formatCurrency(value)} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
         {/* Table: Customer Breakdown */}
         <div className="col-span-12 card mt-6">
-          <div className="card-header">
-            <span className="card-title">Aged Receivable by Customer</span>
+          <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span className="card-title">Aged Receivable by Customer {selectedPoc !== 'All POCs' && <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>(Filtered by POC: {selectedPoc})</span>}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Filter POC:</span>
+              <select 
+                value={selectedPoc}
+                onChange={(e) => setSelectedPoc(e.target.value)}
+                style={{ padding: '4px 10px', borderRadius: '8px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '13px', outline: 'none' }}
+              >
+                <option value="All POCs">All POCs</option>
+                <option value="Saurabh">Saurabh</option>
+                <option value="Sikander">Sikander</option>
+                <option value="Ashima">Ashima</option>
+                <option value="Prerna">Prerna</option>
+                <option value="Unassigned">Unassigned (Blank)</option>
+              </select>
+            </div>
           </div>
           <div className="data-table-container" style={{ marginTop: '16px', overflowX: 'auto' }}>
             <table className="data-table" style={{ width: '100%', minWidth: '900px' }}>
@@ -316,15 +488,15 @@ const ReceivablesDashboard = () => {
                 <tr style={{ fontWeight: 700, backgroundColor: 'rgba(255,255,255,0.03)' }}>
                   <td>Total</td>
                   <td></td>
-                  <td style={{ textAlign: 'right', color: agedData.notDue < 0 ? 'var(--color-danger)' : 'inherit' }}>{formatCurrency(agedData.notDue)}</td>
-                  <td style={{ textAlign: 'right', color: agedData.bucket1_30 < 0 ? 'var(--color-danger)' : 'inherit' }}>{formatCurrency(agedData.bucket1_30)}</td>
-                  <td style={{ textAlign: 'right', color: agedData.bucket31_60 < 0 ? 'var(--color-danger)' : 'inherit' }}>{formatCurrency(agedData.bucket31_60)}</td>
-                  <td style={{ textAlign: 'right', color: agedData.bucket61_90 < 0 ? 'var(--color-danger)' : 'inherit' }}>{formatCurrency(agedData.bucket61_90)}</td>
-                  <td style={{ textAlign: 'right', color: agedData.bucket91_120 < 0 ? 'var(--color-danger)' : 'inherit' }}>{formatCurrency(agedData.bucket91_120)}</td>
-                  <td style={{ textAlign: 'right', color: agedData.older < 0 ? 'var(--color-danger)' : 'inherit' }}>{formatCurrency(agedData.older)}</td>
-                  <td style={{ textAlign: 'right', color: agedData.totalOutstanding < 0 ? 'var(--color-danger)' : 'inherit' }}>{formatCurrency(agedData.totalOutstanding)}</td>
+                  <td style={{ textAlign: 'right', color: filteredTotals.notDue < 0 ? 'var(--color-danger)' : 'inherit' }}>{formatCurrency(filteredTotals.notDue)}</td>
+                  <td style={{ textAlign: 'right', color: filteredTotals.bucket1_30 < 0 ? 'var(--color-danger)' : 'inherit' }}>{formatCurrency(filteredTotals.bucket1_30)}</td>
+                  <td style={{ textAlign: 'right', color: filteredTotals.bucket31_60 < 0 ? 'var(--color-danger)' : 'inherit' }}>{formatCurrency(filteredTotals.bucket31_60)}</td>
+                  <td style={{ textAlign: 'right', color: filteredTotals.bucket61_90 < 0 ? 'var(--color-danger)' : 'inherit' }}>{formatCurrency(filteredTotals.bucket61_90)}</td>
+                  <td style={{ textAlign: 'right', color: filteredTotals.bucket91_120 < 0 ? 'var(--color-danger)' : 'inherit' }}>{formatCurrency(filteredTotals.bucket91_120)}</td>
+                  <td style={{ textAlign: 'right', color: filteredTotals.older < 0 ? 'var(--color-danger)' : 'inherit' }}>{formatCurrency(filteredTotals.older)}</td>
+                  <td style={{ textAlign: 'right', color: filteredTotals.totalOutstanding < 0 ? 'var(--color-danger)' : 'inherit' }}>{formatCurrency(filteredTotals.totalOutstanding)}</td>
                 </tr>
-                {agedData.customers.map((cust) => (
+                {filteredCustomers.map((cust) => (
                   <tr key={cust.id}>
                     <td style={{ fontWeight: 500 }}>{cust.name}</td>
                     <td>
@@ -356,7 +528,7 @@ const ReceivablesDashboard = () => {
                     <td style={{ textAlign: 'right', fontWeight: 600, color: cust.total < 0 ? 'var(--color-danger)' : 'inherit' }}>{formatCurrency(cust.total)}</td>
                   </tr>
                 ))}
-                {agedData.customers.length === 0 && (
+                {filteredCustomers.length === 0 && (
                   <tr>
                     <td colSpan="9" style={{ textAlign: 'center', padding: '20px' }}>No outstanding receivables found.</td>
                   </tr>
