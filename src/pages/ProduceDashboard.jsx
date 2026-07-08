@@ -38,6 +38,10 @@ const ProduceDashboard = () => {
         const parts = farmName.split('/');
         farmName = parts.length > 1 ? parts[1].trim() : farmName;
       }
+      // Normalize spelling of Sarai (Dabok)
+      if (farmName.replace(/\s/g, '').toLowerCase() === 'sarai(dabok)') {
+        farmName = 'Sarai (Dabok)';
+      }
       if (farmName !== '(Blank)' && farmName !== 'Unknown Farm') {
         allFarms.add(farmName);
       }
@@ -74,6 +78,10 @@ const ProduceDashboard = () => {
       if (farmName.includes('/')) {
         const parts = farmName.split('/');
         farmName = parts.length > 1 ? parts[1].trim() : farmName;
+      }
+      // Normalize spelling of Sarai (Dabok)
+      if (farmName.replace(/\s/g, '').toLowerCase() === 'sarai(dabok)') {
+        farmName = 'Sarai (Dabok)';
       }
       
       if (farmName !== '(Blank)' && farmName !== 'Unknown Farm') {
@@ -134,7 +142,8 @@ const ProduceDashboard = () => {
       'Jaisa': 0,
       'Chandrangan': 191542,
       'Pratapnagar': 0,
-      'Sarai(Dabok)': 817371
+      'Sarai(Dabok)': 817371,
+      'Sarai (Dabok)': 817371
     };
 
     const start = new Date(filters.startDate || '2020-01-01');
@@ -158,11 +167,10 @@ const ProduceDashboard = () => {
       cropMap[item.product] += item.qty;
     });
     
-    // Sort and get top 5 crops
+    // Sort and get all crops
     const topCrops = Object.keys(cropMap)
       .map(k => ({ name: k, value: cropMap[k] }))
-      .sort((a, b) => b.value - a.value)
-      .slice(0, 5);
+      .sort((a, b) => b.value - a.value);
 
     return {
       totalHarvest,
@@ -196,6 +204,13 @@ const ProduceDashboard = () => {
     end: filters.endDate || new Date().toISOString().split('T')[0],
     label: filters.dateLabel || 'All Time'
   };
+
+  const filteredBreakdown = processedData.farmBreakdown.filter(
+    row => !tableSearch || row.product.toLowerCase().includes(tableSearch.toLowerCase())
+  );
+
+  const totalHarvestedSum = filteredBreakdown.reduce((sum, row) => sum + row.qty, 0);
+  const totalEntriesSum = filteredBreakdown.reduce((sum, row) => sum + row.entries, 0);
 
   return (
     <div className="animate-fade-in space-y-6">
@@ -265,21 +280,21 @@ const ProduceDashboard = () => {
         </div>
       </div>
 
-      {/* Top 5 Crops */}
+      {/* Crops Harvested Slider */}
       <div className="card">
         <div className="card-header">
-          <span className="card-title">Top 5 Crops Harvested (This Period)</span>
+          <span className="card-title">Crops Harvested (This Period)</span>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '16px', padding: '16px' }}>
+        <div style={{ display: 'flex', overflowX: 'auto', gap: '16px', padding: '16px', paddingBottom: '20px', scrollbarWidth: 'thin', WebkitOverflowScrolling: 'touch' }}>
           {processedData.topCrops.map((crop, idx) => (
-            <div key={idx} style={{ padding: '16px', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+            <div key={idx} style={{ flex: '0 0 180px', padding: '16px', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
               <span style={{ fontSize: '14px', color: '#10b981', fontWeight: 'bold', marginBottom: '4px' }}>#{idx + 1}</span>
-              <span style={{ fontSize: '14px', color: 'var(--text-primary)', fontWeight: '500', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }} title={crop.name}>{crop.name}</span>
+              <span style={{ fontSize: '14px', color: 'var(--text-primary)', fontWeight: '500', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', height: '40px', lineHeight: '20px' }} title={crop.name}>{crop.name}</span>
               <span style={{ fontSize: '18px', fontWeight: 'bold', marginTop: '8px', color: 'var(--text-primary)' }}>{formatNumber(crop.value)} Kg</span>
             </div>
           ))}
           {processedData.topCrops.length === 0 && (
-            <div style={{ gridColumn: '1 / -1', textAlign: 'center', color: 'var(--text-muted)', padding: '16px 0' }}>No crops harvested in this period.</div>
+            <div style={{ width: '100%', textAlign: 'center', color: 'var(--text-muted)', padding: '16px 0' }}>No crops harvested in this period.</div>
           )}
         </div>
       </div>
@@ -361,7 +376,7 @@ const ProduceDashboard = () => {
               </tr>
             </thead>
             <tbody>
-              {processedData.farmBreakdown.filter(row => !tableSearch || row.product.toLowerCase().includes(tableSearch.toLowerCase())).map((row, idx) => (
+              {filteredBreakdown.map((row, idx) => (
                 <tr key={idx}>
                   <td style={{fontWeight: 500}}>{row.farm}</td>
                   <td style={{textAlign: 'center'}}><span className="status-badge" style={{background: 'rgba(59,130,246,0.1)', color: '#3b82f6'}}>{row.plot}</span></td>
@@ -370,9 +385,15 @@ const ProduceDashboard = () => {
                   <td style={{textAlign: 'right', color: 'var(--text-muted)'}}>{row.entries}</td>
                 </tr>
               ))}
-              {processedData.farmBreakdown.filter(row => !tableSearch || row.product.toLowerCase().includes(tableSearch.toLowerCase())).length === 0 && (
+              {filteredBreakdown.length === 0 ? (
                 <tr>
                   <td colSpan="5" style={{textAlign: 'center', padding: '2rem'}}>No produce records found for this period.</td>
+                </tr>
+              ) : (
+                <tr style={{ fontWeight: 'bold', borderTop: '2px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
+                  <td colSpan="3" style={{ textAlign: 'left', padding: '12px 8px' }}>Total</td>
+                  <td style={{ textAlign: 'right', color: 'var(--color-primary)', padding: '12px 8px' }}>{formatNumber(totalHarvestedSum)}</td>
+                  <td style={{ textAlign: 'right', color: 'var(--text-muted)', padding: '12px 8px' }}>{totalEntriesSum}</td>
                 </tr>
               )}
             </tbody>

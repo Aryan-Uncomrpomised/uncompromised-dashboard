@@ -25,6 +25,12 @@ export const cleanProductName = (rawName) => {
   
   // Fix weird stray parenthesis like "Chikoo/चीकू)" which becomes "Chikoo)"
   clean = clean.replace(/\)$/, '').trim();
+
+  // Translate specific Hindi crop names to English
+  const cleanLower = clean.toLowerCase().trim();
+  if (cleanLower === 'बैंगन' || cleanLower === 'बैगन' || cleanLower === 'baingan' || cleanLower === 'baigan') {
+    return 'Brinjal (Eggplant)';
+  }
   
   return clean || 'Unknown Product';
 };
