@@ -198,19 +198,32 @@ app.get('/api/receivables', async (req, res) => {
       partnerMap[p.id] = p.tags;
     });
 
-    const formattedLines = lines.map(line => ({
-      id: line.id,
-      name: line.name,
-      date: line.date,
-      date_maturity: line.date_maturity,
-      partner_id: line.partner_id_id ? [line.partner_id_id, line.partner_id_name] : null,
-      partner_tags: partnerMap[line.partner_id_id] || null,
-      amount_residual: line.amount_residual,
-      debit: line.debit,
-      credit: line.credit,
-      move_name: line.move_name,
-      move_id: line.move_id_id ? [line.move_id_id, line.move_id_name] : null
-    }));
+    // Fetch POC mappings
+    const pocList = await db.collection('partner_pocs').find({}).toArray();
+    const pocMap = {};
+    pocList.forEach(item => {
+      if (item.partner_name) {
+        pocMap[item.partner_name.trim().toLowerCase()] = item.poc;
+      }
+    });
+
+    const formattedLines = lines.map(line => {
+      const pName = line.partner_id_name || '';
+      return {
+        id: line.id,
+        name: line.name,
+        date: line.date,
+        date_maturity: line.date_maturity,
+        partner_id: line.partner_id_id ? [line.partner_id_id, line.partner_id_name] : null,
+        partner_tags: partnerMap[line.partner_id_id] || null,
+        poc: pocMap[pName.trim().toLowerCase()] || '',
+        amount_residual: line.amount_residual,
+        debit: line.debit,
+        credit: line.credit,
+        move_name: line.move_name,
+        move_id: line.move_id_id ? [line.move_id_id, line.move_id_name] : null
+      };
+    });
 
     res.json({ lines: formattedLines });
   } catch (err) {
@@ -281,6 +294,73 @@ app.get('/api/produce', async (req, res) => {
     res.json({ lines });
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+});
+
+// Partner POC Mappings
+app.get('/api/partner-pocs', async (req, res) => {
+  try {
+    const list = await db.collection('partner_pocs').find({}).sort({ partner_name: 1 }).toArray();
+    res.json({ list });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/partner-pocs', async (req, res) => {
+  try {
+    const { partner_name, poc } = req.body;
+    if (!partner_name) return res.status(400).json({ error: 'partner_name is required' });
+    
+    await db.collection('partner_pocs').updateOne(
+      { partner_name: partner_name.trim() },
+      { $set: { partner_name: partner_name.trim(), poc: (poc || '').trim() } },
+      { upsert: true }
+    );
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/partner-pocs/bulk', async (req, res) => {
+  try {
+    const { mappings } = req.body;
+    if (!Array.isArray(mappings)) return res.status(400).json({ error: 'mappings array is required' });
+
+    for (const item of mappings) {
+      if (item.partner_name) {
+        await db.collection('partner_pocs').updateOne(
+          { partner_name: item.partner_name.trim() },
+          { $set: { partner_name: item.partner_name.trim(), poc: (item.poc || '').trim() } },
+          { upsert: true }
+        );
+      }
+    }
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/partner-pocs/unmapped', async (req, res) => {
+  try {
+    const partnersInReceivables = await db.collection('move_lines').distinct('partner_id_name', {
+      account_type: 'asset_receivable',
+      parent_state: 'posted',
+      partner_id_name: { $ne: null }
+    });
+
+    const mappedList = await db.collection('partner_pocs').find({}).toArray();
+    const mappedNames = new Set(mappedList.map(item => item.partner_name.trim().toLowerCase()));
+
+    const unmapped = partnersInReceivables
+      .filter(name => name && name !== 'Beyond Zero Farms LLP - Others MSME' && !mappedNames.has(name.trim().toLowerCase()))
+      .sort();
+
+    res.json({ unmapped });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 

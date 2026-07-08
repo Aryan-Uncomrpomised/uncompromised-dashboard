@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { DollarSign, Trash2, Sprout, CreditCard, Activity, LogOut } from 'lucide-react';
+import { DollarSign, Trash2, Sprout, CreditCard, Activity, LogOut, UserCheck } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Logo from './Logo';
 
@@ -33,6 +33,10 @@ const Sidebar = () => {
         <NavLink to="/receivables" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
           <CreditCard size={18} />
           Receivables
+        </NavLink>
+        <NavLink to="/poc-mapping" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
+          <UserCheck size={18} />
+          POC Mapping
         </NavLink>
       </nav>
 

@@ -57,8 +57,7 @@ const ReceivablesDashboard = () => {
 
       if (!customerMap[partnerId]) {
         const tags = line.partner_tags || '';
-        const isVFresh = tags.includes('V-Fresh');
-        const poc = isVFresh ? 'Prerna' : '-';
+        const poc = line.poc || '';
         customerMap[partnerId] = { id: partnerId, name: partnerName, poc: poc, tags: tags, total: 0, notDue: 0, b1_30: 0, b31_60: 0, b61_90: 0, b91_120: 0, older: 0 };
       }
 
@@ -260,7 +259,26 @@ const ReceivablesDashboard = () => {
                 {agedData.customers.map(cust => (
                   <tr key={cust.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
                     <td style={{ fontWeight: 500, padding: '8px', fontSize: '13px' }}>{cust.name}</td>
-                    <td style={{ padding: '8px', fontSize: '13px' }}>{cust.poc === 'Prerna' ? <span className="status-badge" style={{background: 'rgba(139, 92, 246, 0.1)', color: '#8b5cf6', padding: '2px 8px', borderRadius: '12px', fontSize: '11px'}}>{cust.poc}</span> : <span style={{color: 'var(--text-muted)'}}>{cust.poc}</span>}</td>
+                    <td style={{ padding: '8px', fontSize: '13px' }}>
+                      {cust.poc ? (
+                        <span className="status-badge" style={{
+                          background: cust.poc === 'Prerna' ? 'rgba(139, 92, 246, 0.1)' :
+                                      cust.poc === 'Sikander' ? 'rgba(16, 185, 129, 0.1)' :
+                                      cust.poc === 'Saurabh' ? 'rgba(59, 130, 246, 0.1)' :
+                                      'rgba(245, 158, 11, 0.1)',
+                          color: cust.poc === 'Prerna' ? '#8b5cf6' :
+                                 cust.poc === 'Sikander' ? '#10b981' :
+                                 cust.poc === 'Saurabh' ? '#3b82f6' :
+                                 '#f59e0b',
+                          padding: '2px 8px',
+                          borderRadius: '12px',
+                          fontSize: '11px',
+                          fontWeight: '500'
+                        }}>{cust.poc}</span>
+                      ) : (
+                        <span style={{ color: 'var(--text-muted)' }}>-</span>
+                      )}
+                    </td>
                     <td style={{ textAlign: 'right', fontWeight: 600, padding: '8px', fontSize: '13px', color: cust.total < 0 ? 'var(--color-danger)' : 'inherit' }}>{formatCurrency(cust.total)}</td>
                   </tr>
                 ))}
@@ -309,7 +327,26 @@ const ReceivablesDashboard = () => {
                 {agedData.customers.map((cust) => (
                   <tr key={cust.id}>
                     <td style={{ fontWeight: 500 }}>{cust.name}</td>
-                    <td>{cust.poc === 'Prerna' ? <span className="status-badge" style={{background: 'rgba(139, 92, 246, 0.1)', color: '#8b5cf6', padding: '2px 8px', borderRadius: '12px', fontSize: '12px'}}>{cust.poc}</span> : <span style={{color: 'var(--text-muted)'}}>{cust.poc}</span>}</td>
+                    <td>
+                      {cust.poc ? (
+                        <span className="status-badge" style={{
+                          background: cust.poc === 'Prerna' ? 'rgba(139, 92, 246, 0.1)' :
+                                      cust.poc === 'Sikander' ? 'rgba(16, 185, 129, 0.1)' :
+                                      cust.poc === 'Saurabh' ? 'rgba(59, 130, 246, 0.1)' :
+                                      'rgba(245, 158, 11, 0.1)',
+                          color: cust.poc === 'Prerna' ? '#8b5cf6' :
+                                 cust.poc === 'Sikander' ? '#10b981' :
+                                 cust.poc === 'Saurabh' ? '#3b82f6' :
+                                 '#f59e0b',
+                          padding: '2px 8px',
+                          borderRadius: '12px',
+                          fontSize: '12px',
+                          fontWeight: '500'
+                        }}>{cust.poc}</span>
+                      ) : (
+                        <span style={{ color: 'var(--text-muted)' }}>-</span>
+                      )}
+                    </td>
                     <td style={{ textAlign: 'right', color: cust.notDue < 0 ? 'var(--color-danger)' : 'inherit' }}>{formatCurrency(cust.notDue)}</td>
                     <td style={{ textAlign: 'right', color: cust.b1_30 < 0 ? 'var(--color-danger)' : 'inherit' }}>{formatCurrency(cust.b1_30)}</td>
                     <td style={{ textAlign: 'right', color: cust.b31_60 < 0 ? 'var(--color-danger)' : 'inherit' }}>{formatCurrency(cust.b31_60)}</td>

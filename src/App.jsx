@@ -11,6 +11,7 @@ import Login from './pages/Login';
 import SpoilageDashboard from './pages/SpoilageDashboard';
 import ProduceDashboard from './pages/ProduceDashboard';
 import ReceivablesDashboard from './pages/ReceivablesDashboard';
+import PocMappingDashboard from './pages/PocMappingDashboard';
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
                 <Route path="spoilage" element={<SpoilageDashboard />} />
                 <Route path="produce" element={<ProduceDashboard />} />
                 <Route path="receivables" element={<ReceivablesDashboard />} />
+                <Route path="poc-mapping" element={<PocMappingDashboard />} />
               </Route>
             </Route>
           </Routes>
