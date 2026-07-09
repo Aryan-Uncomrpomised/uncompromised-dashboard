@@ -13,6 +13,7 @@ const ProduceDashboard = () => {
   const [selectedFarm, setSelectedFarm] = useState('All Farms');
   const [selectedCrop, setSelectedCrop] = useState('All Crops');
   const [tableSearch, setTableSearch] = useState('');
+  const [expandedRowKey, setExpandedRowKey] = useState(null);
 
   useEffect(() => {
     const start = filters.startDate || '';
@@ -124,11 +125,18 @@ const ProduceDashboard = () => {
           plot: plotName,
           product: cropName,
           qty: 0,
-          entries: 0
+          entries: 0,
+          details: []
         };
       }
       farmMap[farmKey].qty += qty;
       farmMap[farmKey].entries += 1;
+      farmMap[farmKey].details.push({
+        bill_name: line.ref || 'N/A',
+        farm: line.farm || '(Blank)',
+        qty: qty,
+        date: line.date
+      });
     });
 
     const dailyTrend = Object.values(dailyMap).sort((a, b) => a.date.localeCompare(b.date));
@@ -219,6 +227,10 @@ const ProduceDashboard = () => {
 
   const totalHarvestedSum = filteredBreakdown.reduce((sum, row) => sum + row.qty, 0);
   const totalEntriesSum = filteredBreakdown.reduce((sum, row) => sum + row.entries, 0);
+
+  const toggleRow = (key) => {
+    setExpandedRowKey(expandedRowKey === key ? null : key);
+  };
 
   return (
     <div className="animate-fade-in space-y-6">
@@ -392,15 +404,54 @@ const ProduceDashboard = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredBreakdown.map((row, idx) => (
-                <tr key={idx}>
-                  <td style={{fontWeight: 500}}>{row.farm}</td>
-                  <td style={{textAlign: 'center'}}><span className="status-badge" style={{background: 'rgba(59,130,246,0.1)', color: '#3b82f6'}}>{row.plot}</span></td>
-                  <td>{row.product}</td>
-                  <td style={{textAlign: 'right', fontWeight: 600, color: 'var(--color-primary)'}}>{formatNumber(row.qty)}</td>
-                  <td style={{textAlign: 'right', color: 'var(--text-muted)'}}>{row.entries}</td>
-                </tr>
-              ))}
+              {filteredBreakdown.map((row, idx) => {
+                const rowKey = `${row.farm}|${row.plot}|${row.product}`;
+                const isExpanded = expandedRowKey === rowKey;
+
+                return (
+                  <React.Fragment key={idx}>
+                    <tr 
+                      onClick={() => toggleRow(rowKey)}
+                      style={{ cursor: 'pointer', transition: 'background-color 0.2s', backgroundColor: isExpanded ? 'rgba(59, 130, 246, 0.04)' : 'transparent' }}
+                    >
+                      <td style={{fontWeight: 500}}>{row.farm}</td>
+                      <td style={{textAlign: 'center'}}><span className="status-badge" style={{background: 'rgba(59,130,246,0.1)', color: '#3b82f6'}}>{row.plot}</span></td>
+                      <td>{row.product}</td>
+                      <td style={{textAlign: 'right', fontWeight: 600, color: 'var(--color-primary)'}}>{formatNumber(row.qty)}</td>
+                      <td style={{textAlign: 'right', color: 'var(--text-muted)'}}>{row.entries}</td>
+                    </tr>
+                    {isExpanded && (
+                      <tr>
+                        <td colSpan="5" style={{ padding: '12px 24px', backgroundColor: 'rgba(0,0,0,0.1)', borderLeft: '3px solid var(--accent-primary)' }}>
+                          <div style={{ padding: '8px 16px', borderRadius: '8px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}>
+                            <div style={{ fontSize: '13px', fontWeight: 600, marginBottom: '8px', color: 'var(--text-primary)', textAlign: 'left' }}>Detailed Vendor Bill Entries ({row.details.length})</div>
+                            <table style={{ width: '100%', fontSize: '12px', borderCollapse: 'collapse' }}>
+                              <thead>
+                                <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-muted)' }}>
+                                  <th style={{ textAlign: 'left', padding: '6px 4px' }}>Date</th>
+                                  <th style={{ textAlign: 'left', padding: '6px 4px' }}>Invoice/Bill Name</th>
+                                  <th style={{ textAlign: 'left', padding: '6px 4px' }}>Odoo Farm Name</th>
+                                  <th style={{ textAlign: 'right', padding: '6px 4px' }}>Quantity (Kg)</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {row.details.map((det, dIdx) => (
+                                  <tr key={dIdx} style={{ borderBottom: dIdx === row.details.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.03)', color: 'var(--text-secondary)' }}>
+                                    <td style={{ padding: '6px 4px', textAlign: 'left' }}>{det.date}</td>
+                                    <td style={{ padding: '6px 4px', fontWeight: 500, color: 'var(--text-primary)', textAlign: 'left' }}>{det.bill_name}</td>
+                                    <td style={{ padding: '6px 4px', textAlign: 'left' }}>{det.farm}</td>
+                                    <td style={{ padding: '6px 4px', textAlign: 'right', fontWeight: 600, color: '#10b981' }}>{formatNumber(det.qty)} Kg</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                );
+              })}
               {filteredBreakdown.length === 0 ? (
                 <tr>
                   <td colSpan="5" style={{textAlign: 'center', padding: '2rem'}}>No produce records found for this period.</td>
