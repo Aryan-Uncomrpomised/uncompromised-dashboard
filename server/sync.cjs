@@ -316,6 +316,7 @@ async function syncVendorBills(db) {
         document: {
           id: line.id,
           ref: line.ref || line.name || '',
+          bill_name: line.move_id ? line.move_id[1] : 'N/A',
           date: billDate || '',
           partner_id: pId,
           partner_name: pName,

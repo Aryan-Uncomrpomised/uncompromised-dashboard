@@ -284,7 +284,7 @@ app.get('/api/spoilage', async (req, res) => {
 app.get('/api/produce', async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
-    const match = {};
+    const match = { price_unit: 0 };
     if (startDate || endDate) {
       match.date = {};
       if (startDate) match.date.$gte = startDate;
