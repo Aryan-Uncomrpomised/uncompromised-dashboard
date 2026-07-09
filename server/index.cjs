@@ -269,7 +269,8 @@ app.get('/api/spoilage', async (req, res) => {
         product: line.product_id_name,
         farm: line.farm,
         revised_qty: line.quantity * factor,
-        value: (line.quantity * factor) * line.price_unit
+        value: (line.quantity * factor) * line.price_unit,
+        bill_ref: line.move_id_name || 'N/A'
       };
     });
 

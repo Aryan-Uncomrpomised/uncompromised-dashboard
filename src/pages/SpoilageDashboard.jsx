@@ -24,6 +24,7 @@ const SpoilageDashboard = () => {
   const [pieCrop, setPieCrop] = useState('All Crops');
   const [tableSearch, setTableSearch] = useState('');
   const [pivotSearch, setPivotSearch] = useState('');
+  const [expandedCrop, setExpandedCrop] = useState(null);
 
   useEffect(() => {
     fetchWithCache('/api/spoilage', (data) => {
@@ -182,13 +183,21 @@ const SpoilageDashboard = () => {
       const qty = line.revised_qty || 0;
 
       if (!pivotMap[cleanProduct]) {
-        pivotMap[cleanProduct] = { product: cleanProduct, total: 0 };
+        pivotMap[cleanProduct] = { product: cleanProduct, total: 0, details: [] };
       }
       if (!pivotMap[cleanProduct][category]) {
         pivotMap[cleanProduct][category] = 0;
       }
       pivotMap[cleanProduct][category] += qty;
       pivotMap[cleanProduct].total += qty;
+
+      pivotMap[cleanProduct].details.push({
+        date: line.date ? line.date.split(' ')[0] : 'Unknown',
+        bill_ref: line.bill_ref || 'N/A',
+        category: category,
+        farm: line.farm || 'N/A',
+        qty: qty
+      });
     });
 
     return Object.values(pivotMap).sort((a, b) => b.total - a.total);
@@ -447,20 +456,75 @@ const SpoilageDashboard = () => {
               </tr>
             </thead>
             <tbody>
-              {pivotTableData.map((row, idx) => (
-                <tr key={idx}>
-                  <td style={{fontWeight: 500}}>{row.product}</td>
-                  {baseData.categoryOptions.map(cat => (
-                    <td key={cat} style={{textAlign: 'right', color: 'var(--text-muted)'}}>
-                      {row[cat] ? formatNumber(row[cat]) : '-'}
-                    </td>
-                  ))}
-                  <td style={{textAlign: 'right', fontWeight: 600, color: 'var(--color-danger)'}}>{formatNumber(row.total)}</td>
-                </tr>
-              ))}
+              {pivotTableData.map((row, idx) => {
+                const isExpanded = expandedCrop === row.product;
+                const colSpanCount = baseData.categoryOptions.length + 2;
+
+                return (
+                  <React.Fragment key={idx}>
+                    <tr 
+                      onClick={() => setExpandedCrop(isExpanded ? null : row.product)}
+                      style={{ cursor: 'pointer', transition: 'background-color 0.2s', backgroundColor: isExpanded ? 'rgba(239, 68, 68, 0.04)' : 'transparent' }}
+                    >
+                      <td style={{fontWeight: 500}}>{row.product}</td>
+                      {baseData.categoryOptions.map(cat => (
+                        <td key={cat} style={{textAlign: 'right', color: 'var(--text-muted)'}}>
+                          {row[cat] ? formatNumber(row[cat]) : '-'}
+                        </td>
+                      ))}
+                      <td style={{textAlign: 'right', fontWeight: 600, color: 'var(--color-danger)'}}>{formatNumber(row.total)}</td>
+                    </tr>
+                    {isExpanded && (
+                      <tr>
+                        <td colSpan={colSpanCount} style={{ padding: '12px 24px', backgroundColor: 'rgba(0,0,0,0.1)', borderLeft: '3px solid var(--color-danger)' }}>
+                          <div style={{ padding: '8px 16px', borderRadius: '8px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}>
+                            <div style={{ fontSize: '13px', fontWeight: 600, marginBottom: '8px', color: 'var(--text-primary)', textAlign: 'left' }}>Detailed Spoilage Entries for {row.product} ({row.details.length})</div>
+                            <table style={{ width: '100%', fontSize: '12px', borderCollapse: 'collapse' }}>
+                              <thead>
+                                <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-muted)' }}>
+                                  <th style={{ textAlign: 'left', padding: '6px 4px' }}>Date</th>
+                                  <th style={{ textAlign: 'left', padding: '6px 4px' }}>Document/Move Ref</th>
+                                  <th style={{ textAlign: 'left', padding: '6px 4px' }}>Category</th>
+                                  <th style={{ textAlign: 'left', padding: '6px 4px' }}>Farm</th>
+                                  <th style={{ textAlign: 'right', padding: '6px 4px' }}>Spoilage Qty (Kg)</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {row.details.map((det, dIdx) => (
+                                  <tr key={dIdx} style={{ borderBottom: dIdx === row.details.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.03)', color: 'var(--text-secondary)' }}>
+                                    <td style={{ padding: '6px 4px', textAlign: 'left' }}>{det.date}</td>
+                                    <td style={{ padding: '6px 4px', fontWeight: 500, color: 'var(--text-primary)', textAlign: 'left' }}>{det.bill_ref}</td>
+                                    <td style={{ padding: '6px 4px', textAlign: 'left' }}>
+                                      <span className="status-badge" style={{
+                                        background: det.category.includes('Decay') ? 'rgba(239, 68, 68, 0.1)' :
+                                                    det.category.includes('Pilferage') ? 'rgba(245, 158, 11, 0.1)' :
+                                                    det.category.includes('Sorting') ? 'rgba(139, 92, 246, 0.1)' :
+                                                    'rgba(59, 130, 246, 0.1)',
+                                        color: det.category.includes('Decay') ? '#ef4444' :
+                                               det.category.includes('Pilferage') ? '#f59e0b' :
+                                               det.category.includes('Sorting') ? '#8b5cf6' :
+                                               '#3b82f6',
+                                        fontSize: '11px',
+                                        padding: '2px 6px',
+                                        borderRadius: '8px'
+                                      }}>{det.category.replace('Spoilage ', '')}</span>
+                                    </td>
+                                    <td style={{ padding: '6px 4px', textAlign: 'left' }}>{det.farm}</td>
+                                    <td style={{ padding: '6px 4px', textAlign: 'right', fontWeight: 600, color: 'var(--color-danger)' }}>{formatNumber(det.qty)} Kg</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                );
+              })}
               {pivotTableData.length === 0 && (
                 <tr>
-                  <td colSpan={baseData.categoryOptions.length + 2} style={{textAlign: 'center', padding: '32px', color: 'var(--text-muted)'}}>No crops found.</td>
+                  <td colSpan={colSpanCount} style={{textAlign: 'center', padding: '32px', color: 'var(--text-muted)'}}>No crops found.</td>
                 </tr>
               )}
             </tbody>
