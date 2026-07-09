@@ -132,7 +132,7 @@ const ProduceDashboard = () => {
       farmMap[farmKey].qty += qty;
       farmMap[farmKey].entries += 1;
       farmMap[farmKey].details.push({
-        bill_name: line.ref || 'N/A',
+        bill_name: line.bill_name || 'N/A',
         farm: line.farm || '(Blank)',
         qty: qty,
         date: line.date
