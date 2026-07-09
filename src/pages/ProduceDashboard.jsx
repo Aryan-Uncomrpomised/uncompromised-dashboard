@@ -42,6 +42,10 @@ const ProduceDashboard = () => {
       if (farmName.replace(/\s/g, '').toLowerCase() === 'sarai(dabok)') {
         farmName = 'Sarai (Dabok)';
       }
+      // Normalize spelling of Chandragan
+      if (farmName.replace(/\s/g, '').toLowerCase() === 'chandragan') {
+        farmName = 'Chandrangan';
+      }
       if (farmName !== '(Blank)' && farmName !== 'Unknown Farm') {
         allFarms.add(farmName);
       }
@@ -82,6 +86,10 @@ const ProduceDashboard = () => {
       // Normalize spelling of Sarai (Dabok)
       if (farmName.replace(/\s/g, '').toLowerCase() === 'sarai(dabok)') {
         farmName = 'Sarai (Dabok)';
+      }
+      // Normalize spelling of Chandragan
+      if (farmName.replace(/\s/g, '').toLowerCase() === 'chandragan') {
+        farmName = 'Chandrangan';
       }
       
       if (farmName !== '(Blank)' && farmName !== 'Unknown Farm') {
@@ -327,9 +335,17 @@ const ProduceDashboard = () => {
           </div>
           <div style={{ height: '300px', marginTop: '16px' }}>
             <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={processedData.farmChartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+              <ComposedChart data={processedData.farmChartData} margin={{ top: 10, right: 30, left: 0, bottom: 35 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" />
-                <XAxis dataKey="name" stroke="var(--text-muted)" tick={{fill: 'var(--text-muted)'}} />
+                <XAxis 
+                  dataKey="name" 
+                  stroke="var(--text-muted)" 
+                  tick={{fill: 'var(--text-muted)'}} 
+                  interval={0}
+                  angle={-20}
+                  textAnchor="end"
+                  height={50}
+                />
                 <YAxis yAxisId="left" stroke="var(--text-muted)" tick={{fill: 'var(--text-muted)'}} />
                 <YAxis yAxisId="right" orientation="right" stroke="#f59e0b" tick={{fill: '#f59e0b'}} />
                 <RechartsTooltip 
