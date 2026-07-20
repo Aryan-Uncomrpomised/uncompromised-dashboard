@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { ResponsiveContainer, ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, Area } from 'recharts';
 import { useFilters } from '../context/FilterContext';
 import DateRangePicker from '../components/DateRangePicker';
-import { Sprout, DollarSign, Trash2, ShoppingCart, Calendar as CalendarIcon, Search, Activity, Package, Wallet } from 'lucide-react';
+import { Sprout, DollarSign, Trash2, ShoppingCart, Calendar as CalendarIcon, Search, Activity, Package, Wallet, ChevronDown, ChevronUp } from 'lucide-react';
 import { cleanProductName } from '../utils/formatters';
 import { fetchWithCache } from '../utils/apiCache';
 
@@ -17,6 +17,7 @@ const OperationsDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [matrixSearch, setMatrixSearch] = useState('');
   const [selectedFarm, setSelectedFarm] = useState('All Farms');
+  const [expandedCrop, setExpandedCrop] = useState(null);
 
   useEffect(() => {
     let salesLoaded = false;
@@ -128,7 +129,10 @@ const OperationsDashboard = () => {
           spoilage: 0, 
           inventory: 0, 
           inventoryValue: 0, 
-          revenue: 0 
+          revenue: 0,
+          salesOrders: [],
+          produceDetails: [],
+          spoilageDetails: []
         };
       }
       return cropMap[name];
@@ -140,6 +144,12 @@ const OperationsDashboard = () => {
       const crop = getOrInitCrop(cleanProductName(line.product_new || line.product_name));
       crop.harvest += qty;
       totalHarvest += qty;
+      crop.produceDetails.push({
+        date: (line.date || '').split(' ')[0],
+        bill_name: line.bill_name || line.ref || 'N/A',
+        farm: line.farm || '(Blank)',
+        qty: qty
+      });
     });
 
     spoilage.forEach(line => {
@@ -148,6 +158,13 @@ const OperationsDashboard = () => {
       const crop = getOrInitCrop(cleanProductName(line.product));
       crop.spoilage += qty;
       totalSpoilage += qty;
+      crop.spoilageDetails.push({
+        date: line.date ? line.date.split(' ')[0] : 'Unknown',
+        bill_ref: line.bill_ref || 'N/A',
+        category: line.partner || 'Unknown',
+        farm: line.farm || 'N/A',
+        qty: qty
+      });
     });
 
     sales.forEach(line => {
@@ -159,6 +176,13 @@ const OperationsDashboard = () => {
       crop.revenue += rev;
       totalSales += qty;
       totalRevenue += rev;
+      crop.salesOrders.push({
+        date: line.date ? line.date.split(' ')[0] : 'Unknown',
+        order_name: line.order_id ? line.order_id[1] : 'N/A',
+        customer: line.partner_name || 'Walk-in / POS Customer',
+        qty: qty,
+        revenue: rev
+      });
     });
 
     (inventory || []).forEach(line => {
@@ -365,7 +389,7 @@ const OperationsDashboard = () => {
         <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <span className="card-title">Crop Accountability Matrix</span>
-            <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>Comprehensive detailed breakdown of every single crop including harvest, sales, spoilage, inventory on hand, and inventory value.</p>
+            <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>Click any crop row to expand and view detailed Completed Sales Orders, Harvest Bills & Spoilage entries.</p>
           </div>
           <div style={{ position: 'relative' }}>
             <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
@@ -393,24 +417,135 @@ const OperationsDashboard = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredMatrix.map((row, idx) => (
-                <tr key={idx}>
-                  <td style={{fontWeight: 600, color: 'var(--text-primary)'}}>{row.product}</td>
-                  <td style={{textAlign: 'right', fontWeight: 500, color: '#10b981'}}>{formatNumber(row.harvest)}</td>
-                  <td style={{textAlign: 'right', fontWeight: 500, color: '#3b82f6'}}>{formatNumber(row.sales)}</td>
-                  <td style={{textAlign: 'right', fontWeight: 500, color: '#ef4444'}}>{formatNumber(row.spoilage)}</td>
-                  <td style={{textAlign: 'right', fontWeight: 500, color: '#8b5cf6'}}>{formatNumber(row.inventory)}</td>
-                  <td style={{textAlign: 'right', fontWeight: 600, color: '#f59e0b'}}>{formatCurrency(row.inventoryValue)}</td>
-                  <td style={{textAlign: 'right', color: row.unaccounted < 0 ? '#ef4444' : 'var(--text-muted)'}}>
-                    {row.unaccounted > 0 ? `+${formatNumber(row.unaccounted)}` : formatNumber(row.unaccounted)}
-                  </td>
-                  <td style={{textAlign: 'right'}}>
-                    <span className="status-badge" style={{background: row.yieldPercent > 70 ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', color: row.yieldPercent > 70 ? '#10b981' : '#ef4444'}}>
-                      {formatNumber(row.yieldPercent)}%
-                    </span>
-                  </td>
-                </tr>
-              ))}
+              {filteredMatrix.map((row, idx) => {
+                const isExpanded = expandedCrop === row.product;
+                return (
+                  <React.Fragment key={idx}>
+                    <tr 
+                      onClick={() => setExpandedCrop(isExpanded ? null : row.product)}
+                      style={{ cursor: 'pointer', transition: 'background-color 0.2s', backgroundColor: isExpanded ? 'rgba(59, 130, 246, 0.04)' : 'transparent' }}
+                    >
+                      <td style={{fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px'}}>
+                        {isExpanded ? <ChevronUp size={16} color="var(--color-primary)" /> : <ChevronDown size={16} color="var(--text-muted)" />}
+                        {row.product}
+                      </td>
+                      <td style={{textAlign: 'right', fontWeight: 500, color: '#10b981'}}>{formatNumber(row.harvest)}</td>
+                      <td style={{textAlign: 'right', fontWeight: 500, color: '#3b82f6'}}>{formatNumber(row.sales)}</td>
+                      <td style={{textAlign: 'right', fontWeight: 500, color: '#ef4444'}}>{formatNumber(row.spoilage)}</td>
+                      <td style={{textAlign: 'right', fontWeight: 500, color: '#8b5cf6'}}>{formatNumber(row.inventory)}</td>
+                      <td style={{textAlign: 'right', fontWeight: 600, color: '#f59e0b'}}>{formatCurrency(row.inventoryValue)}</td>
+                      <td style={{textAlign: 'right', color: row.unaccounted < 0 ? '#ef4444' : 'var(--text-muted)'}}>
+                        {row.unaccounted > 0 ? `+${formatNumber(row.unaccounted)}` : formatNumber(row.unaccounted)}
+                      </td>
+                      <td style={{textAlign: 'right'}}>
+                        <span className="status-badge" style={{background: row.yieldPercent > 70 ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', color: row.yieldPercent > 70 ? '#10b981' : '#ef4444'}}>
+                          {formatNumber(row.yieldPercent)}%
+                        </span>
+                      </td>
+                    </tr>
+                    {isExpanded && (
+                      <tr>
+                        <td colSpan="8" style={{ padding: '12px 24px', backgroundColor: 'rgba(0,0,0,0.1)', borderLeft: '3px solid var(--color-primary)' }}>
+                          <div style={{ padding: '12px 16px', borderRadius: '8px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                            
+                            {/* Detailed Sales Orders Section */}
+                            <div>
+                              <div style={{ fontSize: '13px', fontWeight: 600, marginBottom: '8px', color: '#3b82f6', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <ShoppingCart size={14} /> Completed Sales Orders ({row.salesOrders.length})
+                              </div>
+                              {row.salesOrders.length > 0 ? (
+                                <table style={{ width: '100%', fontSize: '12px', borderCollapse: 'collapse' }}>
+                                  <thead>
+                                    <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-muted)' }}>
+                                      <th style={{ textAlign: 'left', padding: '6px 4px' }}>Date</th>
+                                      <th style={{ textAlign: 'left', padding: '6px 4px' }}>Order / Invoice No</th>
+                                      <th style={{ textAlign: 'left', padding: '6px 4px' }}>Customer Name</th>
+                                      <th style={{ textAlign: 'right', padding: '6px 4px' }}>Quantity Sold (Kg)</th>
+                                      <th style={{ textAlign: 'right', padding: '6px 4px' }}>Net Revenue (₹)</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {row.salesOrders.map((so, sIdx) => (
+                                      <tr key={sIdx} style={{ borderBottom: sIdx === row.salesOrders.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.03)', color: 'var(--text-secondary)' }}>
+                                        <td style={{ padding: '6px 4px', textAlign: 'left' }}>{so.date}</td>
+                                        <td style={{ padding: '6px 4px', fontWeight: 500, color: 'var(--text-primary)', textAlign: 'left' }}>{so.order_name}</td>
+                                        <td style={{ padding: '6px 4px', textAlign: 'left' }}>{so.customer}</td>
+                                        <td style={{ padding: '6px 4px', textAlign: 'right', fontWeight: 600, color: '#3b82f6' }}>{formatNumber(so.qty)} Kg</td>
+                                        <td style={{ padding: '6px 4px', textAlign: 'right', fontWeight: 600, color: '#10b981' }}>{formatCurrency(so.revenue)}</td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              ) : (
+                                <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>No completed sales orders recorded for this crop.</div>
+                              )}
+                            </div>
+
+                            {/* Detailed Harvest Receipts Section */}
+                            {row.produceDetails.length > 0 && (
+                              <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '12px' }}>
+                                <div style={{ fontSize: '13px', fontWeight: 600, marginBottom: '8px', color: '#10b981', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                  <Sprout size={14} /> Harvest & Farm Receipts ({row.produceDetails.length})
+                                </div>
+                                <table style={{ width: '100%', fontSize: '12px', borderCollapse: 'collapse' }}>
+                                  <thead>
+                                    <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-muted)' }}>
+                                      <th style={{ textAlign: 'left', padding: '6px 4px' }}>Date</th>
+                                      <th style={{ textAlign: 'left', padding: '6px 4px' }}>Vendor Bill / Document</th>
+                                      <th style={{ textAlign: 'left', padding: '6px 4px' }}>Farm Origin</th>
+                                      <th style={{ textAlign: 'right', padding: '6px 4px' }}>Harvested Qty (Kg)</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {row.produceDetails.map((prod, pIdx) => (
+                                      <tr key={pIdx} style={{ borderBottom: pIdx === row.produceDetails.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.03)', color: 'var(--text-secondary)' }}>
+                                        <td style={{ padding: '6px 4px', textAlign: 'left' }}>{prod.date}</td>
+                                        <td style={{ padding: '6px 4px', fontWeight: 500, color: 'var(--text-primary)', textAlign: 'left' }}>{prod.bill_name}</td>
+                                        <td style={{ padding: '6px 4px', textAlign: 'left' }}>{prod.farm}</td>
+                                        <td style={{ padding: '6px 4px', textAlign: 'right', fontWeight: 600, color: '#10b981' }}>{formatNumber(prod.qty)} Kg</td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            )}
+
+                            {/* Detailed Spoilage Section */}
+                            {row.spoilageDetails.length > 0 && (
+                              <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '12px' }}>
+                                <div style={{ fontSize: '13px', fontWeight: 600, marginBottom: '8px', color: '#ef4444', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                  <Trash2 size={14} /> Spoilage Entries ({row.spoilageDetails.length})
+                                </div>
+                                <table style={{ width: '100%', fontSize: '12px', borderCollapse: 'collapse' }}>
+                                  <thead>
+                                    <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-muted)' }}>
+                                      <th style={{ textAlign: 'left', padding: '6px 4px' }}>Date</th>
+                                      <th style={{ textAlign: 'left', padding: '6px 4px' }}>Document Ref</th>
+                                      <th style={{ textAlign: 'left', padding: '6px 4px' }}>Category</th>
+                                      <th style={{ textAlign: 'right', padding: '6px 4px' }}>Spoilage Qty (Kg)</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {row.spoilageDetails.map((sp, spIdx) => (
+                                      <tr key={spIdx} style={{ borderBottom: spIdx === row.spoilageDetails.length - 1 ? 'none' : '1px solid rgba(255,255,255,0.03)', color: 'var(--text-secondary)' }}>
+                                        <td style={{ padding: '6px 4px', textAlign: 'left' }}>{sp.date}</td>
+                                        <td style={{ padding: '6px 4px', fontWeight: 500, color: 'var(--text-primary)', textAlign: 'left' }}>{sp.bill_ref}</td>
+                                        <td style={{ padding: '6px 4px', textAlign: 'left' }}>{sp.category}</td>
+                                        <td style={{ padding: '6px 4px', textAlign: 'right', fontWeight: 600, color: '#ef4444' }}>{formatNumber(sp.qty)} Kg</td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            )}
+
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                );
+              })}
               {filteredMatrix.length === 0 ? (
                 <tr>
                   <td colSpan="8" style={{textAlign: 'center', padding: '32px', color: 'var(--text-muted)'}}>No data available.</td>

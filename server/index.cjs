@@ -125,6 +125,7 @@ app.get('/api/sales-lines', async (req, res) => {
       product_id_id: 1, product_id_name: 1,
       quantity: 1, credit: 1, debit: 1,
       price_unit: 1, account_id_code: 1,
+      partner_id_name: 1,
       date: 1, ref: 1, move_name: 1, _id: 0
     }).toArray();
     
@@ -144,6 +145,7 @@ app.get('/api/sales-lines', async (req, res) => {
         price_subtotal: netRevenue,
         price_unit: line.price_unit,
         account_code: line.account_id_code,
+        partner_name: line.partner_id_name,
         date: line.date
       };
 
