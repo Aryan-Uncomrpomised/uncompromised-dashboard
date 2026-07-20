@@ -209,7 +209,7 @@ async function syncReceivables(db) {
 async function syncProducts(db) {
   console.log('Syncing Products & Inventory...');
   const products = await executeKw('product.product', 'search_read', [[]], {
-    fields: ['name', 'categ_id', 'qty_available', 'virtual_available', 'type'],
+    fields: ['name', 'categ_id', 'qty_available', 'virtual_available', 'type', 'standard_price', 'list_price'],
     limit: 10000
   });
 
@@ -227,7 +227,9 @@ async function syncProducts(db) {
           categ_id_name: cName,
           qty_available: p.qty_available || 0,
           virtual_available: p.virtual_available || 0,
-          type: p.type || ''
+          type: p.type || '',
+          standard_price: p.standard_price || 0,
+          list_price: p.list_price || 0
         }
       }
     };

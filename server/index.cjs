@@ -163,13 +163,15 @@ app.get('/api/sales-lines', async (req, res) => {
 // Inventory
 app.get('/api/inventory', async (req, res) => {
   try {
-    const products = await db.collection('products').find({ type: 'product' }).toArray();
+    const products = await db.collection('products').find({}).toArray();
     const formatted = products.map(p => ({
       id: p.id,
       name: p.name,
       categ_id: p.categ_id_id ? [p.categ_id_id, p.categ_id_name] : null,
-      qty_available: p.qty_available,
-      virtual_available: p.virtual_available
+      qty_available: p.qty_available || 0,
+      virtual_available: p.virtual_available || 0,
+      standard_price: p.standard_price || 0,
+      list_price: p.list_price || 0
     }));
     res.json(formatted);
   } catch (error) {
