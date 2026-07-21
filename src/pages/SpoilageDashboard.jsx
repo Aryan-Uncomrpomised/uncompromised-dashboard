@@ -17,6 +17,7 @@ const SpoilageDashboard = () => {
   const [globalCategory, setGlobalCategory] = useState('All Categories');
   const [selectedFarm, setSelectedFarm] = useState('All Farms');
   const [selectedCrop, setSelectedCrop] = useState('All Crops');
+  const [cropSearch, setCropSearch] = useState('');
 
   // Visual-Level Filters
   const [topCropsCategory, setTopCropsCategory] = useState('All Categories');
@@ -79,13 +80,20 @@ const SpoilageDashboard = () => {
       });
     }
 
+    if (cropSearch) {
+      filtered = filtered.filter(item => {
+        let cleanProduct = cleanProductName(item.product);
+        return cleanProduct.toLowerCase().includes(cropSearch.toLowerCase());
+      });
+    }
+
     return {
       lines: filtered,
       categoryOptions: Array.from(allCategories).sort(),
       cropOptions: Array.from(allCrops).sort(),
       farmOptions: Array.from(allFarms).sort()
     };
-  }, [rawData, filters, globalCategory, selectedFarm, selectedCrop]);
+  }, [rawData, filters, globalCategory, selectedFarm, selectedCrop, cropSearch]);
 
   // 2. Top Stats
   const topStats = useMemo(() => {
@@ -285,6 +293,16 @@ const SpoilageDashboard = () => {
                 <option key={c} value={c}>{c}</option>
               ))}
             </select>
+            <div style={{ position: 'relative' }}>
+              <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+              <input 
+                type="text" 
+                placeholder="Search Crop..." 
+                value={cropSearch}
+                onChange={(e) => setCropSearch(e.target.value)}
+                style={{ padding: '6px 12px 6px 30px', borderRadius: '8px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '13px', outline: 'none', width: '140px' }}
+              />
+            </div>
             <DateRangePicker value={dateValue} onChange={handleDateChange} />
           </div>
         </div>

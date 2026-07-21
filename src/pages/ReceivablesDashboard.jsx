@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 
-import { IndianRupee, Clock, AlertTriangle, Users, Filter } from 'lucide-react';
+import { IndianRupee, Clock, AlertTriangle, Users, Filter, Search } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Cell, PieChart, Pie } from 'recharts';
 import { fetchWithCache } from '../utils/apiCache';
 
@@ -23,6 +23,7 @@ const ReceivablesDashboard = () => {
 
   const [asOfFilter, setAsOfFilter] = useState(new Date().toISOString().split('T')[0]);
   const [selectedPoc, setSelectedPoc] = useState('All POCs');
+  const [customerSearch, setCustomerSearch] = useState('');
 
   const asOfDate = new Date(asOfFilter);
   asOfDate.setHours(23, 59, 59, 999);
@@ -132,11 +133,16 @@ const ReceivablesDashboard = () => {
 
   const filteredCustomers = useMemo(() => {
     return agedData.customers.filter(c => {
-      if (selectedPoc === 'All POCs') return true;
-      if (selectedPoc === 'Unassigned') return !c.poc;
-      return c.poc === selectedPoc;
+      if (selectedPoc !== 'All POCs') {
+        if (selectedPoc === 'Unassigned' && c.poc) return false;
+        if (selectedPoc !== 'Unassigned' && c.poc !== selectedPoc) return false;
+      }
+      if (customerSearch && !c.name.toLowerCase().includes(customerSearch.toLowerCase())) {
+        return false;
+      }
+      return true;
     });
-  }, [agedData.customers, selectedPoc]);
+  }, [agedData.customers, selectedPoc, customerSearch]);
 
   const filteredTotals = useMemo(() => {
     let totalOutstanding = 0;
@@ -208,7 +214,20 @@ const ReceivablesDashboard = () => {
         </div>
 
         {/* Local Filter */}
-        <div style={{ display: 'flex', gap: '16px', background: 'var(--glass-bg)', padding: '12px 20px', borderRadius: '16px', border: 'var(--glass-border)', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
+        <div style={{ display: 'flex', gap: '16px', background: 'var(--glass-bg)', padding: '12px 20px', borderRadius: '16px', border: 'var(--glass-border)', boxShadow: '0 4px 20px rgba(0,0,0,0.05)', flexWrap: 'wrap', alignItems: 'center' }}>
+          <div className="filter-group">
+            <label className="filter-label">Search Customer</label>
+            <div className="filter-input-wrapper" style={{ position: 'relative' }}>
+              <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+              <input 
+                type="text" 
+                placeholder="Search Customer..." 
+                value={customerSearch}
+                onChange={(e) => setCustomerSearch(e.target.value)}
+                style={{ padding: '6px 12px 6px 30px', borderRadius: '8px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '13px', outline: 'none', width: '160px' }}
+              />
+            </div>
+          </div>
           <div className="filter-group">
             <label className="filter-label">As Of Date</label>
             <div className="filter-input-wrapper">

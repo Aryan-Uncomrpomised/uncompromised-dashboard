@@ -306,6 +306,16 @@ const OperationsDashboard = () => {
                 <option key={f} value={f}>{f}</option>
               ))}
             </select>
+            <div style={{ position: 'relative' }}>
+              <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+              <input 
+                type="text" 
+                placeholder="Search Crop..." 
+                value={matrixSearch}
+                onChange={(e) => setMatrixSearch(e.target.value)}
+                style={{ padding: '6px 12px 6px 30px', borderRadius: '8px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '13px', outline: 'none', width: '150px' }}
+              />
+            </div>
             <DateRangePicker value={dateValue} onChange={handleDateChange} />
           </div>
         </div>
