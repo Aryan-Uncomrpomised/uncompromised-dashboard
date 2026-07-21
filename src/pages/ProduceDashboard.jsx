@@ -12,6 +12,7 @@ const ProduceDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [selectedFarm, setSelectedFarm] = useState('All Farms');
   const [selectedCrop, setSelectedCrop] = useState('All Crops');
+  const [cropSearch, setCropSearch] = useState('');
   const [tableSearch, setTableSearch] = useState('');
   const [expandedRowKey, setExpandedRowKey] = useState(null);
 
@@ -105,6 +106,9 @@ const ProduceDashboard = () => {
       if (selectedCrop !== 'All Crops' && cropName !== selectedCrop) {
         return;
       }
+      if (cropSearch && !cropName.toLowerCase().includes(cropSearch.toLowerCase())) {
+        return;
+      }
 
       const qty = line.qty_purchased || 0;
       if (qty === 0) return;
@@ -162,9 +166,30 @@ const ProduceDashboard = () => {
       'Sarai (Dabok)': 817371
     };
 
-    const start = new Date(filters.startDate || '2020-01-01');
-    const end = new Date(filters.endDate || new Date().toISOString().split('T')[0]);
-    const months = Math.max(1, (end - start) / (1000 * 60 * 60 * 24 * 30.44));
+    let minTime = Infinity;
+    let maxTime = -Infinity;
+
+    filtered.forEach(line => {
+      if (line.date) {
+        const t = new Date(line.date).getTime();
+        if (!isNaN(t)) {
+          if (t < minTime) minTime = t;
+          if (t > maxTime) maxTime = t;
+        }
+      }
+    });
+
+    let months = 1;
+    if (filters.startDate && filters.endDate) {
+      const s = new Date(filters.startDate).getTime();
+      const e = new Date(filters.endDate).getTime();
+      if (!isNaN(s) && !isNaN(e) && e > s) {
+        months = Math.max(1, (e - s) / (1000 * 60 * 60 * 24 * 30.44));
+      }
+    } else if (minTime < Infinity && maxTime > -Infinity) {
+      const diffDays = Math.max(1, (maxTime - minTime) / (1000 * 60 * 60 * 24));
+      months = Math.max(1, diffDays / 30.44);
+    }
 
     const farmChartData = Object.keys(chartFarmMap).map(k => {
       const volume = chartFarmMap[k];
@@ -199,7 +224,7 @@ const ProduceDashboard = () => {
       farmOptions: Array.from(allFarms).sort(),
       cropOptions: Array.from(allCrops).sort()
     };
-  }, [rawData, filters, selectedFarm, selectedCrop]);
+  }, [rawData, filters, selectedFarm, selectedCrop, cropSearch]);
 
   if (loading) {
     return (
@@ -265,6 +290,16 @@ const ProduceDashboard = () => {
                 <option key={c} value={c}>{c}</option>
               ))}
             </select>
+            <div style={{ position: 'relative' }}>
+              <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+              <input 
+                type="text" 
+                placeholder="Search Crop..." 
+                value={cropSearch}
+                onChange={(e) => setCropSearch(e.target.value)}
+                style={{ padding: '6px 12px 6px 30px', borderRadius: '8px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '13px', outline: 'none', width: '140px' }}
+              />
+            </div>
             <DateRangePicker value={dateValue} onChange={handleDateChange} />
           </div>
         </div>
