@@ -163,42 +163,19 @@ const ProduceDashboard = () => {
       'Chandrangan': 191542,
       'Pratapnagar': 0,
       'Sarai(Dabok)': 817371,
-      'Sarai (Dabok)': 817371
+      'Sarai (Dabok)': 817371,
+      'V-Fresh': 1216588,
+      'HQ': 1216588
     };
-
-    let minTime = Infinity;
-    let maxTime = -Infinity;
-
-    filtered.forEach(line => {
-      if (line.date) {
-        const t = new Date(line.date).getTime();
-        if (!isNaN(t)) {
-          if (t < minTime) minTime = t;
-          if (t > maxTime) maxTime = t;
-        }
-      }
-    });
-
-    let months = 1;
-    if (filters.startDate && filters.endDate) {
-      const s = new Date(filters.startDate).getTime();
-      const e = new Date(filters.endDate).getTime();
-      if (!isNaN(s) && !isNaN(e) && e > s) {
-        months = Math.max(1, (e - s) / (1000 * 60 * 60 * 24 * 30.44));
-      }
-    } else if (minTime < Infinity && maxTime > -Infinity) {
-      const diffDays = Math.max(1, (maxTime - minTime) / (1000 * 60 * 60 * 24));
-      months = Math.max(1, diffDays / 30.44);
-    }
 
     const farmChartData = Object.keys(chartFarmMap).map(k => {
       const volume = chartFarmMap[k];
-      const area = FARM_AREAS_SQFT[k] || 1;
-      const psfm = area > 1 ? ((volume / area) * 1000) / months : 0;
+      const area = FARM_AREAS_SQFT[k] || 0;
+      const yieldPerSqft = area > 0 ? (volume / area) : 0;
       return { 
         name: k, 
         value: volume,
-        psfm: Number(psfm.toFixed(3))
+        yieldSqft: Number(yieldPerSqft.toFixed(5))
       };
     }).sort((a, b) => b.value - a.value).slice(0, 10);
 
@@ -399,13 +376,13 @@ const ProduceDashboard = () => {
                   cursor={{fill: 'rgba(255,255,255,0.05)'}}
                   contentStyle={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)', borderRadius: '8px' }}
                   formatter={(val, name) => {
-                    if (name === 'value') return [formatNumber(val) + ' Kg', 'Volume'];
-                    if (name === 'psfm') return [val + ' Kg/1000 sqft/mo', 'Yield (per 1000 sqft)'];
+                    if (name === 'value' || name === 'Volume') return [formatNumber(val) + ' Kg', 'Volume'];
+                    if (name === 'yieldSqft' || name === 'Yield (Kg/sqft)') return [val + ' Kg/sqft', 'Yield (Kg/sqft)'];
                     return [val, name];
                   }}
                 />
-                <Bar yAxisId="left" dataKey="value" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                <Line yAxisId="right" type="monotone" dataKey="psfm" stroke="#f59e0b" strokeWidth={3} dot={{r: 4}} activeDot={{r: 6}} />
+                <Bar yAxisId="left" dataKey="value" fill="#3b82f6" radius={[4, 4, 0, 0]} name="Volume" />
+                <Line yAxisId="right" type="monotone" dataKey="yieldSqft" stroke="#f59e0b" strokeWidth={3} dot={{r: 4}} activeDot={{r: 6}} name="Yield (Kg/sqft)" />
               </ComposedChart>
             </ResponsiveContainer>
           </div>
