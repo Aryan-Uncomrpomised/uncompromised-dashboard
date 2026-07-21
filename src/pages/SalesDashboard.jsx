@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { AreaChart, Area, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ComposedChart, Legend, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
 import { cleanProductName } from '../utils/formatters';
-import { TrendingUp, DollarSign, ShoppingCart, Activity, Server, Users, ChevronDown } from 'lucide-react';
+import { TrendingUp, DollarSign, ShoppingCart, Activity, Server, Users, ChevronDown, Search } from 'lucide-react';
 import { useFilters } from '../context/FilterContext';
 import DateRangePicker from '../components/DateRangePicker';
 import { fetchWithCache } from '../utils/apiCache';
@@ -82,6 +82,7 @@ const SalesDashboard = () => {
   });
 
   const [error, setError] = useState(null);
+  const [productSearch, setProductSearch] = useState('');
 
   useEffect(() => {
     let salesData = null;
@@ -326,10 +327,14 @@ const SalesDashboard = () => {
     value: Math.round(freshCategoriesMap[key])
   })).sort((a,b) => b.value - a.value);
 
-  const topProductsData = Object.keys(productRevenueMap).map(key => ({
+  const allProductsData = Object.keys(productRevenueMap).map(key => ({
     name: key,
     revenue: Math.round(productRevenueMap[key])
-  })).sort((a,b) => b.revenue - a.revenue).slice(0, 10);
+  })).sort((a,b) => b.revenue - a.revenue);
+
+  const topProductsData = allProductsData
+    .filter(p => !productSearch || p.name.toLowerCase().includes(productSearch.toLowerCase()))
+    .slice(0, productSearch ? 20 : 10);
 
   const customerMap = {};
   activeOrders.forEach(order => {
@@ -680,19 +685,42 @@ const SalesDashboard = () => {
 
       <div className="dashboard-grid mt-6">
         <div className="col-span-12 card">
-          <div className="card-header">
-            <span className="card-title">{masterTab === 'connected' ? 'Top Services by Revenue' : 'Top 10 Products by Revenue'}</span>
+          <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span className="card-title">{masterTab === 'connected' ? 'Top Services by Revenue' : 'Top Products by Revenue'}</span>
+            <div style={{ position: 'relative' }}>
+              <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+              <input 
+                type="text" 
+                placeholder="Search Crop or Product..." 
+                value={productSearch}
+                onChange={(e) => setProductSearch(e.target.value)}
+                style={{ padding: '6px 12px 6px 30px', borderRadius: '8px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '13px', outline: 'none' }}
+              />
+            </div>
           </div>
-          <div style={{ height: '350px' }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={topProductsData} margin={{ left: 20, right: 20, top: 20, bottom: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" />
-                <XAxis dataKey="name" stroke="var(--text-muted)" tick={{fontSize: 11}} angle={-45} textAnchor="end" height={80} />
-                <YAxis stroke="var(--text-muted)" />
-                <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }} />
-                <Bar dataKey="revenue" fill="#7c3aed" radius={[4, 4, 0, 0]} name="Revenue (₹)" />
-              </BarChart>
-            </ResponsiveContainer>
+          <div style={{ height: '350px', marginTop: '16px' }}>
+            {topProductsData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={topProductsData} margin={{ left: 20, right: 20, top: 20, bottom: 20 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" />
+                  <XAxis dataKey="name" stroke="var(--text-muted)" tick={{fontSize: 11}} angle={-45} textAnchor="end" height={80} interval={0} />
+                  <YAxis stroke="var(--text-muted)" tickFormatter={v => `₹${v/1000}k`} />
+                  <Tooltip 
+                    contentStyle={{ borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}
+                    formatter={(value) => [`₹${Number(value).toLocaleString()}`, 'Revenue']}
+                  />
+                  <Bar dataKey="revenue" fill="#7c3aed" radius={[4, 4, 0, 0]} name="Revenue (₹)">
+                    {topProductsData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--text-muted)', fontSize: '14px' }}>
+                No products or crops matched "{productSearch}"
+              </div>
+            )}
           </div>
         </div>
       </div>
