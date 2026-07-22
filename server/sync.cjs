@@ -208,7 +208,7 @@ async function syncReceivables(db) {
 
 async function syncProducts(db) {
   console.log('Syncing Products & Inventory...');
-  const products = await executeKw('product.product', 'search_read', [[]], {
+  const products = await executeKw('product.template', 'search_read', [[]], {
     fields: ['name', 'categ_id', 'qty_available', 'virtual_available', 'type', 'standard_price', 'list_price'],
     limit: 10000
   });

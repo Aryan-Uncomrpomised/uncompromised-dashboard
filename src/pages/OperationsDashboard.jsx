@@ -90,25 +90,16 @@ const OperationsDashboard = () => {
       produce = produce.filter(p => p.farm === selectedFarm);
     }
 
-    // Helper to shift dates by N days for margin mapping
-    const addDays = (dateStr, days) => {
-      const d = new Date(dateStr);
-      d.setDate(d.getDate() + days);
-      return d.toISOString().split('T')[0];
-    };
-
     // Apply Global Date Filter
     if (filters.startDate) {
-      const shiftedStart = addDays(filters.startDate, 3); // 3-day margin
       produce = produce.filter(i => (i.date || '').split(' ')[0] >= filters.startDate);
-      spoilage = spoilage.filter(i => (i.date || '').split(' ')[0] >= shiftedStart);
-      sales = sales.filter(i => (i.date || '').split(' ')[0] >= shiftedStart);
+      spoilage = spoilage.filter(i => (i.date || '').split(' ')[0] >= filters.startDate);
+      sales = sales.filter(i => (i.date || '').split(' ')[0] >= filters.startDate);
     }
     if (filters.endDate) {
-      const shiftedEnd = addDays(filters.endDate, 3); // 3-day margin
       produce = produce.filter(i => (i.date || '').split(' ')[0] <= filters.endDate);
-      spoilage = spoilage.filter(i => (i.date || '').split(' ')[0] <= shiftedEnd);
-      sales = sales.filter(i => (i.date || '').split(' ')[0] <= shiftedEnd);
+      spoilage = spoilage.filter(i => (i.date || '').split(' ')[0] <= filters.endDate);
+      sales = sales.filter(i => (i.date || '').split(' ')[0] <= filters.endDate);
     }
 
     // 1. Compute Master Matrix
@@ -203,7 +194,7 @@ const OperationsDashboard = () => {
       .map(crop => ({
         ...crop,
         yieldPercent: crop.harvest > 0 ? ((crop.sales / crop.harvest) * 100) : 0,
-        unaccounted: crop.harvest - crop.sales - crop.spoilage - crop.inventory
+        unaccounted: crop.harvest - (crop.sales - crop.spoilage - crop.inventory)
       }))
       .filter(crop => 
         crop.harvest > 0 || 
