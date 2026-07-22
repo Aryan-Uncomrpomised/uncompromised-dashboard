@@ -161,6 +161,7 @@ const OperationsDashboard = () => {
     sales.forEach(line => {
       const qty = line.qty || 0;
       const rev = line.price_subtotal_incl || 0;
+      if (rev === 0) return; // Exclude zero revenue orders
       if (qty <= 0 && rev <= 0) return;
       const crop = getOrInitCrop(cleanProductName(line.product_id ? line.product_id[1] : null));
       crop.sales += qty;
