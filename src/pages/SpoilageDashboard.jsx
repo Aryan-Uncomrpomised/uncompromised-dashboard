@@ -124,7 +124,7 @@ const SpoilageDashboard = () => {
     return { totalSpoilage, uniqueCrops: cropMap.size, highestCategory };
   }, [baseData]);
 
-  // 3. Top 5 Crops (filtered by topCropsCategory)
+  // 3. Spoiled Crops breakdown (filtered by topCropsCategory)
   const topCropsData = useMemo(() => {
     const cropMap = {};
     baseData.lines.forEach(line => {
@@ -139,8 +139,7 @@ const SpoilageDashboard = () => {
 
     return Object.keys(cropMap)
       .map(k => ({ name: k, value: cropMap[k] }))
-      .sort((a, b) => b.value - a.value)
-      .slice(0, 5);
+      .sort((a, b) => b.value - a.value);
   }, [baseData, topCropsCategory]);
 
   // 4. Daily Trend (filtered by trendCrop)
@@ -341,10 +340,10 @@ const SpoilageDashboard = () => {
         </div>
       </div>
 
-      {/* Top 5 Crops */}
+      {/* Spoiled Crops Breakdown */}
       <div className="card">
         <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span className="card-title">Top 5 Spoiled Crops</span>
+          <span className="card-title">Spoiled Crops Breakdown</span>
           <select 
             style={{ padding: '4px 8px', borderRadius: '6px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '12px', outline: 'none' }}
             value={topCropsCategory}
@@ -354,16 +353,16 @@ const SpoilageDashboard = () => {
             {baseData.categoryOptions.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '16px', padding: '16px' }}>
+        <div style={{ display: 'flex', gap: '16px', padding: '16px', overflowX: 'auto', WebkitOverflowScrolling: 'touch', scrollbarWidth: 'thin' }}>
           {topCropsData.map((crop, idx) => (
-            <div key={idx} style={{ padding: '16px', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+            <div key={idx} style={{ flex: '0 0 180px', padding: '16px', borderRadius: '12px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
               <span style={{ fontSize: '14px', color: '#ef4444', fontWeight: 'bold', marginBottom: '4px' }}>#{idx + 1}</span>
-              <span style={{ fontSize: '14px', color: 'var(--text-primary)', fontWeight: '500', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }} title={crop.name}>{crop.name}</span>
+              <span style={{ fontSize: '14px', color: 'var(--text-primary)', fontWeight: '500', height: '40px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }} title={crop.name}>{crop.name}</span>
               <span style={{ fontSize: '18px', fontWeight: 'bold', marginTop: '8px', color: 'var(--text-primary)' }}>{formatNumber(crop.value)} Kg</span>
             </div>
           ))}
           {topCropsData.length === 0 && (
-            <div style={{ gridColumn: '1 / -1', textAlign: 'center', color: 'var(--text-muted)', padding: '16px 0' }}>No spoilage recorded in this period.</div>
+            <div style={{ width: '100%', textAlign: 'center', color: 'var(--text-muted)', padding: '16px 0' }}>No spoilage recorded in this period.</div>
           )}
         </div>
       </div>
