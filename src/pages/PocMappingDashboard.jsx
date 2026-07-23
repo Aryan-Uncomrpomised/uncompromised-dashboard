@@ -264,13 +264,17 @@ const PocMappingDashboard = () => {
           </div>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
             <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--text-muted)' }}>POC Name</span>
-            <input 
-              type="text" 
-              placeholder="e.g. Saurabh" 
+            <select 
               value={newPoc}
               onChange={(e) => setNewPoc(e.target.value)}
-              style={{ width: '100%', padding: '10px 16px', borderRadius: '10px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '14px', outline: 'none' }}
-            />
+              style={{ width: '100%', padding: '10px 16px', borderRadius: '10px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '14px', outline: 'none', appearance: 'auto' }}
+            >
+              <option value="">Select POC...</option>
+              <option value="Prerna">Prerna</option>
+              <option value="Ashima">Ashima</option>
+              <option value="Sikander">Sikander</option>
+              <option value="Saurabh">Saurabh</option>
+            </select>
           </div>
           <button 
             type="submit" 
@@ -335,13 +339,17 @@ const PocMappingDashboard = () => {
                     <tr key={row.partner_name} style={{ borderBottom: '1px solid var(--border-color)' }}>
                       <td style={{ fontWeight: 500 }}>{row.partner_name}</td>
                       <td>
-                        <input 
-                          type="text" 
-                          placeholder="Assign POC..."
+                        <select 
                           value={currentValue}
                           onChange={(e) => handlePocChange(row.partner_name, e.target.value)}
-                          style={{ padding: '6px 12px', width: '180px', borderRadius: '6px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '13px', outline: 'none' }}
-                        />
+                          style={{ padding: '6px 12px', width: '180px', borderRadius: '6px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '13px', outline: 'none', appearance: 'auto' }}
+                        >
+                          <option value="">Select POC...</option>
+                          <option value="Prerna">Prerna</option>
+                          <option value="Ashima">Ashima</option>
+                          <option value="Sikander">Sikander</option>
+                          <option value="Saurabh">Saurabh</option>
+                        </select>
                       </td>
                       <td style={{ textAlign: 'right' }}>
                         <button 
@@ -371,13 +379,17 @@ const PocMappingDashboard = () => {
                     <tr key={name} style={{ borderBottom: '1px solid var(--border-color)' }}>
                       <td style={{ fontWeight: 500, color: 'var(--text-secondary)' }}>{name}</td>
                       <td>
-                        <input 
-                          type="text" 
-                          placeholder="Assign POC..."
+                        <select 
                           value={currentValue}
                           onChange={(e) => handlePocChange(name, e.target.value)}
-                          style={{ padding: '6px 12px', width: '180px', borderRadius: '6px', background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.2)', color: 'var(--text-primary)', fontSize: '13px', outline: 'none' }}
-                        />
+                          style={{ padding: '6px 12px', width: '180px', borderRadius: '6px', background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.2)', color: 'var(--text-primary)', fontSize: '13px', outline: 'none', appearance: 'auto' }}
+                        >
+                          <option value="">Select POC...</option>
+                          <option value="Prerna">Prerna</option>
+                          <option value="Ashima">Ashima</option>
+                          <option value="Sikander">Sikander</option>
+                          <option value="Saurabh">Saurabh</option>
+                        </select>
                       </td>
                       <td style={{ textAlign: 'right' }}>
                         <button 
