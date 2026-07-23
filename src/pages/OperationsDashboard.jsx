@@ -5,8 +5,10 @@ import DateRangePicker from '../components/DateRangePicker';
 import { Sprout, DollarSign, Trash2, ShoppingCart, Calendar as CalendarIcon, Search, Activity, Package, Wallet, ChevronDown, ChevronUp } from 'lucide-react';
 import { cleanProductName } from '../utils/formatters';
 import { fetchWithCache } from '../utils/apiCache';
+import { useNavigate } from 'react-router-dom';
 
 const OperationsDashboard = () => {
+  const navigate = useNavigate();
   const { filters, setFilters } = useFilters();
   const [data, setData] = useState({
     produce: [],
@@ -351,7 +353,19 @@ const OperationsDashboard = () => {
 
       {/* KPI Banner */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
-        <div className="card stat-card">
+        <div 
+          className="card stat-card"
+          onClick={() => navigate('/produce')}
+          style={{ cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.08)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'none';
+            e.currentTarget.style.boxShadow = 'none';
+          }}
+        >
           <div className="stat-icon" style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }}>
             <Sprout size={22} />
           </div>
@@ -360,7 +374,19 @@ const OperationsDashboard = () => {
             <h3 className="stat-value" style={{ color: '#10b981', fontSize: '20px' }}>{formatNumber(processedData.totalHarvest)} <span style={{fontSize: '13px', color: 'var(--text-muted)'}}>Kg</span></h3>
           </div>
         </div>
-        <div className="card stat-card">
+        <div 
+          className="card stat-card"
+          onClick={() => navigate('/sales')}
+          style={{ cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.08)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'none';
+            e.currentTarget.style.boxShadow = 'none';
+          }}
+        >
           <div className="stat-icon" style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }}>
             <ShoppingCart size={22} />
           </div>
@@ -369,7 +395,19 @@ const OperationsDashboard = () => {
             <h3 className="stat-value" style={{ color: '#3b82f6', fontSize: '20px' }}>{formatNumber(processedData.totalSales)} <span style={{fontSize: '13px', color: 'var(--text-muted)'}}>Kg</span></h3>
           </div>
         </div>
-        <div className="card stat-card">
+        <div 
+          className="card stat-card"
+          onClick={() => navigate('/spoilage')}
+          style={{ cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s' }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.08)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'none';
+            e.currentTarget.style.boxShadow = 'none';
+          }}
+        >
           <div className="stat-icon" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' }}>
             <Trash2 size={22} />
           </div>
