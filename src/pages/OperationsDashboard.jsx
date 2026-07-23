@@ -451,7 +451,6 @@ const OperationsDashboard = () => {
                 <th style={{textAlign: 'right', color: '#8b5cf6'}}>Inventory (On Hand)</th>
                 <th style={{textAlign: 'right', color: '#f59e0b'}}>Inventory Value (₹)</th>
                 <th style={{textAlign: 'right'}}>Unaccounted (Kg)</th>
-                <th style={{textAlign: 'right'}}>Yield Conversion</th>
               </tr>
             </thead>
             <tbody>
@@ -484,15 +483,10 @@ const OperationsDashboard = () => {
                       <td style={{textAlign: 'right', color: row.unaccounted < 0 ? '#ef4444' : 'var(--text-muted)'}}>
                         {row.unaccounted > 0 ? `+${formatNumber(row.unaccounted)}` : formatNumber(row.unaccounted)}
                       </td>
-                      <td style={{textAlign: 'right'}}>
-                        <span className="status-badge" style={{background: row.yieldPercent > 70 ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', color: row.yieldPercent > 70 ? '#10b981' : '#ef4444'}}>
-                          {formatNumber(row.yieldPercent)}%
-                        </span>
-                      </td>
                     </tr>
                     {isExpanded && (
                       <tr>
-                        <td colSpan="8" style={{ padding: '12px 24px', backgroundColor: 'rgba(0,0,0,0.1)', borderLeft: '3px solid var(--color-primary)' }}>
+                        <td colSpan="7" style={{ padding: '12px 24px', backgroundColor: 'rgba(0,0,0,0.1)', borderLeft: '3px solid var(--color-primary)' }}>
                           <div style={{ padding: '12px 16px', borderRadius: '8px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
                             
                             {/* Detailed Sales Orders Section */}
@@ -585,40 +579,32 @@ const OperationsDashboard = () => {
                                 </table>
                               </div>
                             )}
-
-                            {/* Detailed Inventory Breakdown by Location */}
+                                                      {/* Detailed Inventory Breakdown by Location */}
                             <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '12px' }}>
                               <div style={{ fontSize: '13px', fontWeight: 600, marginBottom: '8px', color: '#f59e0b', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                <Package size={14} /> Inventory Breakdown by Location
+                                <Package size={14} /> Inventory Breakdown
                               </div>
-                              <table style={{ width: '100%', fontSize: '12px', borderCollapse: 'collapse' }}>
+                              <table style={{ width: '100%', fontSize: '12px', borderCollapse: 'collapse', textAlign: 'left' }}>
                                 <thead>
                                   <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-muted)' }}>
-                                    <th style={{ textAlign: 'left', padding: '6px 4px' }}>Godown / Location</th>
-                                    <th style={{ textAlign: 'right', padding: '6px 4px' }}>Quantity On Hand (Kg)</th>
+                                    <th style={{ padding: '8px 6px' }}>Product</th>
+                                    <th style={{ padding: '8px 6px', textAlign: 'right' }}>Syphon Godown - Raw #00001 (SWH)</th>
+                                    <th style={{ padding: '8px 6px', textAlign: 'right' }}>Syphon Godown - Cleaned #00002 (SYG0)</th>
+                                    <th style={{ padding: '8px 6px', textAlign: 'right' }}>The Farm Shop - # 00007 (TFS)</th>
+                                    <th style={{ padding: '8px 6px', textAlign: 'right' }}>POS Tapri #00004 (TPR)</th>
                                   </tr>
                                 </thead>
                                 <tbody>
-                                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.03)', color: 'var(--text-secondary)' }}>
-                                    <td style={{ padding: '6px 4px', textAlign: 'left' }}>Syphon Godown - Raw #00001 (SWH)</td>
-                                    <td style={{ padding: '6px 4px', textAlign: 'right', fontWeight: 600, color: 'var(--text-primary)' }}>{formatNumber(row.godownStock['SWH'])} Kg</td>
-                                  </tr>
-                                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.03)', color: 'var(--text-secondary)' }}>
-                                    <td style={{ padding: '6px 4px', textAlign: 'left' }}>Syphon Godown - Cleaned #00002 (SYG)</td>
-                                    <td style={{ padding: '6px 4px', textAlign: 'right', fontWeight: 600, color: 'var(--text-primary)' }}>{formatNumber(row.godownStock['SYG'])} Kg</td>
-                                  </tr>
-                                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.03)', color: 'var(--text-secondary)' }}>
-                                    <td style={{ padding: '6px 4px', textAlign: 'left' }}>The Farm Shop - #00007 (TFS)</td>
-                                    <td style={{ padding: '6px 4px', textAlign: 'right', fontWeight: 600, color: 'var(--text-primary)' }}>{formatNumber(row.godownStock['TFS'])} Kg</td>
-                                  </tr>
-                                  <tr style={{ color: 'var(--text-secondary)' }}>
-                                    <td style={{ padding: '6px 4px', textAlign: 'left' }}>POS Tapri #00004 (TPR)</td>
-                                    <td style={{ padding: '6px 4px', textAlign: 'right', fontWeight: 600, color: 'var(--text-primary)' }}>{formatNumber(row.godownStock['TPR'])} Kg</td>
+                                  <tr style={{ color: 'var(--text-primary)' }}>
+                                    <td style={{ padding: '8px 6px', fontWeight: 600 }}>{row.product}</td>
+                                    <td style={{ padding: '8px 6px', textAlign: 'right', fontWeight: 500, color: '#8b5cf6' }}>{formatNumber(row.godownStock['SWH'])} Kg</td>
+                                    <td style={{ padding: '8px 6px', textAlign: 'right', fontWeight: 500, color: '#8b5cf6' }}>{formatNumber(row.godownStock['SYG'])} Kg</td>
+                                    <td style={{ padding: '8px 6px', textAlign: 'right', fontWeight: 500, color: '#8b5cf6' }}>{formatNumber(row.godownStock['TFS'])} Kg</td>
+                                    <td style={{ padding: '8px 6px', textAlign: 'right', fontWeight: 500, color: '#8b5cf6' }}>{formatNumber(row.godownStock['TPR'])} Kg</td>
                                   </tr>
                                 </tbody>
                               </table>
                             </div>
-
                           </div>
                         </td>
                       </tr>
@@ -628,7 +614,7 @@ const OperationsDashboard = () => {
               })}
               {filteredMatrix.length === 0 ? (
                 <tr>
-                  <td colSpan="8" style={{textAlign: 'center', padding: '32px', color: 'var(--text-muted)'}}>No data available.</td>
+                  <td colSpan="7" style={{textAlign: 'center', padding: '32px', color: 'var(--text-muted)'}}>No data available.</td>
                 </tr>
               ) : (
                 <tr style={{ fontWeight: 700, backgroundColor: 'rgba(255,255,255,0.03)', borderTop: '2px solid var(--border-color)' }}>
@@ -640,11 +626,6 @@ const OperationsDashboard = () => {
                   <td style={{ textAlign: 'right', color: '#f59e0b', padding: '12px 8px' }}>{formatCurrency(totalInventoryValueSum)}</td>
                   <td style={{ textAlign: 'right', padding: '12px 8px', color: totalUnaccountedSum < 0 ? '#ef4444' : 'inherit' }}>
                     {totalUnaccountedSum > 0 ? `+${formatNumber(totalUnaccountedSum)}` : formatNumber(totalUnaccountedSum)}
-                  </td>
-                  <td style={{ textAlign: 'right', padding: '12px 8px' }}>
-                    <span className="status-badge" style={{background: overallYieldSum > 70 ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', color: overallYieldSum > 70 ? '#10b981' : '#ef4444'}}>
-                      {formatNumber(overallYieldSum)}%
-                    </span>
                   </td>
                 </tr>
               )}
