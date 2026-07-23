@@ -386,6 +386,37 @@ async function syncPartners(db) {
   console.log(`Synced ${partners.length} partners.`);
 }
 
+async function syncStockQuants(db) {
+  console.log('Syncing Stock Quants by Location...');
+  const targetLocationIds = [8, 254, 246, 218];
+  const quants = await executeKw('stock.quant', 'search_read', [
+    [['location_id', 'in', targetLocationIds], ['quantity', '>', 0]]
+  ], {
+    fields: ['product_id', 'location_id', 'quantity'],
+    limit: 50000
+  });
+
+  await db.collection('stock_quants').deleteMany({});
+
+  const ops = quants.map(q => {
+    return {
+      insertOne: {
+        document: {
+          id: q.id,
+          product_id: q.product_id ? q.product_id[0] : null,
+          product_name: q.product_id ? q.product_id[1] : '',
+          location_id: q.location_id ? q.location_id[0] : null,
+          location_name: q.location_id ? q.location_id[1] : '',
+          quantity: q.quantity || 0
+        }
+      }
+    };
+  });
+
+  if (ops.length > 0) await db.collection('stock_quants').bulkWrite(ops);
+  console.log(`Synced ${quants.length} stock quants.`);
+}
+
 async function runSync() {
   console.log(`\n[${new Date().toISOString()}] Starting Odoo background sync...`);
   try {
@@ -395,6 +426,7 @@ async function runSync() {
     await syncSales(db);
     await syncReceivables(db);
     await syncVendorBills(db);
+    await syncStockQuants(db);
     console.log(`[${new Date().toISOString()}] Sync complete.`);
   } catch (err) {
     console.error('Error during sync:', err);

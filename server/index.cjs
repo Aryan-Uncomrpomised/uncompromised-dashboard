@@ -181,6 +181,16 @@ app.get('/api/inventory', async (req, res) => {
   }
 });
 
+// Stock Quants
+app.get('/api/stock-quants', async (req, res) => {
+  try {
+    const quants = await db.collection('stock_quants').find({}).toArray();
+    res.json(quants);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Receivables
 app.get('/api/receivables', async (req, res) => {
   try {

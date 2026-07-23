@@ -12,7 +12,8 @@ const OperationsDashboard = () => {
     produce: [],
     spoilage: [],
     sales: [],
-    inventory: []
+    inventory: [],
+    quants: []
   });
   const [loading, setLoading] = useState(true);
   const [matrixSearch, setMatrixSearch] = useState('');
@@ -24,9 +25,10 @@ const OperationsDashboard = () => {
     let produceLoaded = false;
     let spoilageLoaded = false;
     let inventoryLoaded = false;
+    let quantsLoaded = false;
 
     const checkComplete = () => {
-      if (salesLoaded && produceLoaded && spoilageLoaded && inventoryLoaded) {
+      if (salesLoaded && produceLoaded && spoilageLoaded && inventoryLoaded && quantsLoaded) {
         setLoading(false);
       }
     };
@@ -73,10 +75,20 @@ const OperationsDashboard = () => {
       inventoryLoaded = true;
       checkComplete();
     });
+
+    fetchWithCache('/api/stock-quants', (quantsData) => {
+      setData(prev => ({ ...prev, quants: quantsData || [] }));
+      quantsLoaded = true;
+      checkComplete();
+    }, (err) => {
+      console.error('Error fetching stock quants:', err);
+      quantsLoaded = true;
+      checkComplete();
+    });
   }, [filters.startDate, filters.endDate]);
 
   const processedData = useMemo(() => {
-    let { produce, spoilage, sales, inventory } = data;
+    let { produce, spoilage, sales, inventory, quants } = data;
 
     // Extract unique farms before filtering
     const allFarms = new Set();
@@ -105,8 +117,8 @@ const OperationsDashboard = () => {
     // 1. Compute Master Matrix
     const cropMap = {};
     let totalHarvest = 0;
-    let totalSpoilage = 0;
     let totalSales = 0;
+    let totalSpoilage = 0;
     let totalRevenue = 0;
     let totalInventory = 0;
     let totalInventoryValue = 0;
@@ -123,7 +135,13 @@ const OperationsDashboard = () => {
           revenue: 0,
           salesOrders: [],
           produceDetails: [],
-          spoilageDetails: []
+          spoilageDetails: [],
+          godownStock: {
+            'SWH': 0,
+            'SYG': 0,
+            'TFS': 0,
+            'TPR': 0
+          }
         };
       }
       return cropMap[name];
@@ -191,6 +209,22 @@ const OperationsDashboard = () => {
       const val = qty * unitPrice;
       crop.inventoryValue += val;
       totalInventoryValue += val;
+    });
+
+    (quants || []).forEach(line => {
+      if (!line.product_name) return;
+      const rawName = String(line.product_name).trim();
+      if (!rawName.endsWith('_P')) return;
+
+      const cleanName = cleanProductName(line.product_name);
+      const crop = getOrInitCrop(cleanName);
+      
+      const qty = line.quantity || 0;
+      const locId = line.location_id;
+      if (locId === 8) crop.godownStock['SWH'] += qty;
+      else if (locId === 254) crop.godownStock['SYG'] += qty;
+      else if (locId === 246) crop.godownStock['TFS'] += qty;
+      else if (locId === 218) crop.godownStock['TPR'] += qty;
     });
 
     const matrixData = Object.values(cropMap)
@@ -436,7 +470,16 @@ const OperationsDashboard = () => {
                       <td style={{textAlign: 'right', fontWeight: 500, color: '#10b981'}}>{formatNumber(row.harvest)}</td>
                       <td style={{textAlign: 'right', fontWeight: 500, color: '#3b82f6'}}>{formatNumber(row.sales)}</td>
                       <td style={{textAlign: 'right', fontWeight: 500, color: '#ef4444'}}>{formatNumber(row.spoilage)}</td>
-                      <td style={{textAlign: 'right', fontWeight: 500, color: '#8b5cf6'}}>{formatNumber(row.inventory)}</td>
+                      <td 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setExpandedCrop(isExpanded ? null : row.product);
+                        }}
+                        style={{textAlign: 'right', fontWeight: 500, color: '#8b5cf6', textDecoration: 'underline', cursor: 'pointer'}}
+                        title="Click to view Location Breakdown"
+                      >
+                        {formatNumber(row.inventory)}
+                      </td>
                       <td style={{textAlign: 'right', fontWeight: 600, color: '#f59e0b'}}>{formatCurrency(row.inventoryValue)}</td>
                       <td style={{textAlign: 'right', color: row.unaccounted < 0 ? '#ef4444' : 'var(--text-muted)'}}>
                         {row.unaccounted > 0 ? `+${formatNumber(row.unaccounted)}` : formatNumber(row.unaccounted)}
@@ -542,6 +585,39 @@ const OperationsDashboard = () => {
                                 </table>
                               </div>
                             )}
+
+                            {/* Detailed Inventory Breakdown by Location */}
+                            <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '12px' }}>
+                              <div style={{ fontSize: '13px', fontWeight: 600, marginBottom: '8px', color: '#f59e0b', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <Package size={14} /> Inventory Breakdown by Location
+                              </div>
+                              <table style={{ width: '100%', fontSize: '12px', borderCollapse: 'collapse' }}>
+                                <thead>
+                                  <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-muted)' }}>
+                                    <th style={{ textAlign: 'left', padding: '6px 4px' }}>Godown / Location</th>
+                                    <th style={{ textAlign: 'right', padding: '6px 4px' }}>Quantity On Hand (Kg)</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.03)', color: 'var(--text-secondary)' }}>
+                                    <td style={{ padding: '6px 4px', textAlign: 'left' }}>Syphon Godown - Raw #00001 (SWH)</td>
+                                    <td style={{ padding: '6px 4px', textAlign: 'right', fontWeight: 600, color: 'var(--text-primary)' }}>{formatNumber(row.godownStock['SWH'])} Kg</td>
+                                  </tr>
+                                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.03)', color: 'var(--text-secondary)' }}>
+                                    <td style={{ padding: '6px 4px', textAlign: 'left' }}>Syphon Godown - Cleaned #00002 (SYG)</td>
+                                    <td style={{ padding: '6px 4px', textAlign: 'right', fontWeight: 600, color: 'var(--text-primary)' }}>{formatNumber(row.godownStock['SYG'])} Kg</td>
+                                  </tr>
+                                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.03)', color: 'var(--text-secondary)' }}>
+                                    <td style={{ padding: '6px 4px', textAlign: 'left' }}>The Farm Shop - #00007 (TFS)</td>
+                                    <td style={{ padding: '6px 4px', textAlign: 'right', fontWeight: 600, color: 'var(--text-primary)' }}>{formatNumber(row.godownStock['TFS'])} Kg</td>
+                                  </tr>
+                                  <tr style={{ color: 'var(--text-secondary)' }}>
+                                    <td style={{ padding: '6px 4px', textAlign: 'left' }}>POS Tapri #00004 (TPR)</td>
+                                    <td style={{ padding: '6px 4px', textAlign: 'right', fontWeight: 600, color: 'var(--text-primary)' }}>{formatNumber(row.godownStock['TPR'])} Kg</td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
 
                           </div>
                         </td>
