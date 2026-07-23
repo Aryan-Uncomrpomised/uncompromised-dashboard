@@ -178,6 +178,9 @@ const OperationsDashboard = () => {
 
     (inventory || []).forEach(line => {
       if (!line.name) return;
+      const rawName = String(line.name).trim();
+      if (!rawName.endsWith('_P')) return;
+      
       const qty = line.qty_available || 0;
       const cleanName = cleanProductName(line.name);
       const crop = getOrInitCrop(cleanName);
