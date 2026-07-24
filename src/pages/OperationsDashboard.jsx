@@ -234,7 +234,7 @@ const OperationsDashboard = () => {
       .map(crop => ({
         ...crop,
         yieldPercent: crop.harvest > 0 ? ((crop.sales / crop.harvest) * 100) : 0,
-        unaccounted: crop.harvest - (crop.sales - crop.spoilage - crop.inventory)
+        unaccounted: crop.harvest - (crop.sales + crop.spoilage + crop.inventory)
       }))
       .filter(crop => 
         crop.harvest > 0 || 
