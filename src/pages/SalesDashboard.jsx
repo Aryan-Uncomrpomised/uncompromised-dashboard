@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { AreaChart, Area, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ComposedChart, Legend, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
 import { cleanProductName } from '../utils/formatters';
-import { TrendingUp, DollarSign, ShoppingCart, Activity, Server, Users, ChevronDown, Search } from 'lucide-react';
+import { TrendingUp, DollarSign, ShoppingCart, Activity, Server, Users, ChevronDown, Search, ShoppingBag } from 'lucide-react';
 import { useFilters } from '../context/FilterContext';
 import DateRangePicker from '../components/DateRangePicker';
 import { fetchWithCache } from '../utils/apiCache';
@@ -270,6 +270,18 @@ const SalesDashboard = () => {
   const totalOrders = activeOrders.length;
   const grossProfit = totalSales * 0.25; 
   const aov = totalOrders > 0 ? totalSales / totalOrders : 0;
+
+  const formatNumber = (num) => {
+    if (num === undefined || num === null || isNaN(num)) return '0';
+    return Number(num).toLocaleString('en-IN', { maximumFractionDigits: 1 });
+  };
+
+  let totalQtySold = 0;
+  activeLines.forEach(line => {
+    const rev = getRevenue(line);
+    if (rev <= 0) return;
+    totalQtySold += line.qty || 0;
+  });
   
   let freshRevenue = 0;
   let processedRevenue = 0;
@@ -545,7 +557,7 @@ const SalesDashboard = () => {
       {/* --- SECTION 1: EXECUTIVE KPIs --- */}
       <h2 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '16px', color: 'var(--text-primary)' }}>{masterTab === 'connected' ? 'Connected Sales Metrics' : 'Produce Sales Summary'}</h2>
       <div className="dashboard-grid">
-        <div className={(masterTab === 'produce' && activeTab === 'all') ? 'col-span-4 card' : 'col-span-3 card'}>
+        <div className="col-span-3 card">
           <div className="card-header">
             <span className="card-title">
               {masterTab === 'connected' 
@@ -572,7 +584,7 @@ const SalesDashboard = () => {
         
         {masterTab === 'produce' && activeTab === 'all' && (
           <>
-            <div className="col-span-4 card">
+            <div className="col-span-3 card">
               <div className="card-header">
                 <span className="card-title">POS Sales</span>
                 <DollarSign size={18} color="#059669" />
@@ -583,7 +595,7 @@ const SalesDashboard = () => {
                 <span style={{color: '#f59e0b'}}>Processed: ₹{globalPosProcessed.toLocaleString(undefined, {maximumFractionDigits: 0})}</span>
               </div>
             </div>
-            <div className="col-span-4 card">
+            <div className="col-span-3 card">
               <div className="card-header">
                 <span className="card-title">Website Sales</span>
                 <DollarSign size={18} color="#3b82f6" />
@@ -591,6 +603,17 @@ const SalesDashboard = () => {
               <div className="metric-value">₹{globalWebSales.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
             </div>
           </>
+        )}
+
+        {masterTab === 'produce' && (
+          <div className="col-span-3 card">
+            <div className="card-header">
+              <span className="card-title">Quantity Sold</span>
+              <ShoppingBag size={18} color="#3b82f6" />
+            </div>
+            <div className="metric-value">{formatNumber(totalQtySold)} <span style={{fontSize: '16px', color: 'var(--text-muted)'}}>Kg</span></div>
+            <div className="metric-trend trend-up"><TrendingUp size={14} /> Volume (Kg)</div>
+          </div>
         )}
 
         <div className={(masterTab === 'produce' && activeTab === 'all') ? 'col-span-4 card mt-4' : 'col-span-3 card'}>
