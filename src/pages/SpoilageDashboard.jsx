@@ -235,7 +235,11 @@ const SpoilageDashboard = () => {
     );
   }
 
-  const formatNumber = (num) => Number(num).toLocaleString('en-IN', { maximumFractionDigits: 2 });
+  const formatNumber = (num) => {
+    if (num === undefined || num === null || isNaN(num)) return '0';
+    const parsed = Number(Math.round(num * 10000) / 10000);
+    return parsed.toLocaleString('en-IN', { maximumFractionDigits: 4 });
+  };
 
   const handleDateChange = (range) => {
     setFilters(prev => ({ ...prev, datePreset: 'custom', startDate: range.start, endDate: range.end, dateLabel: range.label }));

@@ -291,7 +291,11 @@ const OperationsDashboard = () => {
     );
   }
 
-  const formatNumber = (num) => Number(num).toLocaleString('en-IN', { maximumFractionDigits: 1 });
+  const formatNumber = (num) => {
+    if (num === undefined || num === null || isNaN(num)) return '0';
+    const parsed = Number(Math.round(num * 10000) / 10000);
+    return parsed.toLocaleString('en-IN', { maximumFractionDigits: 4 });
+  };
   const formatCurrency = (num) => '₹' + Number(num).toLocaleString('en-IN', { maximumFractionDigits: 2, minimumFractionDigits: 2 });
 
   const handleDateChange = (range) => {
@@ -627,19 +631,17 @@ const OperationsDashboard = () => {
                                 <thead>
                                   <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-muted)' }}>
                                     <th style={{ padding: '8px 6px' }}>Product</th>
-                                    <th style={{ padding: '8px 6px', textAlign: 'right' }}>Syphon Godown - Raw #00001 (SWH)</th>
-                                    <th style={{ padding: '8px 6px', textAlign: 'right' }}>Syphon Godown - Cleaned #00002 (SYG0)</th>
                                     <th style={{ padding: '8px 6px', textAlign: 'right' }}>The Farm Shop - # 00007 (TFS)</th>
-                                    <th style={{ padding: '8px 6px', textAlign: 'right' }}>POS Tapri #00004 (TPR)</th>
+                                    <th style={{ padding: '8px 6px', textAlign: 'right' }}>Syphon Godown - Raw #00001 (SWH)</th>
+                                    <th style={{ padding: '8px 6px', textAlign: 'right' }}>Syphon Godown - Cleaned #00002 (SYGC)</th>
                                   </tr>
                                 </thead>
                                 <tbody>
                                   <tr style={{ color: 'var(--text-primary)' }}>
                                     <td style={{ padding: '8px 6px', fontWeight: 600 }}>{row.product}</td>
+                                    <td style={{ padding: '8px 6px', textAlign: 'right', fontWeight: 500, color: '#8b5cf6' }}>{formatNumber(row.godownStock['TFS'])} Kg</td>
                                     <td style={{ padding: '8px 6px', textAlign: 'right', fontWeight: 500, color: '#8b5cf6' }}>{formatNumber(row.godownStock['SWH'])} Kg</td>
                                     <td style={{ padding: '8px 6px', textAlign: 'right', fontWeight: 500, color: '#8b5cf6' }}>{formatNumber(row.godownStock['SYG'])} Kg</td>
-                                    <td style={{ padding: '8px 6px', textAlign: 'right', fontWeight: 500, color: '#8b5cf6' }}>{formatNumber(row.godownStock['TFS'])} Kg</td>
-                                    <td style={{ padding: '8px 6px', textAlign: 'right', fontWeight: 500, color: '#8b5cf6' }}>{formatNumber(row.godownStock['TPR'])} Kg</td>
                                   </tr>
                                 </tbody>
                               </table>
@@ -714,19 +716,17 @@ const OperationsDashboard = () => {
                 <thead>
                   <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-muted)' }}>
                     <th style={{ padding: '12px 10px' }}>Product</th>
-                    <th style={{ padding: '12px 10px', textAlign: 'right' }}>Syphon Godown - Raw #00001 (SWH)</th>
-                    <th style={{ padding: '12px 10px', textAlign: 'right' }}>Syphon Godown - Cleaned #00002 (SYG0)</th>
                     <th style={{ padding: '12px 10px', textAlign: 'right' }}>The Farm Shop - # 00007 (TFS)</th>
-                    <th style={{ padding: '12px 10px', textAlign: 'right' }}>POS Tapri #00004 (TPR)</th>
+                    <th style={{ padding: '12px 10px', textAlign: 'right' }}>Syphon Godown - Raw #00001 (SWH)</th>
+                    <th style={{ padding: '12px 10px', textAlign: 'right' }}>Syphon Godown - Cleaned #00002 (SYGC)</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr style={{ color: 'var(--text-primary)', borderBottom: 'none' }}>
                     <td style={{ padding: '12px 10px', fontWeight: 600 }}>{activeBreakdownCrop.product}</td>
+                    <td style={{ padding: '12px 10px', textAlign: 'right', fontWeight: 600, color: '#8b5cf6' }}>{formatNumber(activeBreakdownCrop.godownStock['TFS'])} Kg</td>
                     <td style={{ padding: '12px 10px', textAlign: 'right', fontWeight: 600, color: '#8b5cf6' }}>{formatNumber(activeBreakdownCrop.godownStock['SWH'])} Kg</td>
                     <td style={{ padding: '12px 10px', textAlign: 'right', fontWeight: 600, color: '#8b5cf6' }}>{formatNumber(activeBreakdownCrop.godownStock['SYG'])} Kg</td>
-                    <td style={{ padding: '12px 10px', textAlign: 'right', fontWeight: 600, color: '#8b5cf6' }}>{formatNumber(activeBreakdownCrop.godownStock['TFS'])} Kg</td>
-                    <td style={{ padding: '12px 10px', textAlign: 'right', fontWeight: 600, color: '#8b5cf6' }}>{formatNumber(activeBreakdownCrop.godownStock['TPR'])} Kg</td>
                   </tr>
                 </tbody>
               </table>

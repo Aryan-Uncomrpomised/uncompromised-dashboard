@@ -273,7 +273,8 @@ const SalesDashboard = () => {
 
   const formatNumber = (num) => {
     if (num === undefined || num === null || isNaN(num)) return '0';
-    return Number(num).toLocaleString('en-IN', { maximumFractionDigits: 1 });
+    const parsed = Number(Math.round(num * 10000) / 10000);
+    return parsed.toLocaleString('en-IN', { maximumFractionDigits: 4 });
   };
 
   let totalQtySold = 0;
