@@ -21,6 +21,7 @@ const OperationsDashboard = () => {
   const [matrixSearch, setMatrixSearch] = useState('');
   const [selectedFarm, setSelectedFarm] = useState('All Farms');
   const [expandedCrop, setExpandedCrop] = useState(null);
+  const [activeBreakdownCrop, setActiveBreakdownCrop] = useState(null);
 
   useEffect(() => {
     let salesLoaded = false;
@@ -510,7 +511,7 @@ const OperationsDashboard = () => {
                       <td 
                         onClick={(e) => {
                           e.stopPropagation();
-                          setExpandedCrop(isExpanded ? null : row.product);
+                          setActiveBreakdownCrop(row);
                         }}
                         style={{textAlign: 'right', fontWeight: 500, color: '#8b5cf6', textDecoration: 'underline', cursor: 'pointer'}}
                         title="Click to view Location Breakdown"
@@ -671,6 +672,77 @@ const OperationsDashboard = () => {
           </table>
         </div>
       </div>
+      {/* Inventory Location Breakdown Modal */}
+      {activeBreakdownCrop && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(15, 23, 42, 0.6)',
+          backdropFilter: 'blur(4px)',
+          WebkitBackdropFilter: 'blur(4px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 99999
+        }} onClick={() => setActiveBreakdownCrop(null)}>
+          <div style={{
+            background: 'var(--bg-secondary)',
+            border: '1px solid var(--border-color)',
+            borderRadius: '16px',
+            padding: '24px',
+            width: '90%',
+            maxWidth: '900px',
+            boxShadow: '0 20px 25px -5px rgba(0,0,0,0.3)',
+          }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Package size={20} color="#f59e0b" /> Inventory Location Breakdown: {activeBreakdownCrop.product}
+              </h3>
+              <button 
+                onClick={() => setActiveBreakdownCrop(null)}
+                style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '20px', fontWeight: 700 }}
+              >
+                &times;
+              </button>
+            </div>
+            
+            <div className="data-table-container">
+              <table className="data-table" style={{ width: '100%', fontSize: '13px', borderCollapse: 'collapse', textAlign: 'left' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-muted)' }}>
+                    <th style={{ padding: '12px 10px' }}>Product</th>
+                    <th style={{ padding: '12px 10px', textAlign: 'right' }}>Syphon Godown - Raw #00001 (SWH)</th>
+                    <th style={{ padding: '12px 10px', textAlign: 'right' }}>Syphon Godown - Cleaned #00002 (SYG0)</th>
+                    <th style={{ padding: '12px 10px', textAlign: 'right' }}>The Farm Shop - # 00007 (TFS)</th>
+                    <th style={{ padding: '12px 10px', textAlign: 'right' }}>POS Tapri #00004 (TPR)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr style={{ color: 'var(--text-primary)', borderBottom: 'none' }}>
+                    <td style={{ padding: '12px 10px', fontWeight: 600 }}>{activeBreakdownCrop.product}</td>
+                    <td style={{ padding: '12px 10px', textAlign: 'right', fontWeight: 600, color: '#8b5cf6' }}>{formatNumber(activeBreakdownCrop.godownStock['SWH'])} Kg</td>
+                    <td style={{ padding: '12px 10px', textAlign: 'right', fontWeight: 600, color: '#8b5cf6' }}>{formatNumber(activeBreakdownCrop.godownStock['SYG'])} Kg</td>
+                    <td style={{ padding: '12px 10px', textAlign: 'right', fontWeight: 600, color: '#8b5cf6' }}>{formatNumber(activeBreakdownCrop.godownStock['TFS'])} Kg</td>
+                    <td style={{ padding: '12px 10px', textAlign: 'right', fontWeight: 600, color: '#8b5cf6' }}>{formatNumber(activeBreakdownCrop.godownStock['TPR'])} Kg</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            
+            <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end' }}>
+              <button 
+                onClick={() => setActiveBreakdownCrop(null)}
+                style={{ padding: '8px 20px', background: 'var(--glass-bg)', border: 'var(--glass-border)', color: 'var(--text-primary)', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
