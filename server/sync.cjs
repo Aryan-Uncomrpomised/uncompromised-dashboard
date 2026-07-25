@@ -245,7 +245,7 @@ async function syncVendorBills(db) {
     [
       ['parent_state', '=', 'posted'],
       ['move_id.move_type', 'in', ['in_invoice', 'in_receipt', 'in_refund']],
-      ['partner_id.name', 'in', ['Beyond Zero Farms LLP MSME', 'UF Processing', 'Market produce-MANDI']],
+      ['partner_id.name', 'in', ['Beyond Zero Farms LLP MSME', 'UF Processing', 'Market produce-MANDI', 'Phalasiya Farmer Producer', 'Phalasiya']],
       ['display_type', '=', 'product']
     ]
   ], {
