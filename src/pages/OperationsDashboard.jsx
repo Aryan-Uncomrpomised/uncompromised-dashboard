@@ -15,7 +15,8 @@ const OperationsDashboard = () => {
     spoilage: [],
     sales: [],
     inventory: [],
-    quants: []
+    quants: [],
+    manualUploads: []
   });
   const [loading, setLoading] = useState(true);
   const [matrixSearch, setMatrixSearch] = useState('');
@@ -29,9 +30,10 @@ const OperationsDashboard = () => {
     let spoilageLoaded = false;
     let inventoryLoaded = false;
     let quantsLoaded = false;
+    let manualUploadsLoaded = false;
 
     const checkComplete = () => {
-      if (salesLoaded && produceLoaded && spoilageLoaded && inventoryLoaded && quantsLoaded) {
+      if (salesLoaded && produceLoaded && spoilageLoaded && inventoryLoaded && quantsLoaded && manualUploadsLoaded) {
         setLoading(false);
       }
     };
@@ -88,10 +90,34 @@ const OperationsDashboard = () => {
       quantsLoaded = true;
       checkComplete();
     });
+
+    fetchWithCache(`/api/stock-upload/history?startDate=${start}&endDate=${end}`, (historyData) => {
+      setData(prev => ({ ...prev, manualUploads: historyData.list || [] }));
+      manualUploadsLoaded = true;
+      checkComplete();
+    }, (err) => {
+      console.error('Error fetching manual uploads:', err);
+      manualUploadsLoaded = true;
+      checkComplete();
+    });
   }, [filters.startDate, filters.endDate]);
 
   const processedData = useMemo(() => {
-    let { produce, spoilage, sales, inventory, quants } = data;
+    let { produce, spoilage, sales, inventory, quants, manualUploads } = data;
+
+    const end = filters.endDate || new Date().toISOString().split('T')[0];
+    const sortedUploads = [...(manualUploads || [])].sort((a, b) => b.date.localeCompare(a.date));
+    const targetUpload = sortedUploads.find(u => u.date <= end);
+    
+    const getManualStockQty = (productName) => {
+      if (!targetUpload) return 0;
+      const item = targetUpload.items.find(i => {
+        const pName = i.product;
+        return pName.toLowerCase() === productName.toLowerCase() || 
+               cleanProductName(pName).toLowerCase() === cleanProductName(productName).toLowerCase();
+      });
+      return item ? item.qty : 0;
+    };
 
     // Extract unique farms before filtering
     const allFarms = new Set();
@@ -135,6 +161,7 @@ const OperationsDashboard = () => {
           spoilage: 0, 
           inventory: 0, 
           inventoryValue: 0, 
+          manualStock: getManualStockQty(name),
           revenue: 0,
           salesOrders: [],
           produceDetails: [],
@@ -231,18 +258,24 @@ const OperationsDashboard = () => {
     });
 
     const matrixData = Object.values(cropMap)
-      .map(crop => ({
-        ...crop,
-        yieldPercent: crop.harvest > 0 ? ((crop.sales / crop.harvest) * 100) : 0,
-        unaccounted: crop.harvest - (crop.sales + crop.spoilage + crop.inventory)
-      }))
+      .map(crop => {
+        const uE = crop.harvest - (crop.sales + crop.spoilage + crop.inventory);
+        const uI = crop.harvest - (crop.sales + crop.spoilage + (crop.inventory + crop.manualStock));
+        return {
+          ...crop,
+          yieldPercent: crop.harvest > 0 ? ((crop.sales / crop.harvest) * 100) : 0,
+          unaccountedE: uE,
+          unaccountedI: uI
+        };
+      })
       .filter(crop => 
         crop.harvest > 0 || 
         crop.sales > 0 || 
         crop.spoilage > 0 || 
-        Math.abs(crop.inventory) > 0.001
+        Math.abs(crop.inventory) > 0.001 ||
+        crop.manualStock > 0
       )
-      .sort((a, b) => b.unaccounted - a.unaccounted);
+      .sort((a, b) => b.unaccountedE - a.unaccountedE);
 
     // 2. Compute Timeline Data
     const dailyMap = {};
@@ -309,7 +342,7 @@ const OperationsDashboard = () => {
     !matrixSearch || row.product.toLowerCase().includes(matrixSearch.toLowerCase())
   );
 
-  const [sortField, setSortField] = useState('unaccounted');
+  const [sortField, setSortField] = useState('unaccountedE');
   const [sortDirection, setSortDirection] = useState('desc');
 
   const handleSort = (field) => {
@@ -374,8 +407,8 @@ const OperationsDashboard = () => {
   const totalSalesSum = filteredMatrix.reduce((sum, row) => sum + row.sales, 0);
   const totalSpoilageSum = filteredMatrix.reduce((sum, row) => sum + row.spoilage, 0);
   const totalInventorySum = filteredMatrix.reduce((sum, row) => sum + row.inventory, 0);
-  const totalInventoryValueSum = filteredMatrix.reduce((sum, row) => sum + row.inventoryValue, 0);
-  const totalUnaccountedSum = filteredMatrix.reduce((sum, row) => sum + row.unaccounted, 0);
+  const totalUnaccountedESum = filteredMatrix.reduce((sum, row) => sum + row.unaccountedE, 0);
+  const totalUnaccountedISum = filteredMatrix.reduce((sum, row) => sum + row.unaccountedI, 0);
   const overallYieldSum = totalHarvestedSum > 0 ? ((totalSalesSum / totalHarvestedSum) * 100) : 0;
 
   return (
@@ -550,8 +583,8 @@ const OperationsDashboard = () => {
                 {renderSortHeader('Sales (Kg)', 'sales', 'right', '#3b82f6')}
                 {renderSortHeader('Spoilage (Kg)', 'spoilage', 'right', '#ef4444')}
                 {renderSortHeader('Inventory (On Hand)', 'inventory', 'right', '#8b5cf6')}
-                {renderSortHeader('Inventory Value (₹)', 'inventoryValue', 'right', '#f59e0b')}
-                {renderSortHeader('Unaccounted (Kg)', 'unaccounted', 'right')}
+                {renderSortHeader('Unaccounted I (Kg)', 'unaccountedI', 'right', '#f59e0b')}
+                {renderSortHeader('Unaccounted E (Kg)', 'unaccountedE', 'right')}
               </tr>
             </thead>
             <tbody>
@@ -580,9 +613,11 @@ const OperationsDashboard = () => {
                       >
                         {formatNumber(row.inventory)}
                       </td>
-                      <td style={{textAlign: 'right', fontWeight: 600, color: '#f59e0b'}}>{formatCurrency(row.inventoryValue)}</td>
-                      <td style={{textAlign: 'right', color: row.unaccounted < 0 ? '#ef4444' : 'var(--text-muted)'}}>
-                        {row.unaccounted > 0 ? `+${formatNumber(row.unaccounted)}` : formatNumber(row.unaccounted)}
+                      <td style={{textAlign: 'right', fontWeight: 600, color: row.unaccountedI < 0 ? '#ef4444' : '#f59e0b'}}>
+                        {row.unaccountedI > 0 ? `+${formatNumber(row.unaccountedI)}` : formatNumber(row.unaccountedI)}
+                      </td>
+                      <td style={{textAlign: 'right', color: row.unaccountedE < 0 ? '#ef4444' : 'var(--text-muted)'}}>
+                        {row.unaccountedE > 0 ? `+${formatNumber(row.unaccountedE)}` : formatNumber(row.unaccountedE)}
                       </td>
                     </tr>
                     {isExpanded && (
@@ -722,9 +757,11 @@ const OperationsDashboard = () => {
                   <td style={{ textAlign: 'right', color: '#3b82f6', padding: '12px 8px' }}>{formatNumber(totalSalesSum)}</td>
                   <td style={{ textAlign: 'right', color: '#ef4444', padding: '12px 8px' }}>{formatNumber(totalSpoilageSum)}</td>
                   <td style={{ textAlign: 'right', color: '#8b5cf6', padding: '12px 8px' }}>{formatNumber(totalInventorySum)}</td>
-                  <td style={{ textAlign: 'right', color: '#f59e0b', padding: '12px 8px' }}>{formatCurrency(totalInventoryValueSum)}</td>
-                  <td style={{ textAlign: 'right', padding: '12px 8px', color: totalUnaccountedSum < 0 ? '#ef4444' : 'inherit' }}>
-                    {totalUnaccountedSum > 0 ? `+${formatNumber(totalUnaccountedSum)}` : formatNumber(totalUnaccountedSum)}
+                  <td style={{ textAlign: 'right', color: totalUnaccountedISum < 0 ? '#ef4444' : '#f59e0b', padding: '12px 8px', fontWeight: 700 }}>
+                    {totalUnaccountedISum > 0 ? `+${formatNumber(totalUnaccountedISum)}` : formatNumber(totalUnaccountedISum)}
+                  </td>
+                  <td style={{ textAlign: 'right', padding: '12px 8px', color: totalUnaccountedESum < 0 ? '#ef4444' : 'inherit', fontWeight: 700 }}>
+                    {totalUnaccountedESum > 0 ? `+${formatNumber(totalUnaccountedESum)}` : formatNumber(totalUnaccountedESum)}
                   </td>
                 </tr>
               )}
