@@ -437,8 +437,10 @@ app.get('/api/stock-upload/template', async (req, res) => {
     
     // Set headers
     ws.getCell('A1').value = 'Product';
-    ws.getCell('B1').value = 'Quantity';
-    ws.getCell('C1').value = 'UOM';
+    ws.getCell('B1').value = 'Tfs';
+    ws.getCell('C1').value = 'sygr';
+    ws.getCell('D1').value = 'sygc';
+    ws.getCell('E1').value = 'UOM';
     
     // Style headers
     ws.getRow(1).font = { bold: true };
@@ -448,15 +450,20 @@ app.get('/api/stock-upload/template', async (req, res) => {
       fgColor: { argb: 'FFEFEFEF' }
     };
     
-    // Keep rows 2 to 200 blank, prefill UOM with 'Kg' for convenience
+    // Keep rows 2 to 200 blank, prefill B, C, D with 0 and UOM with 'Kg' for convenience
     for (let i = 2; i <= 200; i++) {
-      ws.getCell(`C${i}`).value = 'Kg';
+      ws.getCell(`B${i}`).value = 0;
+      ws.getCell(`C${i}`).value = 0;
+      ws.getCell(`D${i}`).value = 0;
+      ws.getCell(`E${i}`).value = 'Kg';
     }
     
     // Set column widths
     ws.getColumn(1).width = 35;
     ws.getColumn(2).width = 15;
     ws.getColumn(3).width = 15;
+    ws.getColumn(4).width = 15;
+    ws.getColumn(5).width = 15;
     
     // Add data validations (dropdown lists)
     ws.dataValidations.add('A2:A200', {
@@ -468,7 +475,7 @@ app.get('/api/stock-upload/template', async (req, res) => {
       error: 'Please choose a crop name from the dropdown list.'
     });
     
-    ws.dataValidations.add('C2:C200', {
+    ws.dataValidations.add('E2:E200', {
       type: 'list',
       allowBlank: true,
       formulae: ['"Kg,Gm,Pcs"']
@@ -501,8 +508,10 @@ app.post('/api/stock-upload', async (req, res) => {
       if (rowNumber === 1) return; // skip header
       
       const productCell = row.getCell(1).value;
-      const qtyCell = row.getCell(2).value;
-      const uomCell = row.getCell(3).value;
+      const tfsCell = row.getCell(2).value;
+      const sygrCell = row.getCell(3).value;
+      const sygcCell = row.getCell(4).value;
+      const uomCell = row.getCell(5).value;
       
       let product = '';
       if (productCell && typeof productCell === 'object') {
@@ -511,13 +520,26 @@ app.post('/api/stock-upload', async (req, res) => {
         product = String(productCell || '').trim();
       }
       
-      let qty = parseFloat(qtyCell);
-      if (isNaN(qty)) qty = 0;
+      let tfs = parseFloat(tfsCell);
+      if (isNaN(tfs)) tfs = 0;
+      
+      let sygr = parseFloat(sygrCell);
+      if (isNaN(sygr)) sygr = 0;
+      
+      let sygc = parseFloat(sygcCell);
+      if (isNaN(sygc)) sygc = 0;
       
       const uom = String(uomCell || 'Kg').trim();
       
       if (product) {
-        items.push({ product: cleanProductName(product), qty, uom });
+        items.push({
+          product: cleanProductName(product),
+          tfs,
+          sygr,
+          sygc,
+          qty: tfs + sygr + sygc,
+          uom
+        });
       }
     });
     
