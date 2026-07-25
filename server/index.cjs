@@ -408,15 +408,20 @@ const cleanProductName = (rawName) => {
 app.get('/api/stock-upload/template', async (req, res) => {
   try {
     const ExcelJS = require('exceljs');
-    const products = await db.collection('products').find({}).toArray();
+    const products = await db.collection('products').find({
+      name: { $regex: /_[pP]\s*$/ }
+    }).toArray();
     
-    // Filter templates ending in _P
-    const pCrops = products
-      .map(p => p.name)
-      .filter(name => name && name.trim().endsWith('_P'))
-      .map(name => cleanProductName(name));
+    const pCrops = products.map(p => cleanProductName(p.name));
     
-    const uniqueCrops = Array.from(new Set(pCrops)).sort();
+    // Combine with default master crops to guarantee list completeness
+    const defaultMasterCrops = [
+      'Wheat', 'Peas', 'Hybrid Tomato', 'Brown Chana', 'Okra Bhindi', 'Brinjal Eggplant'
+    ];
+    
+    const uniqueCrops = Array.from(new Set([...pCrops, ...defaultMasterCrops]))
+      .filter(Boolean)
+      .sort();
     
     const wb = new ExcelJS.Workbook();
     const ws = wb.addWorksheet('Stock Input');
@@ -432,8 +437,8 @@ app.get('/api/stock-upload/template', async (req, res) => {
     
     // Set headers
     ws.getCell('A1').value = 'Product';
-    ws.getCell('B1').value = 'Qty';
-    ws.getCell('C1').value = 'Uom';
+    ws.getCell('B1').value = 'Quantity';
+    ws.getCell('C1').value = 'UOM';
     
     // Style headers
     ws.getRow(1).font = { bold: true };
@@ -443,13 +448,10 @@ app.get('/api/stock-upload/template', async (req, res) => {
       fgColor: { argb: 'FFEFEFEF' }
     };
     
-    // Pre-populate sheet with crops
-    uniqueCrops.forEach((crop, idx) => {
-      const rowNum = idx + 2;
-      ws.getCell(`A${rowNum}`).value = crop;
-      ws.getCell(`B${rowNum}`).value = 0;
-      ws.getCell(`C${rowNum}`).value = 'Kg';
-    });
+    // Keep rows 2 to 200 blank, prefill UOM with 'Kg' for convenience
+    for (let i = 2; i <= 200; i++) {
+      ws.getCell(`C${i}`).value = 'Kg';
+    }
     
     // Set column widths
     ws.getColumn(1).width = 35;
@@ -459,7 +461,7 @@ app.get('/api/stock-upload/template', async (req, res) => {
     // Add data validations (dropdown lists)
     ws.dataValidations.add('A2:A200', {
       type: 'list',
-      allowBlank: false,
+      allowBlank: true,
       formulae: [`CropsList!$A$1:$A$${uniqueCrops.length}`],
       showErrorMessage: true,
       errorTitle: 'Invalid Crop Name',
@@ -468,7 +470,7 @@ app.get('/api/stock-upload/template', async (req, res) => {
     
     ws.dataValidations.add('C2:C200', {
       type: 'list',
-      allowBlank: false,
+      allowBlank: true,
       formulae: ['"Kg,Gm,Pcs"']
     });
     
