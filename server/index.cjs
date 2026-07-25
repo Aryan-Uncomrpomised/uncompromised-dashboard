@@ -379,6 +379,193 @@ app.get('/api/partner-pocs/unmapped', async (req, res) => {
   }
 });
 
+// --- Daily Stock Upload & Notifications ---
+
+app.get('/api/stock-upload/template', async (req, res) => {
+  try {
+    const products = await db.collection('products').find({}).toArray();
+    const pCrops = products
+      .map(p => p.name)
+      .filter(name => name && name.trim().endsWith('_P'))
+      .map(name => name.trim());
+    
+    const uniqueCrops = Array.from(new Set(pCrops)).sort();
+    
+    let csv = 'Product,Quantity\n';
+    uniqueCrops.forEach(crop => {
+      csv += `"${crop}",0\n`;
+    });
+    
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename=daily_stock_template.csv');
+    res.status(200).send(csv);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/stock-upload', async (req, res) => {
+  try {
+    const { date, csvText } = req.body;
+    if (!date) return res.status(400).json({ error: 'Date is required' });
+    if (!csvText) return res.status(400).json({ error: 'CSV data is required' });
+    
+    const lines = csvText.split('\n');
+    const items = [];
+    
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (!line) continue;
+      
+      let product = '';
+      let qty = 0;
+      
+      if (line.startsWith('"')) {
+        const parts = line.split('",');
+        if (parts.length >= 2) {
+          product = parts[0].replace(/"/g, '').trim();
+          qty = parseFloat(parts[1].trim());
+        }
+      } else {
+        const parts = line.split(',');
+        if (parts.length >= 2) {
+          product = parts[0].trim();
+          qty = parseFloat(parts[1].trim());
+        }
+      }
+      
+      if (product) {
+        items.push({ product, qty: isNaN(qty) ? 0 : qty });
+      }
+    }
+    
+    await db.collection('manual_stock_uploads').updateOne(
+      { date },
+      { 
+        $set: { 
+          date, 
+          uploaded_at: new Date().toISOString(),
+          items 
+        } 
+      },
+      { upsert: true }
+    );
+    
+    res.json({ message: 'Stock uploaded successfully', count: items.length });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/stock-upload/history', async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    const match = {};
+    if (startDate || endDate) {
+      match.date = {};
+      if (startDate) match.date.$gte = startDate;
+      if (endDate) match.date.$lte = endDate;
+    }
+    
+    const history = await db.collection('manual_stock_uploads').find(match).sort({ date: -1 }).toArray();
+    
+    const allCropsSet = new Set();
+    history.forEach(upload => {
+      upload.items.forEach(item => {
+        allCropsSet.add(item.product);
+      });
+    });
+    const cropsList = Array.from(allCropsSet).sort();
+    
+    res.json({ list: history, crops: cropsList });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/stock-upload/config', async (req, res) => {
+  try {
+    let config = await db.collection('settings').findOne({ _id: 'email_notifications' });
+    if (!config) {
+      config = {
+        _id: 'email_notifications',
+        recipient_email: 'admin@beyondzerofarms.com',
+        smtp_host: 'smtp.gmail.com',
+        smtp_port: 587,
+        smtp_user: '',
+        smtp_pass: '',
+        smtp_secure: false
+      };
+      await db.collection('settings').insertOne(config);
+    }
+    res.json(config);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/stock-upload/config', async (req, res) => {
+  try {
+    const { recipient_email, smtp_host, smtp_port, smtp_user, smtp_pass, smtp_secure } = req.body;
+    
+    const updateObj = {
+      recipient_email: recipient_email || '',
+      smtp_host: smtp_host || '',
+      smtp_port: parseInt(smtp_port) || 587,
+      smtp_user: smtp_user || '',
+      smtp_secure: !!smtp_secure
+    };
+    
+    if (smtp_pass !== undefined && smtp_pass !== '*****') {
+      updateObj.smtp_pass = smtp_pass;
+    }
+    
+    await db.collection('settings').updateOne(
+      { _id: 'email_notifications' },
+      { $set: updateObj },
+      { upsert: true }
+    );
+    
+    res.json({ message: 'Settings saved successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/stock-upload/test-email', async (req, res) => {
+  try {
+    const config = await db.collection('settings').findOne({ _id: 'email_notifications' });
+    if (!config || !config.smtp_user) {
+      return res.status(400).json({ error: 'SMTP Username is not configured' });
+    }
+    
+    const nodemailer = require('nodemailer');
+    const transporter = nodemailer.createTransport({
+      host: config.smtp_host,
+      port: config.smtp_port,
+      secure: config.smtp_secure,
+      auth: {
+        user: config.smtp_user,
+        pass: config.smtp_pass
+      }
+    });
+    
+    await transporter.sendMail({
+      from: `"Uncompromised Dashboard Alerts" <${config.smtp_user}>`,
+      to: config.recipient_email,
+      subject: 'Test Email Notification from Uncompromised Dashboard',
+      text: 'This is a test notification verifying that your SMTP settings are configured correctly.'
+    });
+    
+    res.json({ message: 'Test email sent successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Require the cron scheduler
+require('./cron.cjs');
+
 const path = require('path');
 
 // Serve static frontend files in production

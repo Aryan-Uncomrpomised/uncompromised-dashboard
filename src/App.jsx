@@ -12,6 +12,7 @@ import SpoilageDashboard from './pages/SpoilageDashboard';
 import ProduceDashboard from './pages/ProduceDashboard';
 import ReceivablesDashboard from './pages/ReceivablesDashboard';
 import PocMappingDashboard from './pages/PocMappingDashboard';
+import DailyStockDashboard from './pages/DailyStockDashboard';
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
                 <Route path="produce" element={<ProduceDashboard />} />
                 <Route path="receivables" element={<ReceivablesDashboard />} />
                 <Route path="poc-mapping" element={<PocMappingDashboard />} />
+                <Route path="daily-stock" element={<DailyStockDashboard />} />
               </Route>
             </Route>
           </Routes>
