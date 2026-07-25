@@ -313,20 +313,8 @@ const OperationsDashboard = () => {
     };
   }, [data, filters, selectedFarm]);
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--color-primary)]"></div>
-      </div>
-    );
-  }
-
-  const formatNumber = (num) => {
-    if (num === undefined || num === null || isNaN(num)) return '0';
-    const parsed = Number(Math.round(num * 10000) / 10000);
-    return parsed.toLocaleString('en-IN', { maximumFractionDigits: 4 });
-  };
-  const formatCurrency = (num) => '₹' + Number(num).toLocaleString('en-IN', { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+  const [sortField, setSortField] = useState('unaccountedE');
+  const [sortDirection, setSortDirection] = useState('desc');
 
   const handleDateChange = (range) => {
     setFilters(prev => ({ ...prev, datePreset: 'custom', startDate: range.start, endDate: range.end, dateLabel: range.label }));
@@ -341,9 +329,6 @@ const OperationsDashboard = () => {
   const filteredMatrix = processedData.matrixData.filter(row => 
     !matrixSearch || row.product.toLowerCase().includes(matrixSearch.toLowerCase())
   );
-
-  const [sortField, setSortField] = useState('unaccountedE');
-  const [sortDirection, setSortDirection] = useState('desc');
 
   const handleSort = (field) => {
     if (sortField === field) {
@@ -372,6 +357,21 @@ const OperationsDashboard = () => {
       }
     });
   }, [filteredMatrix, sortField, sortDirection]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--color-primary)]"></div>
+      </div>
+    );
+  }
+
+  const formatNumber = (num) => {
+    if (num === undefined || num === null || isNaN(num)) return '0';
+    const parsed = Number(Math.round(num * 10000) / 10000);
+    return parsed.toLocaleString('en-IN', { maximumFractionDigits: 4 });
+  };
+  const formatCurrency = (num) => '₹' + Number(num).toLocaleString('en-IN', { maximumFractionDigits: 2, minimumFractionDigits: 2 });
 
   const renderSortHeader = (label, field, align = 'right', color = 'inherit') => {
     const isSorted = sortField === field;
