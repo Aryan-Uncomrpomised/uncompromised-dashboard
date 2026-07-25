@@ -1,11 +1,9 @@
 export const cleanProductName = (rawName) => {
   if (!rawName) return 'Unknown Product';
-  let clean = String(rawName);
+  let clean = String(rawName).trim();
   
-  // Remove SKU prefix like "[179.1] " or "[179]"
-  if (clean.includes(']')) {
-    clean = clean.split(']')[1].trim();
-  }
+  // Remove SKU prefix like "[179.1] " or "[179]" at the beginning only
+  clean = clean.replace(/^\[[^\]]+\]\s*/, '');
   
   // Remove trailing _P suffix used in some backend systems
   clean = clean.replace(/_P$/, '').trim();
@@ -28,7 +26,14 @@ export const cleanProductName = (rawName) => {
 
   // Translate specific Hindi crop names to English
   const cleanLower = clean.toLowerCase().trim();
-  if (cleanLower === 'बैंगन' || cleanLower === 'बैगन' || cleanLower === 'baingan' || cleanLower === 'baigan') {
+  if (
+    cleanLower === 'बैंगन' || 
+    cleanLower === 'बैगन' || 
+    cleanLower === 'baingan' || 
+    cleanLower === 'baigan' ||
+    cleanLower.includes('baingan') ||
+    cleanLower.includes('brinjal')
+  ) {
     return 'Brinjal Eggplant';
   }
   
