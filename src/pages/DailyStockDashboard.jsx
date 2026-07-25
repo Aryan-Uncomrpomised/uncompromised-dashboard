@@ -14,10 +14,10 @@ const DailyStockDashboard = () => {
   // Date range filters for history log
   const [historySearch, setHistorySearch] = useState('');
   
-  // CSV Upload States
+  // Excel Upload States
   const [uploadDate, setUploadDate] = useState(new Date().toISOString().slice(0, 10));
-  const [csvFile, setCsvFile] = useState(null);
-  const [csvText, setCsvText] = useState('');
+  const [excelFile, setExcelFile] = useState(null);
+  const [base64File, setBase64File] = useState('');
   const [uploadStatus, setUploadStatus] = useState(null); // { type: 'success'|'error', message: '' }
   const [uploading, setUploading] = useState(false);
 
@@ -92,19 +92,20 @@ const DailyStockDashboard = () => {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    setCsvFile(file);
+    setExcelFile(file);
     
     const reader = new FileReader();
     reader.onload = (event) => {
-      setCsvText(event.target.result);
+      const base64String = event.target.result.split(',')[1];
+      setBase64File(base64String);
     };
-    reader.readAsText(file);
+    reader.readAsDataURL(file);
   };
 
   const handleUploadSubmit = async (e) => {
     e.preventDefault();
-    if (!csvText) {
-      setUploadStatus({ type: 'error', message: 'Please select a valid CSV file first.' });
+    if (!base64File) {
+      setUploadStatus({ type: 'error', message: 'Please select a valid Excel file first.' });
       return;
     }
     try {
@@ -113,17 +114,17 @@ const DailyStockDashboard = () => {
       const res = await fetch('/api/stock-upload', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ date: uploadDate, csvText })
+        body: JSON.stringify({ date: uploadDate, base64File })
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
 
       setUploadStatus({ type: 'success', message: `Successfully uploaded daily stock for ${uploadDate}! (${data.count} items recorded)` });
-      setCsvFile(null);
-      setCsvText('');
+      setExcelFile(null);
+      setBase64File('');
       fetchHistory();
     } catch (err) {
-      setUploadStatus({ type: 'error', message: err.message || 'Failed to upload CSV template.' });
+      setUploadStatus({ type: 'error', message: err.message || 'Failed to upload Excel template.' });
     } finally {
       setUploading(false);
     }
@@ -240,9 +241,9 @@ const DailyStockDashboard = () => {
             </div>
             
             <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
-              1. Download the template CSV with active crops. <br />
+              1. Download the template Excel sheet with active crops. <br />
               2. Enter the quantity available. <br />
-              3. Select the date and upload the CSV sheet.
+              3. Select the date and upload the Excel sheet.
             </p>
 
             <button 
@@ -250,7 +251,7 @@ const DailyStockDashboard = () => {
               className="drp-trigger"
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '10px 18px', width: '100%', background: 'var(--glass-bg)', border: 'var(--glass-border)', color: 'var(--text-primary)', borderRadius: '12px', fontSize: '14px', cursor: 'pointer', fontWeight: 600 }}
             >
-              <Download size={16} /> Download CSV Template
+              <Download size={16} /> Download Excel Template
             </button>
 
             <hr style={{ border: 'none', borderTop: '1px solid var(--border-color)', margin: '16px 0' }} />
@@ -268,10 +269,10 @@ const DailyStockDashboard = () => {
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--text-muted)' }}>Choose CSV File</span>
+                <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--text-muted)' }}>Choose Excel File</span>
                 <input 
                   type="file" 
-                  accept=".csv"
+                  accept=".xlsx"
                   required
                   onChange={handleFileChange}
                   style={{ width: '100%', padding: '8px', borderRadius: '10px', border: '1px dashed var(--border-color)', background: 'var(--bg-secondary)', color: 'var(--text-primary)', fontSize: '13px', cursor: 'pointer' }}
@@ -287,8 +288,8 @@ const DailyStockDashboard = () => {
 
               <button 
                 type="submit" 
-                disabled={uploading || !csvFile}
-                style={{ width: '100%', padding: '10px', background: 'var(--accent-primary)', color: '#fff', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: csvFile ? 'pointer' : 'not-allowed', opacity: csvFile ? 1 : 0.5, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                disabled={uploading || !excelFile}
+                style={{ width: '100%', padding: '10px', background: 'var(--accent-primary)', color: '#fff', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: excelFile ? 'pointer' : 'not-allowed', opacity: excelFile ? 1 : 0.5, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
               >
                 {uploading ? 'Uploading...' : 'Submit Daily Stock'}
               </button>

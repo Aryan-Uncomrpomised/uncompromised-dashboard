@@ -381,24 +381,102 @@ app.get('/api/partner-pocs/unmapped', async (req, res) => {
 
 // --- Daily Stock Upload & Notifications ---
 
+const cleanProductName = (rawName) => {
+  if (!rawName) return 'Unknown Product';
+  let clean = String(rawName);
+  if (clean.includes(']')) {
+    clean = clean.split(']')[1].trim();
+  }
+  clean = clean.replace(/_P$/, '').trim();
+  clean = clean.replace(/\(\s*\d+(\.\d+)?\s*(kg|g|gm|pc|pcs)\s*\)/ig, '').trim();
+  if (clean.includes('/')) {
+    const parts = clean.split('/');
+    if (parts[0].trim().length > 0) {
+      clean = parts[0].trim();
+    } else if (parts.length > 1) {
+      clean = parts[1].trim();
+    }
+  }
+  clean = clean.replace(/[()]/g, ' ').replace(/\s+/g, ' ').trim();
+  const cleanLower = clean.toLowerCase().trim();
+  if (cleanLower === 'बैंगन' || cleanLower === 'बैगन' || cleanLower === 'baingan' || cleanLower === 'baigan') {
+    return 'Brinjal Eggplant';
+  }
+  return clean || 'Unknown Product';
+};
+
 app.get('/api/stock-upload/template', async (req, res) => {
   try {
+    const ExcelJS = require('exceljs');
     const products = await db.collection('products').find({}).toArray();
+    
+    // Filter templates ending in _P
     const pCrops = products
       .map(p => p.name)
       .filter(name => name && name.trim().endsWith('_P'))
-      .map(name => name.trim());
+      .map(name => cleanProductName(name));
     
     const uniqueCrops = Array.from(new Set(pCrops)).sort();
     
-    let csv = 'Product,Quantity\n';
-    uniqueCrops.forEach(crop => {
-      csv += `"${crop}",0\n`;
+    const wb = new ExcelJS.Workbook();
+    const ws = wb.addWorksheet('Stock Input');
+    const wsList = wb.addWorksheet('CropsList');
+    
+    // Hide CropsList sheet to keep the template clean
+    wsList.state = 'hidden';
+    
+    // Write crops to CropsList sheet for Excel validation reference
+    uniqueCrops.forEach((crop, idx) => {
+      wsList.getCell(`A${idx + 1}`).value = crop;
     });
     
-    res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', 'attachment; filename=daily_stock_template.csv');
-    res.status(200).send(csv);
+    // Set headers
+    ws.getCell('A1').value = 'Product';
+    ws.getCell('B1').value = 'Qty';
+    ws.getCell('C1').value = 'Uom';
+    
+    // Style headers
+    ws.getRow(1).font = { bold: true };
+    ws.getRow(1).fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FFEFEFEF' }
+    };
+    
+    // Pre-populate sheet with crops
+    uniqueCrops.forEach((crop, idx) => {
+      const rowNum = idx + 2;
+      ws.getCell(`A${rowNum}`).value = crop;
+      ws.getCell(`B${rowNum}`).value = 0;
+      ws.getCell(`C${rowNum}`).value = 'Kg';
+    });
+    
+    // Set column widths
+    ws.getColumn(1).width = 35;
+    ws.getColumn(2).width = 15;
+    ws.getColumn(3).width = 15;
+    
+    // Add data validations (dropdown lists)
+    ws.dataValidations.add('A2:A200', {
+      type: 'list',
+      allowBlank: false,
+      formulae: [`CropsList!$A$1:$A$${uniqueCrops.length}`],
+      showErrorMessage: true,
+      errorTitle: 'Invalid Crop Name',
+      error: 'Please choose a crop name from the dropdown list.'
+    });
+    
+    ws.dataValidations.add('C2:C200', {
+      type: 'list',
+      allowBlank: false,
+      formulae: ['"Kg,Gm,Pcs"']
+    });
+    
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', 'attachment; filename=daily_stock_template.xlsx');
+    
+    await wb.xlsx.write(res);
+    res.end();
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -406,38 +484,40 @@ app.get('/api/stock-upload/template', async (req, res) => {
 
 app.post('/api/stock-upload', async (req, res) => {
   try {
-    const { date, csvText } = req.body;
+    const { date, base64File } = req.body;
     if (!date) return res.status(400).json({ error: 'Date is required' });
-    if (!csvText) return res.status(400).json({ error: 'CSV data is required' });
+    if (!base64File) return res.status(400).json({ error: 'Base64 Excel data is required' });
     
-    const lines = csvText.split('\n');
+    const ExcelJS = require('exceljs');
+    const buffer = Buffer.from(base64File, 'base64');
+    const wb = new ExcelJS.Workbook();
+    await wb.xlsx.load(buffer);
+    const ws = wb.getWorksheet('Stock Input') || wb.getWorksheet(1);
+    
     const items = [];
-    
-    for (let i = 1; i < lines.length; i++) {
-      const line = lines[i].trim();
-      if (!line) continue;
+    ws.eachRow((row, rowNumber) => {
+      if (rowNumber === 1) return; // skip header
+      
+      const productCell = row.getCell(1).value;
+      const qtyCell = row.getCell(2).value;
+      const uomCell = row.getCell(3).value;
       
       let product = '';
-      let qty = 0;
-      
-      if (line.startsWith('"')) {
-        const parts = line.split('",');
-        if (parts.length >= 2) {
-          product = parts[0].replace(/"/g, '').trim();
-          qty = parseFloat(parts[1].trim());
-        }
+      if (productCell && typeof productCell === 'object') {
+        product = productCell.richText ? productCell.richText.map(t => t.text).join('') : (productCell.text || '');
       } else {
-        const parts = line.split(',');
-        if (parts.length >= 2) {
-          product = parts[0].trim();
-          qty = parseFloat(parts[1].trim());
-        }
+        product = String(productCell || '').trim();
       }
+      
+      let qty = parseFloat(qtyCell);
+      if (isNaN(qty)) qty = 0;
+      
+      const uom = String(uomCell || 'Kg').trim();
       
       if (product) {
-        items.push({ product, qty: isNaN(qty) ? 0 : qty });
+        items.push({ product: cleanProductName(product), qty, uom });
       }
-    }
+    });
     
     await db.collection('manual_stock_uploads').updateOne(
       { date },
