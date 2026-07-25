@@ -242,10 +242,7 @@ const OperationsDashboard = () => {
         crop.spoilage > 0 || 
         Math.abs(crop.inventory) > 0.001
       )
-      .sort((a, b) => {
-        if (b.harvest !== a.harvest) return b.harvest - a.harvest;
-        return Math.abs(b.inventory) - Math.abs(a.inventory);
-      });
+      .sort((a, b) => b.unaccounted - a.unaccounted);
 
     // 2. Compute Timeline Data
     const dailyMap = {};
@@ -311,6 +308,67 @@ const OperationsDashboard = () => {
   const filteredMatrix = processedData.matrixData.filter(row => 
     !matrixSearch || row.product.toLowerCase().includes(matrixSearch.toLowerCase())
   );
+
+  const [sortField, setSortField] = useState('unaccounted');
+  const [sortDirection, setSortDirection] = useState('desc');
+
+  const handleSort = (field) => {
+    if (sortField === field) {
+      setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('desc');
+    }
+  };
+
+  const sortedMatrix = useMemo(() => {
+    return [...filteredMatrix].sort((a, b) => {
+      let aVal = a[sortField];
+      let bVal = b[sortField];
+
+      if (sortField === 'product') {
+        aVal = a.product.toLowerCase();
+        bVal = b.product.toLowerCase();
+        return sortDirection === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+      }
+
+      if (sortDirection === 'asc') {
+        return aVal - bVal;
+      } else {
+        return bVal - aVal;
+      }
+    });
+  }, [filteredMatrix, sortField, sortDirection]);
+
+  const renderSortHeader = (label, field, align = 'right', color = 'inherit') => {
+    const isSorted = sortField === field;
+    return (
+      <th 
+        onClick={(e) => {
+          e.stopPropagation();
+          handleSort(field);
+        }}
+        style={{
+          textAlign: align,
+          color: color,
+          cursor: 'pointer',
+          userSelect: 'none',
+          padding: '12px 8px',
+          whiteSpace: 'nowrap',
+          backgroundColor: isSorted ? 'rgba(255, 255, 255, 0.02)' : 'transparent'
+        }}
+      >
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', justifyContent: align === 'right' ? 'flex-end' : 'flex-start', width: '100%' }}>
+          {label}
+          {isSorted ? (
+            sortDirection === 'asc' ? <ChevronUp size={14} /> : <ChevronDown size={14} />
+          ) : (
+            <ChevronDown size={14} style={{ opacity: 0.15 }} />
+          )}
+        </div>
+      </th>
+    );
+  };
 
   const totalHarvestedSum = filteredMatrix.reduce((sum, row) => sum + row.harvest, 0);
   const totalSalesSum = filteredMatrix.reduce((sum, row) => sum + row.sales, 0);
@@ -487,17 +545,17 @@ const OperationsDashboard = () => {
           <table className="data-table" style={{ width: '100%', minWidth: '950px' }}>
             <thead>
               <tr>
-                <th style={{textAlign: 'left'}}>Crop</th>
-                <th style={{textAlign: 'right', color: '#10b981'}}>Harvest (Kg)</th>
-                <th style={{textAlign: 'right', color: '#3b82f6'}}>Sales (Kg)</th>
-                <th style={{textAlign: 'right', color: '#ef4444'}}>Spoilage (Kg)</th>
-                <th style={{textAlign: 'right', color: '#8b5cf6'}}>Inventory (On Hand)</th>
-                <th style={{textAlign: 'right', color: '#f59e0b'}}>Inventory Value (₹)</th>
-                <th style={{textAlign: 'right'}}>Unaccounted (Kg)</th>
+                {renderSortHeader('Crop', 'product', 'left')}
+                {renderSortHeader('Harvest (Kg)', 'harvest', 'right', '#10b981')}
+                {renderSortHeader('Sales (Kg)', 'sales', 'right', '#3b82f6')}
+                {renderSortHeader('Spoilage (Kg)', 'spoilage', 'right', '#ef4444')}
+                {renderSortHeader('Inventory (On Hand)', 'inventory', 'right', '#8b5cf6')}
+                {renderSortHeader('Inventory Value (₹)', 'inventoryValue', 'right', '#f59e0b')}
+                {renderSortHeader('Unaccounted (Kg)', 'unaccounted', 'right')}
               </tr>
             </thead>
             <tbody>
-              {filteredMatrix.map((row, idx) => {
+              {sortedMatrix.map((row, idx) => {
                 const isExpanded = expandedCrop === row.product;
                 return (
                   <React.Fragment key={idx}>
