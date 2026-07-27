@@ -257,10 +257,13 @@ const OperationsDashboard = () => {
       else if (locId === 218) crop.godownStock['TPR'] += qty;
     });
 
+    const hasUploadedExcel = !!targetUpload;
     const matrixData = Object.values(cropMap)
       .map(crop => {
         const uE = crop.harvest - (crop.sales + crop.spoilage + crop.inventory);
-        const uI = crop.harvest - (crop.sales + crop.spoilage + (crop.inventory + crop.manualStock));
+        const uI = hasUploadedExcel 
+          ? crop.harvest - (crop.sales + crop.spoilage + (crop.inventory + crop.manualStock))
+          : 0;
         return {
           ...crop,
           yieldPercent: crop.harvest > 0 ? ((crop.sales / crop.harvest) * 100) : 0,
