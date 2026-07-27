@@ -433,11 +433,16 @@ app.get('/api/stock-upload/template', async (req, res) => {
       name: { $regex: /_[pP]\s*$/ }
     }).toArray();
     
-    const pCrops = products.map(p => cleanProductName(p.name));
+    const pCrops = products.map(p => String(p.name || '').trim());
     
-    // Combine with default master crops to guarantee list completeness
+    // Combine with default master crops (using Odoo _P template names) to guarantee list completeness
     const defaultMasterCrops = [
-      'Wheat', 'Peas', 'Hybrid Tomato', 'Brown Chana', 'Okra Bhindi', 'Brinjal Eggplant'
+      'Wheat_P', 
+      'Peas_P', 
+      'Hybrid Tomato_P', 
+      'Brown Chana_P', 
+      'Okra Bhindi_P', 
+      'Brinjal Normal [Baingan]/बैंगन_P'
     ];
     
     const uniqueCrops = Array.from(new Set([...pCrops, ...defaultMasterCrops]))
