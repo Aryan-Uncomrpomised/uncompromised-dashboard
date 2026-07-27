@@ -23,6 +23,7 @@ const OperationsDashboard = () => {
   const [selectedFarm, setSelectedFarm] = useState('All Farms');
   const [expandedCrop, setExpandedCrop] = useState(null);
   const [activeBreakdownCrop, setActiveBreakdownCrop] = useState(null);
+  const [lastHarvestsMap, setLastHarvestsMap] = useState({});
 
   useEffect(() => {
     let salesLoaded = false;
@@ -31,9 +32,10 @@ const OperationsDashboard = () => {
     let inventoryLoaded = false;
     let quantsLoaded = false;
     let manualUploadsLoaded = false;
+    let lastHarvestsLoaded = false;
 
     const checkComplete = () => {
-      if (salesLoaded && produceLoaded && spoilageLoaded && inventoryLoaded && quantsLoaded && manualUploadsLoaded) {
+      if (salesLoaded && produceLoaded && spoilageLoaded && inventoryLoaded && quantsLoaded && manualUploadsLoaded && lastHarvestsLoaded) {
         setLoading(false);
       }
     };
@@ -98,6 +100,17 @@ const OperationsDashboard = () => {
     }, (err) => {
       console.error('Error fetching manual uploads:', err);
       manualUploadsLoaded = true;
+      checkComplete();
+    });
+
+    fetchWithCache('/api/produce/last-harvests', (lhData) => {
+      setLastHarvestsMap(lhData.lastHarvests || {});
+      lastHarvestsLoaded = true;
+      checkComplete();
+    }, (err) => {
+      console.error('Error fetching last harvests:', err);
+      setLastHarvestsMap({});
+      lastHarvestsLoaded = true;
       checkComplete();
     });
   }, [filters.startDate, filters.endDate]);
@@ -614,8 +627,7 @@ const OperationsDashboard = () => {
             <tbody>
               {sortedMatrix.map((row, idx) => {
                 const isExpanded = expandedCrop === row.product;
-                const sortedProduce = [...row.produceDetails].sort((a, b) => b.date.localeCompare(a.date));
-                const lastHarvest = sortedProduce.length > 0 ? sortedProduce[0] : null;
+                const lastHarvest = lastHarvestsMap[row.product];
 
                 return (
                   <React.Fragment key={idx}>
@@ -663,7 +675,7 @@ const OperationsDashboard = () => {
                             ) : (
                               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid var(--border-color)', borderRadius: '8px', fontSize: '13px', color: 'var(--text-muted)' }}>
                                 <Sprout size={16} style={{ opacity: 0.5 }} />
-                                <span>No historical harvest recorded for this crop in the selected range.</span>
+                                <span>No historical harvest recorded for this crop in database.</span>
                               </div>
                             )}
                             

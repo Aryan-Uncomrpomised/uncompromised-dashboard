@@ -444,6 +444,42 @@ app.get('/api/spoilage', async (req, res) => {
   }
 });
 
+// Last harvests regardless of date filters
+app.get('/api/produce/last-harvests', async (req, res) => {
+  try {
+    const latestLines = await db.collection('vendor_bills').aggregate([
+      { $match: { qty_purchased: { $gt: 0 } } },
+      { $sort: { date: -1 } },
+      {
+        $group: {
+          _id: { $ifNull: ['$product_new', '$product_name'] },
+          date: { $first: '$date' },
+          qty: { $first: '$qty_purchased' },
+          bill_name: { $first: { $ifNull: ['$bill_name', '$ref'] } },
+          farm: { $first: '$farm' }
+        }
+      }
+    ]).toArray();
+
+    const lastHarvests = {};
+    latestLines.forEach(line => {
+      const cleanName = cleanProductName(line._id);
+      if (!lastHarvests[cleanName] || line.date > lastHarvests[cleanName].date) {
+        lastHarvests[cleanName] = {
+          date: line.date ? line.date.split(' ')[0] : 'N/A',
+          qty: line.qty || 0,
+          bill_name: line.bill_name || 'N/A',
+          farm: line.farm || null
+        };
+      }
+    });
+
+    res.json({ lastHarvests });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Produce
 app.get('/api/produce', async (req, res) => {
   try {
