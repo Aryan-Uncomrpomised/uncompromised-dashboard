@@ -18,12 +18,19 @@ export const AuthProvider = ({ children }) => {
       } catch (e) {}
     }
     
-    // Initialize users array if empty with default admin and operator accounts
-    if (!localStorage.getItem('uncompromised_users')) {
-      localStorage.setItem('uncompromised_users', JSON.stringify([
-        { username: 'admin', password: 'admin', role: 'admin' },
-        { username: 'operator', password: 'operator', role: 'operator' }
-      ]));
+    // Clear old pre-seeded users database to wipe out default admin/admin & operator/operator
+    const parsed = JSON.parse(localStorage.getItem('uncompromised_users') || '[]');
+    const hasDefaultUsers = parsed.some(
+      u => (u.username === 'admin' && u.password === 'admin') || 
+           (u.username === 'operator' && u.password === 'operator')
+    );
+    if (hasDefaultUsers || !localStorage.getItem('uncompromised_users')) {
+      localStorage.setItem('uncompromised_users', JSON.stringify([]));
+      // Reset active sessions
+      localStorage.removeItem('uncompromised_auth');
+      localStorage.removeItem('uncompromised_user');
+      setIsAuthenticated(false);
+      setUser(null);
     }
     
     setLoading(false);
