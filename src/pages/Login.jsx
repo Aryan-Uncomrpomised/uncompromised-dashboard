@@ -10,7 +10,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('admin'); // 'admin' or 'operator'
   const [error, setError] = useState('');
-  const { login, register } = useAuth();
+  const { login, register, logout } = useAuth();
   const navigate = useNavigate();
 
   const [theme, setTheme] = useState(() => localStorage.getItem('uncompromised_theme') || 'dark');
@@ -30,9 +30,18 @@ const Login = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setError('');
+    
     if (isLogin) {
       const result = login(username, password);
       if (result.success) {
+        // Enforce role selection match
+        if (result.user?.role !== role) {
+          setError(`Invalid credentials. This account is not registered as an ${role === 'admin' ? 'Admin' : 'Operator'}.`);
+          logout(); // Clear session
+          return;
+        }
+        
         if (result.user?.role === 'operator') {
           navigate('/daily-stock');
         } else {
@@ -67,23 +76,41 @@ const Login = () => {
       </button>
 
       <div className="card glass-panel" style={{ width: '100%', maxWidth: '400px', padding: '32px' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '32px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '24px' }}>
           <Logo style={{ width: '96px', height: '96px', marginBottom: '16px' }} />
           <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--text-primary)' }}>Uncompromised</h1>
-          <p style={{ color: 'var(--text-muted)', marginTop: '8px' }}>
-            {isLogin ? 'Sign in to access your dashboard' : 'Create a new account'}
+          <p style={{ color: 'var(--text-muted)', marginTop: '8px', fontSize: '14px', textAlign: 'center' }}>
+            {isLogin ? `Sign in to access the ${role === 'admin' ? 'Admin' : 'Operator'} panel` : `Create a new ${role === 'admin' ? 'Admin' : 'Operator'} account`}
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        {/* Tab Selection Section */}
+        <div style={{ display: 'flex', background: 'var(--bg-secondary)', padding: '4px', borderRadius: '12px', marginBottom: '24px', border: '1px solid var(--border-color)' }}>
+          <button 
+            type="button"
+            onClick={() => { setRole('admin'); setError(''); }}
+            style={{ flex: 1, padding: '8px 16px', borderRadius: '8px', border: 'none', background: role === 'admin' ? 'var(--accent-primary)' : 'transparent', color: role === 'admin' ? 'white' : 'var(--text-secondary)', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s', fontSize: '13px' }}
+          >
+            Admin
+          </button>
+          <button 
+            type="button"
+            onClick={() => { setRole('operator'); setError(''); }}
+            style={{ flex: 1, padding: '8px 16px', borderRadius: '8px', border: 'none', background: role === 'operator' ? 'var(--accent-primary)' : 'transparent', color: role === 'operator' ? 'white' : 'var(--text-secondary)', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s', fontSize: '13px' }}
+          >
+            Operator
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           {error && (
-            <div style={{ padding: '12px', fontSize: '14px', color: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '8px' }}>
+            <div style={{ padding: '12px', fontSize: '13px', color: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '8px', lineHeight: 1.4 }}>
               {error}
             </div>
           )}
           
           <div>
-            <label htmlFor="username" style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '8px' }}>Username</label>
+            <label htmlFor="username" style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '8px' }}>Username</label>
             <input 
               id="username"
               name="username"
@@ -91,14 +118,14 @@ const Login = () => {
               autoComplete="username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              style={{ width: '100%', background: 'var(--bg-secondary)', border: 'var(--glass-border)', borderRadius: '12px', padding: '12px 16px', color: 'var(--text-primary)', outline: 'none' }}
-              placeholder="Enter username"
+              style={{ width: '100%', background: 'var(--bg-secondary)', border: 'var(--glass-border)', borderRadius: '12px', padding: '12px 16px', color: 'var(--text-primary)', outline: 'none', fontSize: '14px' }}
+              placeholder={`Enter ${role} username`}
               required
             />
           </div>
 
           <div>
-            <label htmlFor="password" style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '8px' }}>Password</label>
+            <label htmlFor="password" style={{ display: 'block', fontSize: '13px', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '8px' }}>Password</label>
             <input 
               id="password"
               name="password"
@@ -106,35 +133,19 @@ const Login = () => {
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              style={{ width: '100%', background: 'var(--bg-secondary)', border: 'var(--glass-border)', borderRadius: '12px', padding: '12px 16px', color: 'var(--text-primary)', outline: 'none' }}
+              style={{ width: '100%', background: 'var(--bg-secondary)', border: 'var(--glass-border)', borderRadius: '12px', padding: '12px 16px', color: 'var(--text-primary)', outline: 'none', fontSize: '14px' }}
               placeholder="Enter password"
               required
             />
           </div>
 
-          {!isLogin && (
-            <div>
-              <label htmlFor="role" style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '8px' }}>Account Role</label>
-              <select 
-                id="role"
-                name="role"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                style={{ width: '100%', background: 'var(--bg-secondary)', border: 'var(--glass-border)', borderRadius: '12px', padding: '12px 16px', color: 'var(--text-primary)', outline: 'none', cursor: 'pointer' }}
-              >
-                <option value="admin" style={{ background: 'var(--bg-primary)' }}>Admin (Full Dashboard Access)</option>
-                <option value="operator" style={{ background: 'var(--bg-primary)' }}>Operator (Daily Stock Upload Only)</option>
-              </select>
-            </div>
-          )}
-
           <button 
             type="submit" 
-            style={{ width: '100%', background: 'var(--accent-primary)', color: 'white', fontWeight: 600, padding: '12px 16px', borderRadius: '12px', border: 'none', cursor: 'pointer', marginTop: '8px', transition: 'background 0.2s' }}
+            style={{ width: '100%', background: 'var(--accent-primary)', color: 'white', fontWeight: 600, padding: '12px 16px', borderRadius: '12px', border: 'none', cursor: 'pointer', marginTop: '8px', transition: 'background 0.2s', fontSize: '14px' }}
             onMouseOver={(e) => e.currentTarget.style.background = 'var(--accent-primary-hover)'}
             onMouseOut={(e) => e.currentTarget.style.background = 'var(--accent-primary)'}
           >
-            {isLogin ? 'Sign In' : 'Create Account'}
+            {isLogin ? `Sign In as ${role === 'admin' ? 'Admin' : 'Operator'}` : `Register as ${role === 'admin' ? 'Admin' : 'Operator'}`}
           </button>
         </form>
 
