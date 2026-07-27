@@ -242,6 +242,94 @@ app.get('/api/inventory', async (req, res) => {
   }
 });
 
+// Opening Stock calculation
+app.get('/api/inventory/opening-stock', async (req, res) => {
+  try {
+    const { startDate } = req.query;
+    if (!startDate) {
+      return res.json({ openingStocks: {} });
+    }
+
+    // 1. Fetch current live inventory from products
+    const products = await db.collection('products').find({
+      name: { $regex: /_[pP]\s*$/ }
+    }).toArray();
+
+    const cropMap = {};
+    products.forEach(p => {
+      const cleanName = cleanProductName(p.name);
+      if (!cropMap[cleanName]) {
+        cropMap[cleanName] = {
+          liveInventory: 0,
+          salesAfterStart: 0,
+          harvestAfterStart: 0,
+          spoilageAfterStart: 0
+        };
+      }
+      cropMap[cleanName].liveInventory += (p.qty_available || 0);
+    });
+
+    // 2. Fetch sales from startDate to today
+    const salesLines = await db.collection('move_lines').find({
+      account_type: 'income',
+      date: { $gte: startDate },
+      $or: [
+        { partner_id_name: null },
+        { partner_id_name: { $ne: 'Beyond Zero Farms LLP - Others MSME' } }
+      ]
+    }).project({ product_id_name: 1, quantity: 1, credit: 1, debit: 1 }).toArray();
+
+    salesLines.forEach(line => {
+      const cleanName = cleanProductName(line.product_id_name);
+      if (cropMap[cleanName]) {
+        const netRevenue = (line.credit || 0) - (line.debit || 0);
+        if (netRevenue > 0) {
+          cropMap[cleanName].salesAfterStart += (line.quantity || 0);
+        }
+      }
+    });
+
+    // 3. Fetch harvest from startDate to today
+    const produceLines = await db.collection('vendor_bills').find({
+      date: { $gte: startDate }
+    }).project({ product_name: 1, product_new: 1, qty_purchased: 1 }).toArray();
+
+    produceLines.forEach(line => {
+      const cleanName = cleanProductName(line.product_new || line.product_name);
+      if (cropMap[cleanName]) {
+        cropMap[cleanName].harvestAfterStart += (line.qty_purchased || 0);
+      }
+    });
+
+    // 4. Fetch spoilage from startDate to today
+    const spoilageLines = await db.collection('move_lines').find({
+      account_type: 'income',
+      parent_state: 'posted',
+      partner_id_name: { $in: ['Beyond Zero Farms LLP MSME', 'Spoilage  Pilferage', 'Spoilage Decay', 'Spoilage Sorting'] },
+      date: { $gte: startDate }
+    }).project({ product_id_name: 1, quantity: 1 }).toArray();
+
+    spoilageLines.forEach(line => {
+      const cleanName = cleanProductName(line.product_id_name);
+      if (cropMap[cleanName]) {
+        cropMap[cleanName].spoilageAfterStart += (line.quantity || 0);
+      }
+    });
+
+    // Calculate opening stock: Opening = Live - Harvest + Sales + Spoilage
+    const openingStocks = {};
+    Object.keys(cropMap).forEach(cleanName => {
+      const { liveInventory, salesAfterStart, harvestAfterStart, spoilageAfterStart } = cropMap[cleanName];
+      const opening = liveInventory - harvestAfterStart + salesAfterStart + spoilageAfterStart;
+      openingStocks[cleanName] = opening;
+    });
+
+    res.json({ openingStocks });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Stock Quants
 app.get('/api/stock-quants', async (req, res) => {
   try {
