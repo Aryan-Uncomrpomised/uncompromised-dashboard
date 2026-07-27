@@ -680,21 +680,6 @@ const OperationsDashboard = () => {
                         <td colSpan="8" style={{ padding: '12px 24px', backgroundColor: 'rgba(0,0,0,0.1)', borderLeft: '3px solid var(--color-primary)' }}>
                           <div style={{ padding: '12px 16px', borderRadius: '8px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
                             
-                            {/* Last Harvest Summary Section */}
-                            {lastHarvest ? (
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.15)', borderRadius: '8px', fontSize: '13px' }}>
-                                <Sprout size={16} color="#10b981" />
-                                <span style={{ color: 'var(--text-secondary)' }}>
-                                  <strong>Last Harvest:</strong> <span style={{ color: '#10b981', fontWeight: 600 }}>{formatNumber(lastHarvest.qty)} Kg</span> on <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>{lastHarvest.date}</span> ({lastHarvest.bill_name}) {lastHarvest.farm && `from ${lastHarvest.farm}`}
-                                </span>
-                              </div>
-                            ) : (
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid var(--border-color)', borderRadius: '8px', fontSize: '13px', color: 'var(--text-muted)' }}>
-                                <Sprout size={16} style={{ opacity: 0.5 }} />
-                                <span>No historical harvest recorded for this crop in database.</span>
-                              </div>
-                            )}
-                            
                             {/* Detailed Sales Orders Section */}
                             <div>
                               <div style={{ fontSize: '13px', fontWeight: 600, marginBottom: '8px', color: '#3b82f6', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '6px' }}>
