@@ -4,7 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import Logo from './Logo';
 
 const Sidebar = () => {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
+  const isOperator = user?.role === 'operator';
 
   return (
     <aside className="sidebar" style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
@@ -14,30 +15,34 @@ const Sidebar = () => {
       </div>
       
       <nav className="sidebar-nav" style={{ flex: 1 }}>
-        <NavLink to="/operations" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
-          <Activity size={18} />
-          Master Dashboard
-        </NavLink>
-        <NavLink to="/sales" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
-          <DollarSign size={18} />
-          Sales
-        </NavLink>
-        <NavLink to="/spoilage" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
-          <Trash2 size={18} />
-          Spoilage
-        </NavLink>
-        <NavLink to="/produce" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
-          <Sprout size={18} />
-          Produce
-        </NavLink>
-        <NavLink to="/receivables" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
-          <CreditCard size={18} />
-          Receivables
-        </NavLink>
-        <NavLink to="/poc-mapping" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
-          <UserCheck size={18} />
-          POC Mapping
-        </NavLink>
+        {!isOperator && (
+          <>
+            <NavLink to="/operations" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
+              <Activity size={18} />
+              Master Dashboard
+            </NavLink>
+            <NavLink to="/sales" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
+              <DollarSign size={18} />
+              Sales
+            </NavLink>
+            <NavLink to="/spoilage" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
+              <Trash2 size={18} />
+              Spoilage
+            </NavLink>
+            <NavLink to="/produce" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
+              <Sprout size={18} />
+              Produce
+            </NavLink>
+            <NavLink to="/receivables" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
+              <CreditCard size={18} />
+              Receivables
+            </NavLink>
+            <NavLink to="/poc-mapping" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
+              <UserCheck size={18} />
+              POC Mapping
+            </NavLink>
+          </>
+        )}
         <NavLink to="/daily-stock" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
           <Package size={18} />
           Daily Stock

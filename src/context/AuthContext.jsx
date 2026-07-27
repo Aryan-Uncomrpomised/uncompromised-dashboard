@@ -4,41 +4,52 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Check local storage for auth state
     const authState = localStorage.getItem('uncompromised_auth');
-    if (authState === 'true') {
+    const storedUser = localStorage.getItem('uncompromised_user');
+    if (authState === 'true' && storedUser) {
       setIsAuthenticated(true);
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (e) {}
     }
     
-    // Initialize users array if empty
+    // Initialize users array if empty with default admin and operator accounts
     if (!localStorage.getItem('uncompromised_users')) {
-      localStorage.setItem('uncompromised_users', JSON.stringify([{username: 'admin', password: 'admin'}]));
+      localStorage.setItem('uncompromised_users', JSON.stringify([
+        { username: 'admin', password: 'admin', role: 'admin' },
+        { username: 'operator', password: 'operator', role: 'operator' }
+      ]));
     }
     
     setLoading(false);
   }, []);
 
   const login = (username, password) => {
-    const users = JSON.stringify(localStorage.getItem('uncompromised_users') || '[]');
     let parsedUsers = [];
     try {
-      parsedUsers = JSON.parse(localStorage.getItem('uncompromised_users'));
+      parsedUsers = JSON.parse(localStorage.getItem('uncompromised_users')) || [];
     } catch(e) {}
     
-    const userExists = parsedUsers.find(u => u.username === username && u.password === password);
+    const userExists = parsedUsers.find(
+      u => u.username.toLowerCase() === username.toLowerCase() && u.password === password
+    );
     
     if (userExists) {
       localStorage.setItem('uncompromised_auth', 'true');
+      localStorage.setItem('uncompromised_user', JSON.stringify(userExists));
       setIsAuthenticated(true);
-      return { success: true };
+      setUser(userExists);
+      return { success: true, user: userExists };
     }
     return { success: false, error: 'Invalid username or password' };
   };
 
-  const register = (username, password) => {
+  const register = (username, password, role = 'admin') => {
     let parsedUsers = [];
     try {
       parsedUsers = JSON.parse(localStorage.getItem('uncompromised_users')) || [];
@@ -46,28 +57,33 @@ export const AuthProvider = ({ children }) => {
       parsedUsers = [];
     }
     
-    if (parsedUsers.find(u => u.username === username)) {
+    if (parsedUsers.find(u => u.username.toLowerCase() === username.toLowerCase())) {
       return { success: false, error: 'Username already exists' };
     }
     
-    parsedUsers.push({ username, password });
+    const newUser = { username, password, role };
+    parsedUsers.push(newUser);
     localStorage.setItem('uncompromised_users', JSON.stringify(parsedUsers));
     
     // Auto-login after successful registration
     localStorage.setItem('uncompromised_auth', 'true');
+    localStorage.setItem('uncompromised_user', JSON.stringify(newUser));
     setIsAuthenticated(true);
-    return { success: true };
+    setUser(newUser);
+    return { success: true, user: newUser };
   };
 
   const logout = () => {
     localStorage.removeItem('uncompromised_auth');
+    localStorage.removeItem('uncompromised_user');
     setIsAuthenticated(false);
+    setUser(null);
   };
 
   if (loading) return null;
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, register, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );

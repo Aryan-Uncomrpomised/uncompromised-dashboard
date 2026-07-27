@@ -8,6 +8,7 @@ const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState('admin'); // 'admin' or 'operator'
   const [error, setError] = useState('');
   const { login, register } = useAuth();
   const navigate = useNavigate();
@@ -32,14 +33,22 @@ const Login = () => {
     if (isLogin) {
       const result = login(username, password);
       if (result.success) {
-        navigate('/operations');
+        if (result.user?.role === 'operator') {
+          navigate('/daily-stock');
+        } else {
+          navigate('/operations');
+        }
       } else {
         setError(result.error || 'Invalid username or password');
       }
     } else {
-      const result = register(username, password);
+      const result = register(username, password, role);
       if (result.success) {
-        navigate('/operations');
+        if (role === 'operator') {
+          navigate('/daily-stock');
+        } else {
+          navigate('/operations');
+        }
       } else {
         setError(result.error || 'Error creating account');
       }
@@ -102,6 +111,22 @@ const Login = () => {
               required
             />
           </div>
+
+          {!isLogin && (
+            <div>
+              <label htmlFor="role" style={{ display: 'block', fontSize: '14px', fontWeight: 500, color: 'var(--text-secondary)', marginBottom: '8px' }}>Account Role</label>
+              <select 
+                id="role"
+                name="role"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                style={{ width: '100%', background: 'var(--bg-secondary)', border: 'var(--glass-border)', borderRadius: '12px', padding: '12px 16px', color: 'var(--text-primary)', outline: 'none', cursor: 'pointer' }}
+              >
+                <option value="admin" style={{ background: 'var(--bg-primary)' }}>Admin (Full Dashboard Access)</option>
+                <option value="operator" style={{ background: 'var(--bg-primary)' }}>Operator (Daily Stock Upload Only)</option>
+              </select>
+            </div>
+          )}
 
           <button 
             type="submit" 

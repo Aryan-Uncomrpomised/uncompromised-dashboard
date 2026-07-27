@@ -13,6 +13,15 @@ import ProduceDashboard from './pages/ProduceDashboard';
 import ReceivablesDashboard from './pages/ReceivablesDashboard';
 import PocMappingDashboard from './pages/PocMappingDashboard';
 import DailyStockDashboard from './pages/DailyStockDashboard';
+import { useAuth } from './context/AuthContext';
+
+const IndexRoute = () => {
+  const { user } = useAuth();
+  if (user?.role === 'operator') {
+    return <Navigate to="/daily-stock" replace />;
+  }
+  return <Navigate to="/operations" replace />;
+};
 
 function App() {
   return (
@@ -24,7 +33,7 @@ function App() {
             
             <Route element={<ProtectedRoute />}>
               <Route path="/" element={<DashboardLayout />}>
-                <Route index element={<Navigate to="/operations" replace />} />
+                <Route index element={<IndexRoute />} />
                 <Route path="operations" element={<OperationsDashboard />} />
                 <Route path="sales" element={<SalesDashboard />} />
                 <Route path="spoilage" element={<SpoilageDashboard />} />
