@@ -29,12 +29,12 @@ const Login = () => {
     setTheme(prev => prev === 'dark' ? 'light' : 'dark');
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     
     if (isLogin) {
-      const result = login(username, password);
+      const result = await login(username, password);
       if (result.success) {
         // Enforce role selection match
         if (result.user?.role !== role) {
@@ -52,7 +52,7 @@ const Login = () => {
         setError(result.error || 'Invalid username or password');
       }
     } else {
-      const result = register(username, password, role);
+      const result = await register(username, password, role);
       if (result.success) {
         if (role === 'operator') {
           navigate('/daily-stock');

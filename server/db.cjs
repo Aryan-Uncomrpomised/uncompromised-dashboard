@@ -26,6 +26,7 @@ async function connectDB() {
     await dbConnection.collection('products').createIndex({ id: 1 }, { unique: true });
     await dbConnection.collection('partners').createIndex({ id: 1 }, { unique: true });
     await dbConnection.collection('vendor_bills').createIndex({ id: 1 }, { unique: true });
+    await dbConnection.collection('users').createIndex({ username: 1 }, { unique: true });
     
     return dbConnection;
   } catch (error) {

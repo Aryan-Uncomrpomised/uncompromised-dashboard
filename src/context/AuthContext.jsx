@@ -17,67 +17,53 @@ export const AuthProvider = ({ children }) => {
         setUser(JSON.parse(storedUser));
       } catch (e) {}
     }
-    
-    // Clear old pre-seeded users database to wipe out default admin/admin & operator/operator
-    const parsed = JSON.parse(localStorage.getItem('uncompromised_users') || '[]');
-    const hasDefaultUsers = parsed.some(
-      u => (u.username === 'admin' && u.password === 'admin') || 
-           (u.username === 'operator' && u.password === 'operator')
-    );
-    if (hasDefaultUsers || !localStorage.getItem('uncompromised_users')) {
-      localStorage.setItem('uncompromised_users', JSON.stringify([]));
-      // Reset active sessions
-      localStorage.removeItem('uncompromised_auth');
-      localStorage.removeItem('uncompromised_user');
-      setIsAuthenticated(false);
-      setUser(null);
-    }
-    
     setLoading(false);
   }, []);
 
-  const login = (username, password) => {
-    let parsedUsers = [];
+  const login = async (username, password) => {
     try {
-      parsedUsers = JSON.parse(localStorage.getItem('uncompromised_users')) || [];
-    } catch(e) {}
-    
-    const userExists = parsedUsers.find(
-      u => u.username.toLowerCase() === username.toLowerCase() && u.password === password
-    );
-    
-    if (userExists) {
-      localStorage.setItem('uncompromised_auth', 'true');
-      localStorage.setItem('uncompromised_user', JSON.stringify(userExists));
-      setIsAuthenticated(true);
-      setUser(userExists);
-      return { success: true, user: userExists };
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+
+      if (data.success && data.user) {
+        localStorage.setItem('uncompromised_auth', 'true');
+        localStorage.setItem('uncompromised_user', JSON.stringify(data.user));
+        setIsAuthenticated(true);
+        setUser(data.user);
+        return { success: true, user: data.user };
+      }
+      return { success: false, error: 'Invalid response from server' };
+    } catch (err) {
+      return { success: false, error: err.message || 'Login failed' };
     }
-    return { success: false, error: 'Invalid username or password' };
   };
 
-  const register = (username, password, role = 'admin') => {
-    let parsedUsers = [];
+  const register = async (username, password, role = 'admin') => {
     try {
-      parsedUsers = JSON.parse(localStorage.getItem('uncompromised_users')) || [];
-    } catch(e) {
-      parsedUsers = [];
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password, role })
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+
+      if (data.success && data.user) {
+        localStorage.setItem('uncompromised_auth', 'true');
+        localStorage.setItem('uncompromised_user', JSON.stringify(data.user));
+        setIsAuthenticated(true);
+        setUser(data.user);
+        return { success: true, user: data.user };
+      }
+      return { success: false, error: 'Invalid response from server' };
+    } catch (err) {
+      return { success: false, error: err.message || 'Registration failed' };
     }
-    
-    if (parsedUsers.find(u => u.username.toLowerCase() === username.toLowerCase())) {
-      return { success: false, error: 'Username already exists' };
-    }
-    
-    const newUser = { username, password, role };
-    parsedUsers.push(newUser);
-    localStorage.setItem('uncompromised_users', JSON.stringify(parsedUsers));
-    
-    // Auto-login after successful registration
-    localStorage.setItem('uncompromised_auth', 'true');
-    localStorage.setItem('uncompromised_user', JSON.stringify(newUser));
-    setIsAuthenticated(true);
-    setUser(newUser);
-    return { success: true, user: newUser };
   };
 
   const logout = () => {

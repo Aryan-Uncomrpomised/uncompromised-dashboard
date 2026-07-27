@@ -24,6 +24,67 @@ const ensureDB = async (req, res, next) => {
 
 app.use('/api', ensureDB);
 
+// Authentication Routes
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Username and password are required' });
+    }
+
+    const user = await db.collection('users').findOne({ 
+      username: username.trim().toLowerCase() 
+    });
+
+    if (user && user.password === password) {
+      return res.json({ 
+        success: true, 
+        user: { 
+          username: user.username, 
+          role: user.role || 'admin' 
+        } 
+      });
+    }
+
+    return res.status(401).json({ error: 'Invalid username or password' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/auth/register', async (req, res) => {
+  try {
+    const { username, password, role } = req.body;
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Username and password are required' });
+    }
+
+    const cleanUsername = username.trim().toLowerCase();
+    const existing = await db.collection('users').findOne({ username: cleanUsername });
+    if (existing) {
+      return res.status(400).json({ error: 'Username already exists' });
+    }
+
+    const newUser = {
+      username: cleanUsername,
+      password: password,
+      role: role || 'admin',
+      created_at: new Date().toISOString()
+    };
+
+    await db.collection('users').insertOne(newUser);
+    res.json({ 
+      success: true, 
+      user: { 
+        username: newUser.username, 
+        role: newUser.role 
+      } 
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Top-level orders
 app.get('/api/sales', async (req, res) => {
   try {
