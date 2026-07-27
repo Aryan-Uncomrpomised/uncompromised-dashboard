@@ -177,51 +177,70 @@ const OperationsDashboard = () => {
       return cropMap[name];
     };
 
+    // Pre-initialize cropMap using ONLY Odoo product templates ending in _P
+    (inventory || []).forEach(line => {
+      if (!line.name) return;
+      const rawName = String(line.name).trim();
+      if (!rawName.endsWith('_P')) return;
+
+      const cleanName = cleanProductName(line.name);
+      getOrInitCrop(cleanName);
+    });
+
     produce.forEach(line => {
       const qty = line.qty_purchased || 0;
       if (qty <= 0) return;
-      const crop = getOrInitCrop(cleanProductName(line.product_new || line.product_name));
-      crop.harvest += qty;
-      totalHarvest += qty;
-      crop.produceDetails.push({
-        date: (line.date || '').split(' ')[0],
-        bill_name: line.bill_name || line.ref || 'N/A',
-        farm: line.farm || '(Blank)',
-        qty: qty
-      });
+      const cleanName = cleanProductName(line.product_new || line.product_name);
+      const crop = cropMap[cleanName];
+      if (crop) {
+        crop.harvest += qty;
+        totalHarvest += qty;
+        crop.produceDetails.push({
+          date: (line.date || '').split(' ')[0],
+          bill_name: line.bill_name || line.ref || 'N/A',
+          farm: line.farm || '(Blank)',
+          qty: qty
+        });
+      }
     });
 
     spoilage.forEach(line => {
       const qty = line.revised_qty || 0;
       if (qty <= 0) return;
-      const crop = getOrInitCrop(cleanProductName(line.product));
-      crop.spoilage += qty;
-      totalSpoilage += qty;
-      crop.spoilageDetails.push({
-        date: line.date ? line.date.split(' ')[0] : 'Unknown',
-        bill_ref: line.bill_ref || 'N/A',
-        category: line.partner || 'Unknown',
-        farm: line.farm || 'N/A',
-        qty: qty
-      });
+      const cleanName = cleanProductName(line.product);
+      const crop = cropMap[cleanName];
+      if (crop) {
+        crop.spoilage += qty;
+        totalSpoilage += qty;
+        crop.spoilageDetails.push({
+          date: line.date ? line.date.split(' ')[0] : 'Unknown',
+          bill_ref: line.bill_ref || 'N/A',
+          category: line.partner || 'Unknown',
+          farm: line.farm || 'N/A',
+          qty: qty
+        });
+      }
     });
 
     sales.forEach(line => {
       const qty = line.qty || 0;
       const rev = line.price_subtotal_incl || 0;
       if (rev <= 0) return; // Exclude zero or negative revenue (refunds/transfers)
-      const crop = getOrInitCrop(cleanProductName(line.product_id ? line.product_id[1] : null));
-      crop.sales += qty;
-      crop.revenue += rev;
-      totalSales += qty;
-      totalRevenue += rev;
-      crop.salesOrders.push({
-        date: line.date ? line.date.split(' ')[0] : 'Unknown',
-        order_name: line.order_id ? line.order_id[1] : 'N/A',
-        customer: line.partner_name || 'Walk-in / POS Customer',
-        qty: qty,
-        revenue: rev
-      });
+      const cleanName = cleanProductName(line.product_id ? line.product_id[1] : null);
+      const crop = cropMap[cleanName];
+      if (crop) {
+        crop.sales += qty;
+        crop.revenue += rev;
+        totalSales += qty;
+        totalRevenue += rev;
+        crop.salesOrders.push({
+          date: line.date ? line.date.split(' ')[0] : 'Unknown',
+          order_name: line.order_id ? line.order_id[1] : 'N/A',
+          customer: line.partner_name || 'Walk-in / POS Customer',
+          qty: qty,
+          revenue: rev
+        });
+      }
     });
 
     (inventory || []).forEach(line => {
@@ -231,14 +250,16 @@ const OperationsDashboard = () => {
       
       const qty = line.qty_available || 0;
       const cleanName = cleanProductName(line.name);
-      const crop = getOrInitCrop(cleanName);
-      crop.inventory += qty;
-      totalInventory += qty;
+      const crop = cropMap[cleanName];
+      if (crop) {
+        crop.inventory += qty;
+        totalInventory += qty;
 
-      const unitPrice = line.standard_price > 0 ? line.standard_price : (line.list_price || 0);
-      const val = qty * unitPrice;
-      crop.inventoryValue += val;
-      totalInventoryValue += val;
+        const unitPrice = line.standard_price > 0 ? line.standard_price : (line.list_price || 0);
+        const val = qty * unitPrice;
+        crop.inventoryValue += val;
+        totalInventoryValue += val;
+      }
     });
 
     (quants || []).forEach(line => {
@@ -247,14 +268,15 @@ const OperationsDashboard = () => {
       if (!rawName.endsWith('_P')) return;
 
       const cleanName = cleanProductName(line.product_name);
-      const crop = getOrInitCrop(cleanName);
-      
-      const qty = line.quantity || 0;
-      const locId = line.location_id;
-      if (locId === 8) crop.godownStock['SWH'] += qty;
-      else if (locId === 254) crop.godownStock['SYG'] += qty;
-      else if (locId === 246) crop.godownStock['TFS'] += qty;
-      else if (locId === 218) crop.godownStock['TPR'] += qty;
+      const crop = cropMap[cleanName];
+      if (crop) {
+        const qty = line.quantity || 0;
+        const locId = line.location_id;
+        if (locId === 8) crop.godownStock['SWH'] += qty;
+        else if (locId === 254) crop.godownStock['SYG'] += qty;
+        else if (locId === 246) crop.godownStock['TFS'] += qty;
+        else if (locId === 218) crop.godownStock['TPR'] += qty;
+      }
     });
 
     const hasUploadedExcel = !!targetUpload;
