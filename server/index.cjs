@@ -360,7 +360,7 @@ app.get('/api/spoilage', async (req, res) => {
 app.get('/api/produce', async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
-    const match = { price_unit: 0 };
+    const match = {};
     if (startDate || endDate) {
       match.date = {};
       if (startDate) match.date.$gte = startDate;
