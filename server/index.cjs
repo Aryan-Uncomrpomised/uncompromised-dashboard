@@ -458,10 +458,10 @@ app.get('/api/stock-upload/template', async (req, res) => {
     
     // Set headers
     ws.getCell('A1').value = 'Product';
-    ws.getCell('B1').value = 'Tfs';
-    ws.getCell('C1').value = 'sygr';
-    ws.getCell('D1').value = 'sygc';
-    ws.getCell('E1').value = 'UOM';
+    ws.getCell('B1').value = 'TFS/Stock';
+    ws.getCell('C1').value = 'SYGR/Stock';
+    ws.getCell('D1').value = 'SYGC/Stock';
+    ws.getCell('E1').value = 'Uom';
     
     // Style headers
     ws.getRow(1).font = { bold: true };
@@ -499,7 +499,7 @@ app.get('/api/stock-upload/template', async (req, res) => {
     ws.dataValidations.add('E2:E200', {
       type: 'list',
       allowBlank: true,
-      formulae: ['"Kg,Gm,Pcs"']
+      formulae: ['"Kg,L"']
     });
     
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
