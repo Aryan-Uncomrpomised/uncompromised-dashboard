@@ -394,6 +394,9 @@ const cleanProductName = (rawName) => {
   // Remove packaging sizes like (1kg), (500g), etc.
   clean = clean.replace(/\(\s*\d+(\.\d+)?\s*(kg|g|gm|pc|pcs)\s*\)/ig, '').trim();
   
+  // Remove packaging sizes without parenthesis like 500 gms, 500g, 1 kg, etc.
+  clean = clean.replace(/\d+(\.\d+)?\s*(kg|g|gm|gms|pc|pcs)\b/ig, '').trim();
+  
   // Strip Hindi translations after slash (e.g. "Okra (Bhindi)/भिंडी" -> "Okra (Bhindi)")
   if (clean.includes('/')) {
     const parts = clean.split('/');
