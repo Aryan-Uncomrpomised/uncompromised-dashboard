@@ -390,7 +390,7 @@ async function syncStockQuants(db) {
   console.log('Syncing Stock Quants by Location...');
   const targetLocationIds = [8, 254, 246, 218];
   const quants = await executeKw('stock.quant', 'search_read', [
-    [['location_id', 'in', targetLocationIds], ['quantity', '>', 0]]
+    [['location_id', 'in', targetLocationIds], ['quantity', '!=', 0]]
   ], {
     fields: ['product_id', 'location_id', 'quantity'],
     limit: 50000
