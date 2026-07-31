@@ -22,6 +22,18 @@ const ensureDB = async (req, res, next) => {
   }
 };
 
+const cleanPartnerName = (raw) => {
+  if (!raw) return '';
+  let name = String(raw).trim().replace(/\s+/g, ' ');
+  return name.toLowerCase().split(' ').map(word => {
+    const wUpper = word.toUpperCase();
+    if (wUpper === 'LLP' || wUpper === 'MSME' || wUpper === 'POS') {
+      return wUpper;
+    }
+    return word.charAt(0).toUpperCase() + word.slice(1);
+  }).join(' ');
+};
+
 app.use('/api', ensureDB);
 
 // Authentication Routes
@@ -129,10 +141,10 @@ app.get('/api/sales', async (req, res) => {
       const isWebsite = (order.ref || order.move_name || '').toUpperCase().startsWith('S');
       const orderId = order.id;
       const orderName = order.name;
-      const partner = order.partner_id_id ? [order.partner_id_id, order.partner_id_name] : null;
+      const partner = order.partner_id_id ? [order.partner_id_id, cleanPartnerName(order.partner_id_name)] : null;
 
       if (order.partner_id_id) {
-        partnerMap[order.partner_id_id] = { name: order.partner_id_name, city: 'Unknown' };
+        partnerMap[order.partner_id_id] = { name: cleanPartnerName(order.partner_id_name), city: 'Unknown' };
       }
 
       const netRevenue = (order.credit || 0) - (order.debit || 0);
@@ -206,7 +218,7 @@ app.get('/api/sales-lines', async (req, res) => {
         price_subtotal: netRevenue,
         price_unit: line.price_unit,
         account_code: line.account_id_code,
-        partner_name: line.partner_id_name,
+        partner_name: cleanPartnerName(line.partner_id_name),
         date: line.date
       };
 
@@ -371,13 +383,13 @@ app.get('/api/receivables', async (req, res) => {
     });
 
     const formattedLines = lines.map(line => {
-      const pName = line.partner_id_name || '';
+      const pName = line.partner_id_name ? cleanPartnerName(line.partner_id_name) : '';
       return {
         id: line.id,
         name: line.name,
         date: line.date,
         date_maturity: line.date_maturity,
-        partner_id: line.partner_id_id ? [line.partner_id_id, line.partner_id_name] : null,
+        partner_id: line.partner_id_id ? [line.partner_id_id, pName] : null,
         partner_tags: partnerMap[line.partner_id_id] || null,
         poc: pocMap[pName.trim().toLowerCase()] || '',
         amount_residual: line.amount_residual,
