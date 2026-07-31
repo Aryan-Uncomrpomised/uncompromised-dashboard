@@ -126,7 +126,9 @@ app.get('/api/sales', async (req, res) => {
     const partnerMap = {};
 
     orders.forEach(order => {
-      const isWebsite = (order.ref || order.move_name || '').toUpperCase().startsWith('S');
+      // If ref is blank/null it's a website/sale order, otherwise it's POS
+      const ref = (order.ref || '').trim();
+      const isWebsite = ref === '';
       const orderId = order.id;
       const orderName = order.name;
       const partner = order.partner_id_id ? [order.partner_id_id, order.partner_id_name] : null;
@@ -196,7 +198,9 @@ app.get('/api/sales-lines', async (req, res) => {
     const posLines = [];
 
     lines.forEach(line => {
-      const isWebsite = (line.ref || line.move_name || '').toUpperCase().startsWith('S');
+      // If ref is blank/null it's a website/sale order, otherwise it's POS
+      const ref = (line.ref || '').trim();
+      const isWebsite = ref === '';
       const netRevenue = (line.credit || 0) - (line.debit || 0);
 
       const formattedLine = {
