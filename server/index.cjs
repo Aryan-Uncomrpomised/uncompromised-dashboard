@@ -85,16 +85,6 @@ app.post('/api/auth/register', async (req, res) => {
   }
 });
 
-const checkIsWebsite = (ref, moveName, name) => {
-  const r = String(ref || '').trim().toUpperCase();
-  const m = String(moveName || '').trim().toUpperCase();
-  const n = String(name || '').trim().toUpperCase();
-  
-  return r.startsWith('S0') || r.startsWith('SO') ||
-         m.startsWith('S0') || m.startsWith('SO') ||
-         n.startsWith('S0') || n.startsWith('SO');
-};
-
 // Top-level orders
 app.get('/api/sales', async (req, res) => {
   try {
@@ -136,7 +126,7 @@ app.get('/api/sales', async (req, res) => {
     const partnerMap = {};
 
     orders.forEach(order => {
-      const isWebsite = checkIsWebsite(order.ref, order.move_name, order.name);
+      const isWebsite = (order.ref || order.move_name || '').toUpperCase().startsWith('S');
       const orderId = order.id;
       const orderName = order.name;
       const partner = order.partner_id_id ? [order.partner_id_id, order.partner_id_name] : null;
@@ -204,7 +194,7 @@ app.get('/api/sales-lines', async (req, res) => {
     const posLines = [];
 
     lines.forEach(line => {
-      const isWebsite = checkIsWebsite(line.ref, line.move_name, line.move_id_name);
+      const isWebsite = (line.ref || line.move_name || '').toUpperCase().startsWith('S');
       const netRevenue = (line.credit || 0) - (line.debit || 0);
 
       const formattedLine = {
