@@ -168,12 +168,10 @@ const SalesDashboard = () => {
     }
 
     if (order.partner_id) {
-      const partner = rawData.partnerMap[order.partner_id[0]];
-      const partnerName = partner?.name || order.partner_id[1] || '';
+      const partnerName = order.partner_id[1] || '';
       if (filters.customer !== 'all' && partnerName !== filters.customer) return false;
-      if (filters.city !== 'all' && partner?.city !== filters.city) return false;
-    } else if (filters.customer !== 'all' || filters.city !== 'all') {
-      return false; 
+    } else if (filters.customer !== 'all') {
+      return false;
     }
     return true;
   };
@@ -529,7 +527,9 @@ const SalesDashboard = () => {
           <div className="filter-input-wrapper">
             <select className="filter-select" value={filters.customer} onChange={e => handleFilterChange('customer', e.target.value)}>
               <option value="all">All Customers</option>
-              {filterOptions.customers.map(c => <option key={c} value={c}>{c}</option>)}
+              {filterOptions.customers
+                .filter(c => !customerSearch || c.toLowerCase().includes(customerSearch.toLowerCase()))
+                .map(c => <option key={c} value={c}>{c}</option>)}
             </select>
             <ChevronDown size={16} color="var(--text-muted)" />
           </div>

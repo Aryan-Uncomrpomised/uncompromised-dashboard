@@ -132,7 +132,9 @@ app.get('/api/sales', async (req, res) => {
       const partner = order.partner_id_id ? [order.partner_id_id, order.partner_id_name] : null;
 
       if (order.partner_id_id) {
-        partnerMap[order.partner_id_id] = { name: order.partner_id_name, city: 'Unknown' };
+        // Use composite key so two partners with same ID but different names both appear
+        const mapKey = `${order.partner_id_id}__${order.partner_id_name}`;
+        partnerMap[mapKey] = { name: order.partner_id_name, city: 'Unknown', id: order.partner_id_id };
       }
 
       const netRevenue = (order.credit || 0) - (order.debit || 0);
