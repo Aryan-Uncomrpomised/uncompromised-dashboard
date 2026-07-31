@@ -661,11 +661,8 @@ app.get('/api/stock-upload/template', async (req, res) => {
       fgColor: { argb: 'FFEFEFEF' }
     };
     
-    // Keep rows 2 to 200 blank, prefill B, C, D with 0 and UOM with 'Kg' for convenience
+    // Keep rows 2 to 200 blank, prefill only UOM with 'Kg' for convenience
     for (let i = 2; i <= 200; i++) {
-      ws.getCell(`B${i}`).value = 0;
-      ws.getCell(`C${i}`).value = 0;
-      ws.getCell(`D${i}`).value = 0;
       ws.getCell(`E${i}`).value = 'Kg';
     }
     
