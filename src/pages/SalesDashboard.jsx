@@ -70,7 +70,98 @@ const getMappedFilterCategory = (categoryName, productName) => {
   return getProcessedCategory(productName, categoryName);
 };
 
+const CustomerSearchBox = ({ value, options, onChange }) => {
+  const [query, setQuery] = useState('');
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
 
+  useEffect(() => {
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const filtered = options.filter(c => c.toLowerCase().includes(query.toLowerCase()));
+  const displayLabel = value === 'all' ? '' : value;
+
+  return (
+    <div ref={ref} style={{ position: 'relative' }}>
+      <div style={{ position: 'relative' }}>
+        <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', zIndex: 1 }} />
+        <input
+          type="text"
+          placeholder="Search Customer..."
+          value={open ? query : displayLabel}
+          onFocus={() => { setQuery(''); setOpen(true); }}
+          onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
+          style={{
+            padding: '6px 30px 6px 30px',
+            borderRadius: '8px',
+            background: 'var(--bg-secondary)',
+            border: `1px solid ${open ? 'var(--accent-primary)' : 'var(--border-color)'}`,
+            color: 'var(--text-primary)',
+            fontSize: '13px',
+            outline: 'none',
+            width: '200px'
+          }}
+        />
+        {value !== 'all' && (
+          <span
+            onClick={() => { onChange('all'); setQuery(''); setOpen(false); }}
+            style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer', color: 'var(--text-muted)', fontSize: '16px', lineHeight: 1 }}
+            title="Clear"
+          >×</span>
+        )}
+      </div>
+
+      {open && (
+        <div style={{
+          position: 'absolute',
+          top: 'calc(100% + 4px)',
+          left: 0,
+          zIndex: 9999,
+          background: 'var(--bg-secondary)',
+          border: '1px solid var(--border-color)',
+          borderRadius: '10px',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.25)',
+          width: '240px',
+          maxHeight: '220px',
+          overflowY: 'auto',
+          padding: '6px'
+        }}>
+          <div
+            onClick={() => { onChange('all'); setQuery(''); setOpen(false); }}
+            style={{
+              padding: '8px 12px', borderRadius: '6px', fontSize: '13px', cursor: 'pointer',
+              background: value === 'all' ? 'rgba(59,130,246,0.15)' : 'transparent',
+              color: value === 'all' ? '#3b82f6' : 'var(--text-primary)',
+              fontWeight: value === 'all' ? 600 : 400
+            }}
+          >
+            All Customers
+          </div>
+          {filtered.length === 0 && (
+            <div style={{ padding: '10px 12px', fontSize: '12px', color: 'var(--text-muted)' }}>No match for "{query}"</div>
+          )}
+          {filtered.map((c, i) => (
+            <div
+              key={i}
+              onClick={() => { onChange(c); setQuery(''); setOpen(false); }}
+              title={c}
+              style={{
+                padding: '8px 12px', borderRadius: '6px', fontSize: '13px', cursor: 'pointer',
+                whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                background: value === c ? 'rgba(59,130,246,0.15)' : 'transparent',
+                color: value === c ? '#3b82f6' : 'var(--text-primary)',
+                fontWeight: value === c ? 600 : 400
+              }}
+            >{c}</div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const SalesDashboard = () => {
   const { filters, setFilters, filterOptions, setFilterOptions } = useFilters();
@@ -509,30 +600,12 @@ const SalesDashboard = () => {
         </div>
 
         <div className="filter-group">
-          <label className="filter-label">Search Customer</label>
-          <div className="filter-input-wrapper" style={{ position: 'relative' }}>
-            <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-            <input 
-              type="text" 
-              placeholder="Search Customer..." 
-              value={customerSearch}
-              onChange={(e) => setCustomerSearch(e.target.value)}
-              style={{ padding: '6px 12px 6px 30px', borderRadius: '8px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '13px', outline: 'none', width: '170px' }}
-            />
-          </div>
-        </div>
-
-        <div className="filter-group">
           <label className="filter-label">Customer</label>
-          <div className="filter-input-wrapper">
-            <select className="filter-select" value={filters.customer} onChange={e => handleFilterChange('customer', e.target.value)}>
-              <option value="all">All Customers</option>
-              {filterOptions.customers
-                .filter(c => !customerSearch || c.toLowerCase().includes(customerSearch.toLowerCase()))
-                .map(c => <option key={c} value={c}>{c}</option>)}
-            </select>
-            <ChevronDown size={16} color="var(--text-muted)" />
-          </div>
+          <CustomerSearchBox
+            value={filters.customer}
+            options={filterOptions.customers}
+            onChange={val => handleFilterChange('customer', val)}
+          />
         </div>
       </div>
 
