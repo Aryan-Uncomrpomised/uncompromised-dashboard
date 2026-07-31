@@ -99,9 +99,15 @@ const SpoilageDashboard = () => {
   const farmSpoilageData = useMemo(() => {
     const farmMap = {};
     baseData.lines.forEach(line => {
-      const farm = line.farm || 'Decay';
+      const partner = line.partner || 'Unknown';
+      let displayName = 'Decay';
+      if (partner === 'Beyond Zero Farms LLP MSME') {
+        displayName = line.farm || 'Beyond Zero Farm (Unknown)';
+      } else {
+        displayName = partner.replace('Spoilage ', '').trim();
+      }
       const qty = line.revised_qty || 0;
-      farmMap[farm] = (farmMap[farm] || 0) + qty;
+      farmMap[displayName] = (farmMap[displayName] || 0) + qty;
     });
 
     return Object.keys(farmMap)
