@@ -95,7 +95,23 @@ const SpoilageDashboard = () => {
     };
   }, [rawData, filters, globalCategory, selectedFarm, selectedCrop, cropSearch]);
 
-  // 2. Top Stats
+  // 2. Top Stats & Farm Spoilage Data
+  const farmSpoilageData = useMemo(() => {
+    const farmMap = {};
+    baseData.lines.forEach(line => {
+      const farm = line.farm || 'N/A / Direct';
+      const qty = line.revised_qty || 0;
+      farmMap[farm] = (farmMap[farm] || 0) + qty;
+    });
+
+    return Object.keys(farmMap)
+      .map(farm => ({
+        farmName: farm,
+        spoilage: Number(farmMap[farm].toFixed(2))
+      }))
+      .sort((a, b) => b.spoilage - a.spoilage);
+  }, [baseData]);
+
   const topStats = useMemo(() => {
     let totalSpoilage = 0;
     const cropMap = new Set();
@@ -121,8 +137,13 @@ const SpoilageDashboard = () => {
       }
     }
 
-    return { totalSpoilage, uniqueCrops: cropMap.size, highestCategory };
-  }, [baseData]);
+    let highestFarm = 'None';
+    if (farmSpoilageData.length > 0 && farmSpoilageData[0].spoilage > 0) {
+      highestFarm = farmSpoilageData[0].farmName;
+    }
+
+    return { totalSpoilage, uniqueCrops: cropMap.size, highestCategory, highestFarm };
+  }, [baseData, farmSpoilageData]);
 
   // 3. Spoiled Crops breakdown (filtered by topCropsCategory)
   const topCropsData = useMemo(() => {
@@ -313,7 +334,7 @@ const SpoilageDashboard = () => {
 
       {/* Top Stats */}
       <div className="dashboard-grid">
-        <div className="card stat-card col-span-4">
+        <div className="card stat-card col-span-3">
           <div className="stat-icon" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' }}>
             <Trash2 size={24} />
           </div>
@@ -322,7 +343,7 @@ const SpoilageDashboard = () => {
             <h3 className="stat-value" style={{ color: '#ef4444' }}>{formatNumber(topStats.totalSpoilage)}</h3>
           </div>
         </div>
-        <div className="card stat-card col-span-4">
+        <div className="card stat-card col-span-3">
           <div className="stat-icon" style={{ backgroundColor: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b' }}>
             <Package size={24} />
           </div>
@@ -331,7 +352,7 @@ const SpoilageDashboard = () => {
             <h3 className="stat-value">{topStats.uniqueCrops}</h3>
           </div>
         </div>
-        <div className="card stat-card col-span-4">
+        <div className="card stat-card col-span-3">
           <div className="stat-icon" style={{ backgroundColor: 'rgba(139, 92, 246, 0.1)', color: '#8b5cf6' }}>
             <AlertTriangle size={24} />
           </div>
@@ -339,6 +360,17 @@ const SpoilageDashboard = () => {
             <p className="stat-title">Top Category</p>
             <h3 className="stat-value" style={{ fontSize: '1.25rem', display: 'flex', alignItems: 'center' }}>
               {topStats.highestCategory.replace('Spoilage ', '')}
+            </h3>
+          </div>
+        </div>
+        <div className="card stat-card col-span-3">
+          <div className="stat-icon" style={{ backgroundColor: 'rgba(16, 185, 129, 0.1)', color: '#10b981' }}>
+            <AlertTriangle size={24} />
+          </div>
+          <div className="stat-content">
+            <p className="stat-title">Top Spoiled Farm</p>
+            <h3 className="stat-value" style={{ fontSize: '1.15rem', display: 'flex', alignItems: 'center', fontWeight: 600, color: '#10b981' }} title={topStats.highestFarm}>
+              {topStats.highestFarm.replace('Unknown/', '')}
             </h3>
           </div>
         </div>
@@ -447,6 +479,37 @@ const SpoilageDashboard = () => {
               </div>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* Farm-wise Spoilage Distribution */}
+      <div className="card">
+        <div className="card-header">
+          <span className="card-title flex items-center gap-2"><Package size={18} /> Farm-wise Spoilage Distribution (Kg)</span>
+        </div>
+        <div style={{ height: '350px', marginTop: '16px' }}>
+          {farmSpoilageData.length > 0 ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={farmSpoilageData} layout="vertical" margin={{ top: 10, right: 30, left: 40, bottom: 10 }}>
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--border-color)" />
+                <XAxis type="number" stroke="var(--text-muted)" tick={{fill: 'var(--text-muted)'}} />
+                <YAxis dataKey="farmName" type="category" stroke="var(--text-muted)" tick={{fill: 'var(--text-muted)'}} width={150} style={{ fontSize: '12px' }} />
+                <RechartsTooltip 
+                  contentStyle={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)', borderRadius: '8px' }}
+                  formatter={(val) => [formatNumber(val) + ' Kg', 'Spoilage']}
+                />
+                <Bar dataKey="spoilage" fill="#ef4444" radius={[0, 4, 4, 0]} name="Spoilage (Kg)">
+                  {farmSpoilageData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex items-center justify-center h-full text-[var(--text-secondary)]">
+              No farm-wise spoilage data available.
+            </div>
+          )}
         </div>
       </div>
 
