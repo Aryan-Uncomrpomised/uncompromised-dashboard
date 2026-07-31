@@ -73,6 +73,7 @@ const getMappedFilterCategory = (categoryName, productName) => {
 const CustomerSearchableSelect = ({ value, options, onChange }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [hoveredIdx, setHoveredIdx] = useState(null);
   const containerRef = useRef(null);
 
   useEffect(() => {
@@ -106,7 +107,8 @@ const CustomerSearchableSelect = ({ value, options, onChange }) => {
           color: 'var(--text-primary)',
           fontSize: '13px',
           cursor: 'pointer',
-          userSelect: 'none'
+          userSelect: 'none',
+          minHeight: '34px'
         }}
       >
         <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '170px' }} title={displayLabel}>
@@ -148,53 +150,72 @@ const CustomerSearchableSelect = ({ value, options, onChange }) => {
                 border: '1px solid var(--border-color)',
                 color: 'var(--text-primary)',
                 fontSize: '12px',
-                outline: 'none'
+                outline: 'none',
+                lineHeight: '1.4'
               }}
             />
           </div>
 
-          <div style={{ maxHeight: '200px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+          <div style={{ maxHeight: '200px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '4px' }}>
             <div
               onClick={() => {
                 onChange('all');
                 setIsOpen(false);
               }}
               style={{
-                padding: '8px 10px',
+                padding: '8px 12px',
                 borderRadius: '6px',
                 fontSize: '13px',
+                lineHeight: '1.4',
+                minHeight: '32px',
+                display: 'flex',
+                alignItems: 'center',
                 cursor: 'pointer',
-                background: value === 'all' ? 'rgba(59, 130, 246, 0.15)' : 'transparent',
+                background: value === 'all' ? 'rgba(59, 130, 246, 0.15)' : (hoveredIdx === -1 ? 'rgba(255, 255, 255, 0.05)' : 'transparent'),
                 color: value === 'all' ? '#3b82f6' : 'var(--text-primary)',
                 fontWeight: value === 'all' ? 600 : 400
               }}
+              onMouseEnter={() => setHoveredIdx(-1)}
+              onMouseLeave={() => setHoveredIdx(null)}
             >
               All Customers ({options.length})
             </div>
-            {filteredOptions.map((opt, idx) => (
-              <div
-                key={idx}
-                onClick={() => {
-                  onChange(opt);
-                  setIsOpen(false);
-                }}
-                style={{
-                  padding: '8px 10px',
-                  borderRadius: '6px',
-                  fontSize: '13px',
-                  cursor: 'pointer',
-                  background: value === opt ? 'rgba(59, 130, 246, 0.15)' : 'transparent',
-                  color: value === opt ? '#3b82f6' : 'var(--text-primary)',
-                  fontWeight: value === opt ? 600 : 400,
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis'
-                }}
-                title={opt}
-              >
-                {opt}
-              </div>
-            ))}
+            {filteredOptions.map((opt, idx) => {
+              const isSelected = value === opt;
+              const isHovered = hoveredIdx === idx;
+              return (
+                <div
+                  key={idx}
+                  onClick={() => {
+                    onChange(opt);
+                    setIsOpen(false);
+                  }}
+                  style={{
+                    padding: '8px 12px',
+                    borderRadius: '6px',
+                    fontSize: '13px',
+                    lineHeight: '1.4',
+                    minHeight: '32px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    cursor: 'pointer',
+                    background: isSelected ? 'rgba(59, 130, 246, 0.15)' : (isHovered ? 'rgba(255, 255, 255, 0.05)' : 'transparent'),
+                    color: isSelected ? '#3b82f6' : 'var(--text-primary)',
+                    fontWeight: isSelected ? 600 : 400,
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis'
+                  }}
+                  onMouseEnter={() => setHoveredIdx(idx)}
+                  onMouseLeave={() => setHoveredIdx(null)}
+                  title={opt}
+                >
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {opt}
+                  </span>
+                </div>
+              );
+            })}
             {filteredOptions.length === 0 && (
               <div style={{ padding: '12px 8px', fontSize: '12px', color: 'var(--text-muted)', textAlign: 'center' }}>
                 No customer matching "{searchQuery}"
