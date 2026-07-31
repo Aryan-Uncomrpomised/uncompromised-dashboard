@@ -647,11 +647,11 @@ app.get('/api/stock-upload/template', async (req, res) => {
     });
     
     // Set headers
-    ws.getCell('A1').value = 'Product';
+    ws.getCell('A1').value = 'Crop';
     ws.getCell('B1').value = 'TFS/Stock';
     ws.getCell('C1').value = 'SYGR/Stock';
     ws.getCell('D1').value = 'SYGC/Stock';
-    ws.getCell('E1').value = 'Uom';
+    ws.getCell('E1').value = 'UOM';
     
     // Style headers
     ws.getRow(1).font = { bold: true };
