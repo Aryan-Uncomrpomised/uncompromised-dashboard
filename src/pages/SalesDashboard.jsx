@@ -70,163 +70,7 @@ const getMappedFilterCategory = (categoryName, productName) => {
   return getProcessedCategory(productName, categoryName);
 };
 
-const CustomerSearchableSelect = ({ value, options, onChange }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [hoveredIdx, setHoveredIdx] = useState(null);
-  const containerRef = useRef(null);
 
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (containerRef.current && !containerRef.current.contains(e.target)) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  const filteredOptions = options.filter(opt =>
-    opt.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const displayLabel = value === 'all' ? 'All Customers' : value;
-
-  return (
-    <div ref={containerRef} style={{ position: 'relative', width: '220px' }}>
-      <div 
-        onClick={() => setIsOpen(!isOpen)}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '6px 12px',
-          borderRadius: '8px',
-          background: 'var(--bg-secondary)',
-          border: '1px solid var(--border-color)',
-          color: 'var(--text-primary)',
-          fontSize: '13px',
-          cursor: 'pointer',
-          userSelect: 'none',
-          minHeight: '34px'
-        }}
-      >
-        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '170px' }} title={displayLabel}>
-          {displayLabel}
-        </span>
-        <ChevronDown size={16} color="var(--text-muted)" style={{ transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
-      </div>
-
-      {isOpen && (
-        <div style={{
-          position: 'absolute',
-          top: 'calc(100% + 4px)',
-          left: 0,
-          right: 0,
-          zIndex: 9999,
-          background: 'var(--bg-secondary)',
-          border: '1px solid var(--border-color)',
-          borderRadius: '10px',
-          boxShadow: '0 10px 25px rgba(0,0,0,0.3)',
-          padding: '8px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '6px',
-          minWidth: '240px'
-        }}>
-          <div style={{ position: 'relative' }}>
-            <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-            <input
-              type="text"
-              placeholder="Type to search customer..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              autoFocus
-              style={{
-                width: '100%',
-                padding: '6px 10px 6px 30px',
-                borderRadius: '6px',
-                background: 'var(--bg-primary)',
-                border: '1px solid var(--border-color)',
-                color: 'var(--text-primary)',
-                fontSize: '12px',
-                outline: 'none',
-                lineHeight: '1.4'
-              }}
-            />
-          </div>
-
-          <div style={{ maxHeight: '200px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            <div
-              onClick={() => {
-                onChange('all');
-                setIsOpen(false);
-              }}
-              style={{
-                padding: '8px 12px',
-                borderRadius: '6px',
-                fontSize: '13px',
-                lineHeight: '1.4',
-                minHeight: '32px',
-                display: 'flex',
-                alignItems: 'center',
-                cursor: 'pointer',
-                background: value === 'all' ? 'rgba(59, 130, 246, 0.15)' : (hoveredIdx === -1 ? 'rgba(255, 255, 255, 0.05)' : 'transparent'),
-                color: value === 'all' ? '#3b82f6' : 'var(--text-primary)',
-                fontWeight: value === 'all' ? 600 : 400
-              }}
-              onMouseEnter={() => setHoveredIdx(-1)}
-              onMouseLeave={() => setHoveredIdx(null)}
-            >
-              All Customers ({options.length})
-            </div>
-            {filteredOptions.map((opt, idx) => {
-              const isSelected = value === opt;
-              const isHovered = hoveredIdx === idx;
-              return (
-                <div
-                  key={idx}
-                  onClick={() => {
-                    onChange(opt);
-                    setIsOpen(false);
-                  }}
-                  style={{
-                    padding: '8px 12px',
-                    borderRadius: '6px',
-                    fontSize: '13px',
-                    lineHeight: '1.4',
-                    minHeight: '32px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    cursor: 'pointer',
-                    background: isSelected ? 'rgba(59, 130, 246, 0.15)' : (isHovered ? 'rgba(255, 255, 255, 0.05)' : 'transparent'),
-                    color: isSelected ? '#3b82f6' : 'var(--text-primary)',
-                    fontWeight: isSelected ? 600 : 400,
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis'
-                  }}
-                  onMouseEnter={() => setHoveredIdx(idx)}
-                  onMouseLeave={() => setHoveredIdx(null)}
-                  title={opt}
-                >
-                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {opt}
-                  </span>
-                </div>
-              );
-            })}
-            {filteredOptions.length === 0 && (
-              <div style={{ padding: '12px 8px', fontSize: '12px', color: 'var(--text-muted)', textAlign: 'center' }}>
-                No customer matching "{searchQuery}"
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
 
 const SalesDashboard = () => {
   const { filters, setFilters, filterOptions, setFilterOptions } = useFilters();
@@ -667,13 +511,27 @@ const SalesDashboard = () => {
         </div>
 
         <div className="filter-group">
+          <label className="filter-label">Search Customer</label>
+          <div className="filter-input-wrapper" style={{ position: 'relative' }}>
+            <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+            <input 
+              type="text" 
+              placeholder="Search Customer..." 
+              value={customerSearch}
+              onChange={(e) => setCustomerSearch(e.target.value)}
+              style={{ padding: '6px 12px 6px 30px', borderRadius: '8px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '13px', outline: 'none', width: '170px' }}
+            />
+          </div>
+        </div>
+
+        <div className="filter-group">
           <label className="filter-label">Customer</label>
           <div className="filter-input-wrapper">
-            <CustomerSearchableSelect 
-              value={filters.customer}
-              options={filterOptions.customers}
-              onChange={val => handleFilterChange('customer', val)}
-            />
+            <select className="filter-select" value={filters.customer} onChange={e => handleFilterChange('customer', e.target.value)}>
+              <option value="all">All Customers</option>
+              {filterOptions.customers.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+            <ChevronDown size={16} color="var(--text-muted)" />
           </div>
         </div>
       </div>
