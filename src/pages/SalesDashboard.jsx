@@ -326,7 +326,7 @@ const SalesDashboard = () => {
     if (order.partner_id) {
       const partner = rawData.partnerMap[order.partner_id[0]];
       const partnerName = partner?.name || order.partner_id[1] || '';
-      if (filters.customer !== 'all' && partnerName.toLowerCase() !== filters.customer.toLowerCase()) return false;
+      if (filters.customer !== 'all' && partnerName !== filters.customer) return false;
       if (filters.city !== 'all' && partner?.city !== filters.city) return false;
     } else if (filters.customer !== 'all' || filters.city !== 'all') {
       return false; 
