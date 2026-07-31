@@ -99,7 +99,7 @@ const SpoilageDashboard = () => {
   const farmSpoilageData = useMemo(() => {
     const farmMap = {};
     baseData.lines.forEach(line => {
-      const farm = line.farm || 'N/A / Direct';
+      const farm = line.farm || 'Decay';
       const qty = line.revised_qty || 0;
       farmMap[farm] = (farmMap[farm] || 0) + qty;
     });
