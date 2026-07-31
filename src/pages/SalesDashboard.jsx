@@ -83,6 +83,7 @@ const SalesDashboard = () => {
 
   const [error, setError] = useState(null);
   const [productSearch, setProductSearch] = useState('');
+  const [customerSearch, setCustomerSearch] = useState('');
 
   useEffect(() => {
     let salesData = null;
@@ -166,9 +167,11 @@ const SalesDashboard = () => {
 
     if (order.partner_id) {
       const partner = rawData.partnerMap[order.partner_id[0]];
-      if (filters.customer !== 'all' && partner?.name !== filters.customer) return false;
+      const partnerName = partner?.name || order.partner_id[1] || '';
+      if (filters.customer !== 'all' && partnerName !== filters.customer) return false;
+      if (customerSearch && !partnerName.toLowerCase().includes(customerSearch.toLowerCase())) return false;
       if (filters.city !== 'all' && partner?.city !== filters.city) return false;
-    } else if (filters.customer !== 'all' || filters.city !== 'all') {
+    } else if (filters.customer !== 'all' || filters.city !== 'all' || customerSearch) {
       return false; 
     }
     return true;
@@ -501,7 +504,21 @@ const SalesDashboard = () => {
               placeholder="Search Crop or Product..." 
               value={productSearch}
               onChange={(e) => setProductSearch(e.target.value)}
-              style={{ padding: '6px 12px 6px 30px', borderRadius: '8px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '13px', outline: 'none', width: '180px' }}
+              style={{ padding: '6px 12px 6px 30px', borderRadius: '8px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '13px', outline: 'none', width: '170px' }}
+            />
+          </div>
+        </div>
+
+        <div className="filter-group">
+          <label className="filter-label">Search Customer</label>
+          <div className="filter-input-wrapper" style={{ position: 'relative' }}>
+            <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+            <input 
+              type="text" 
+              placeholder="Search Customer Name..." 
+              value={customerSearch}
+              onChange={(e) => setCustomerSearch(e.target.value)}
+              style={{ padding: '6px 12px 6px 30px', borderRadius: '8px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '13px', outline: 'none', width: '170px' }}
             />
           </div>
         </div>
@@ -511,7 +528,9 @@ const SalesDashboard = () => {
           <div className="filter-input-wrapper">
             <select className="filter-select" value={filters.customer} onChange={e => handleFilterChange('customer', e.target.value)}>
               <option value="all">All Customers</option>
-              {filterOptions.customers.map(c => <option key={c} value={c}>{c}</option>)}
+              {filterOptions.customers
+                .filter(c => !customerSearch || c.toLowerCase().includes(customerSearch.toLowerCase()))
+                .map(c => <option key={c} value={c}>{c}</option>)}
             </select>
             <ChevronDown size={16} color="var(--text-muted)" />
           </div>
