@@ -695,11 +695,11 @@ app.get('/api/stock-upload/template', async (req, res) => {
       formulae: ['"Kg,L"']
     });
     
+    const buffer = await wb.xlsx.writeBuffer();
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.setHeader('Content-Disposition', 'attachment; filename=daily_stock_template.xlsx');
-    
-    await wb.xlsx.write(res);
-    res.end();
+    res.setHeader('Content-Length', buffer.length);
+    res.send(buffer);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
