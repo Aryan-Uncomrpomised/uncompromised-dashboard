@@ -23,7 +23,6 @@ const OperationsDashboard = () => {
   const [selectedFarm, setSelectedFarm] = useState('All Farms');
   const [expandedCrop, setExpandedCrop] = useState(null);
   const [activeBreakdownCrop, setActiveBreakdownCrop] = useState(null);
-  const [lastHarvestsMap, setLastHarvestsMap] = useState({});
 
   useEffect(() => {
     let salesLoaded = false;
@@ -32,10 +31,9 @@ const OperationsDashboard = () => {
     let inventoryLoaded = false;
     let quantsLoaded = false;
     let manualUploadsLoaded = false;
-    let lastHarvestsLoaded = false;
 
     const checkComplete = () => {
-      if (salesLoaded && produceLoaded && spoilageLoaded && inventoryLoaded && quantsLoaded && manualUploadsLoaded && lastHarvestsLoaded) {
+      if (salesLoaded && produceLoaded && spoilageLoaded && inventoryLoaded && quantsLoaded && manualUploadsLoaded) {
         setLoading(false);
       }
     };
@@ -100,17 +98,6 @@ const OperationsDashboard = () => {
     }, (err) => {
       console.error('Error fetching manual uploads:', err);
       manualUploadsLoaded = true;
-      checkComplete();
-    });
-
-    fetchWithCache('/api/produce/last-harvests', (lhData) => {
-      setLastHarvestsMap(lhData.lastHarvests || {});
-      lastHarvestsLoaded = true;
-      checkComplete();
-    }, (err) => {
-      console.error('Error fetching last harvests:', err);
-      setLastHarvestsMap({});
-      lastHarvestsLoaded = true;
       checkComplete();
     });
   }, [filters.startDate, filters.endDate]);
@@ -299,13 +286,8 @@ const OperationsDashboard = () => {
         const uI = hasUploadedExcel 
           ? crop.harvest - (crop.sales + crop.spoilage + (crop.inventory + crop.manualStock))
           : 0;
-        const lh = lastHarvestsMap[crop.product] || null;
         return {
           ...crop,
-          lastHarvestDate: lh ? lh.date : '',
-          lastHarvestQty: lh ? lh.qty : 0,
-          lastHarvestBill: lh ? lh.bill_name : '',
-          lastHarvestFarm: lh ? lh.farm : '',
           yieldPercent: crop.harvest > 0 ? ((crop.sales / crop.harvest) * 100) : 0,
           unaccountedE: uE,
           unaccountedI: uI
@@ -354,7 +336,7 @@ const OperationsDashboard = () => {
       matrixData,
       timelineData
     };
-  }, [data, filters, selectedFarm, lastHarvestsMap]);
+  }, [data, filters, selectedFarm]);
   const [sortField, setSortField] = useState('unaccountedE');
   const [sortDirection, setSortDirection] = useState('desc');
 
@@ -622,7 +604,6 @@ const OperationsDashboard = () => {
               <tr>
                 {renderSortHeader('Crop', 'product', 'left')}
                 {renderSortHeader('Harvest (Kg)', 'harvest', 'right', '#10b981')}
-                {renderSortHeader('Last Harvest', 'lastHarvestDate', 'right', '#06b6d4')}
                 {renderSortHeader('Sales (Kg)', 'sales', 'right', '#3b82f6')}
                 {renderSortHeader('Spoilage (Kg)', 'spoilage', 'right', '#ef4444')}
                 {renderSortHeader('Inventory (On Hand)', 'inventory', 'right', '#8b5cf6')}
@@ -633,7 +614,6 @@ const OperationsDashboard = () => {
             <tbody>
               {sortedMatrix.map((row, idx) => {
                 const isExpanded = expandedCrop === row.product;
-                const lastHarvest = lastHarvestsMap[row.product];
 
                 return (
                   <React.Fragment key={idx}>
@@ -646,16 +626,6 @@ const OperationsDashboard = () => {
                         {row.product}
                       </td>
                       <td style={{textAlign: 'right', fontWeight: 500, color: '#10b981'}}>{formatNumber(row.harvest)}</td>
-                      <td style={{textAlign: 'right', fontSize: '13px', color: 'var(--text-secondary)'}}>
-                        {row.lastHarvestQty > 0 ? (
-                          <span>
-                            <strong style={{ color: '#06b6d4' }}>{formatNumber(row.lastHarvestQty)}</strong> Kg
-                            <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginLeft: '4px' }}>({row.lastHarvestDate})</span>
-                          </span>
-                        ) : (
-                          <span style={{ color: 'var(--text-muted)' }}>-</span>
-                        )}
-                      </td>
                       <td style={{textAlign: 'right', fontWeight: 500, color: '#3b82f6'}}>{formatNumber(row.sales)}</td>
                       <td style={{textAlign: 'right', fontWeight: 500, color: '#ef4444'}}>{formatNumber(row.spoilage)}</td>
                       <td 
@@ -677,7 +647,7 @@ const OperationsDashboard = () => {
                     </tr>
                     {isExpanded && (
                       <tr>
-                        <td colSpan="8" style={{ padding: '12px 24px', backgroundColor: 'rgba(0,0,0,0.1)', borderLeft: '3px solid var(--color-primary)' }}>
+                        <td colSpan="7" style={{ padding: '12px 24px', backgroundColor: 'rgba(0,0,0,0.1)', borderLeft: '3px solid var(--color-primary)' }}>
                           <div style={{ padding: '12px 16px', borderRadius: '8px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '16px' }}>
                             
                             {/* Detailed Sales Orders Section */}
@@ -803,13 +773,12 @@ const OperationsDashboard = () => {
               })}
               {filteredMatrix.length === 0 ? (
                 <tr>
-                  <td colSpan="8" style={{textAlign: 'center', padding: '32px', color: 'var(--text-muted)'}}>No data available.</td>
+                  <td colSpan="7" style={{textAlign: 'center', padding: '32px', color: 'var(--text-muted)'}}>No data available.</td>
                 </tr>
               ) : (
                 <tr style={{ fontWeight: 700, backgroundColor: 'rgba(255,255,255,0.03)', borderTop: '2px solid var(--border-color)' }}>
                   <td style={{ textAlign: 'left', padding: '12px 8px' }}>Total ({filteredMatrix.length} Crops)</td>
                   <td style={{ textAlign: 'right', color: '#10b981', padding: '12px 8px' }}>{formatNumber(totalHarvestedSum)}</td>
-                  <td style={{ textAlign: 'right', color: 'var(--text-muted)', padding: '12px 8px', fontSize: '13px', fontWeight: 'normal' }}>-</td>
                   <td style={{ textAlign: 'right', color: '#3b82f6', padding: '12px 8px' }}>{formatNumber(totalSalesSum)}</td>
                   <td style={{ textAlign: 'right', color: '#ef4444', padding: '12px 8px' }}>{formatNumber(totalSpoilageSum)}</td>
                   <td style={{ textAlign: 'right', color: '#8b5cf6', padding: '12px 8px' }}>{formatNumber(totalInventorySum)}</td>
