@@ -4,6 +4,7 @@
 
 [build.environment]
   NODE_VERSION = "20"
+  BINARY_CONTENT_TYPES = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/octet-stream,application/zip"
 
 [functions]
   node_bundler = "esbuild"
