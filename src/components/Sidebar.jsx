@@ -6,6 +6,7 @@ import Logo from './Logo';
 const Sidebar = () => {
   const { logout, user } = useAuth();
   const isOperator = user?.role === 'operator';
+  const isFarmTeam = user?.role === 'farm_team';
 
   return (
     <aside className="sidebar" style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
@@ -15,7 +16,19 @@ const Sidebar = () => {
       </div>
       
       <nav className="sidebar-nav" style={{ flex: 1 }}>
-        {!isOperator && (
+        {isFarmTeam && (
+          <>
+            <NavLink to="/spoilage" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
+              <Trash2 size={18} />
+              Spoilage
+            </NavLink>
+            <NavLink to="/produce" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
+              <Sprout size={18} />
+              Produce
+            </NavLink>
+          </>
+        )}
+        {!isOperator && !isFarmTeam && (
           <>
             <NavLink to="/operations" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
               <Activity size={18} />
@@ -43,10 +56,12 @@ const Sidebar = () => {
             </NavLink>
           </>
         )}
-        <NavLink to="/daily-stock" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
-          <Package size={18} />
-          Daily Stock
-        </NavLink>
+        {!isFarmTeam && (
+          <NavLink to="/daily-stock" className={({isActive}) => `nav-item ${isActive ? 'active' : ''}`}>
+            <Package size={18} />
+            Daily Stock
+          </NavLink>
+        )}
       </nav>
 
       <div style={{ padding: '16px', marginTop: 'auto', borderTop: 'var(--glass-border)' }}>

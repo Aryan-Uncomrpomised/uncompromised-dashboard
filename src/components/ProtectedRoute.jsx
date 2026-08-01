@@ -17,6 +17,14 @@ const ProtectedRoute = () => {
     }
   }
 
+  // Restrict Farm Team to only Spoilage and Produce
+  if (user?.role === 'farm_team') {
+    const allowedPaths = ['/spoilage', '/produce'];
+    if (!allowedPaths.includes(location.pathname)) {
+      return <Navigate to="/spoilage" replace />;
+    }
+  }
+
   return <Outlet />;
 };
 

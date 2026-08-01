@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Logo from '../components/Logo';
-import { Sun, Moon, Eye, EyeOff } from 'lucide-react';
+import { Sun, Moon, Eye, EyeOff, Leaf } from 'lucide-react';
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('admin'); // 'admin' or 'operator'
+  const [role, setRole] = useState('admin'); // 'admin', 'operator', or 'farm_team'
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const { login, register, logout } = useAuth();
@@ -38,11 +38,11 @@ const Login = () => {
       if (result.success) {
         // Enforce role selection match
         if (result.user?.role !== role) {
-          setError(`Invalid credentials. This account is not registered as an ${role === 'admin' ? 'Admin' : 'Operator'}.`);
-          logout(); // Clear session
+          const roleLabel = role === 'admin' ? 'Admin' : 'Operator';
+          setError(`Invalid credentials. This account is not registered as a ${roleLabel}.`);
+          logout();
           return;
         }
-        
         if (result.user?.role === 'operator') {
           navigate('/daily-stock');
         } else {
@@ -85,22 +85,28 @@ const Login = () => {
           </p>
         </div>
 
-        {/* Tab Selection Section */}
-        <div style={{ display: 'flex', background: 'var(--bg-secondary)', padding: '4px', borderRadius: '12px', marginBottom: '24px', border: '1px solid var(--border-color)' }}>
-          <button 
+        {/* Role Tab Selection */}
+        <div style={{ display: 'flex', background: 'var(--bg-secondary)', padding: '4px', borderRadius: '12px', marginBottom: '24px', border: '1px solid var(--border-color)', gap: '2px' }}>
+          <button
             type="button"
             onClick={() => { setRole('admin'); setError(''); }}
-            style={{ flex: 1, padding: '8px 16px', borderRadius: '8px', border: 'none', background: role === 'admin' ? 'var(--accent-primary)' : 'transparent', color: role === 'admin' ? 'white' : 'var(--text-secondary)', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s', fontSize: '13px' }}
+            style={{ flex: 1, padding: '8px 12px', borderRadius: '8px', border: 'none', background: role === 'admin' ? 'var(--accent-primary)' : 'transparent', color: role === 'admin' ? 'white' : 'var(--text-secondary)', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s', fontSize: '12px' }}
           >
             Admin
           </button>
-          <button 
+          <button
             type="button"
             onClick={() => { setRole('operator'); setError(''); }}
-            style={{ flex: 1, padding: '8px 16px', borderRadius: '8px', border: 'none', background: role === 'operator' ? 'var(--accent-primary)' : 'transparent', color: role === 'operator' ? 'white' : 'var(--text-secondary)', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s', fontSize: '13px' }}
+            style={{ flex: 1, padding: '8px 12px', borderRadius: '8px', border: 'none', background: role === 'operator' ? 'var(--accent-primary)' : 'transparent', color: role === 'operator' ? 'white' : 'var(--text-secondary)', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s', fontSize: '12px' }}
           >
             Operator
           </button>
+          <Link
+            to="/farm-login"
+            style={{ flex: 1, padding: '8px 12px', borderRadius: '8px', border: 'none', background: 'rgba(5,150,105,0.15)', color: '#10b981', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s', fontSize: '12px', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
+          >
+            <Leaf size={12} /> Farm
+          </Link>
         </div>
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>

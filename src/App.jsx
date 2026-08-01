@@ -7,6 +7,7 @@ import { FilterProvider } from './context/FilterContext';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
+import FarmLogin from './pages/FarmLogin';
 
 import SpoilageDashboard from './pages/SpoilageDashboard';
 import ProduceDashboard from './pages/ProduceDashboard';
@@ -20,6 +21,9 @@ const IndexRoute = () => {
   if (user?.role === 'operator') {
     return <Navigate to="/daily-stock" replace />;
   }
+  if (user?.role === 'farm_team') {
+    return <Navigate to="/spoilage" replace />;
+  }
   return <Navigate to="/operations" replace />;
 };
 
@@ -30,6 +34,7 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/farm-login" element={<FarmLogin />} />
             
             <Route element={<ProtectedRoute />}>
               <Route path="/" element={<DashboardLayout />}>
